@@ -93,65 +93,14 @@
 
 ---
 
-## Module 5: core/codex (LARGEST MODULE)
+## Modules 5-7: DEFERRED TO LATER PHASE
 
-- [ ] Read codex-rs/core/src/codex.rs thoroughly
-- [ ] Understand event loop architecture
-- [ ] Understand spawn process
-- [ ] Create codex-ts/src/core/codex.ts
-- [ ] Implement Codex class
-- [ ] Implement spawn method
-- [ ] Implement event loop (async generator or EventEmitter)
-- [ ] Implement submit method
-- [ ] Implement next_event method
-- [ ] Implement conversation initialization
-- [ ] Implement SessionConfigured event generation
-- [ ] Create codex-ts/src/core/codex.test.ts
-- [ ] Write tests for spawn (min 25 tests)
-- [ ] Write tests for event loop
-- [ ] Write tests for submit/next_event
-- [ ] Write integration tests
-- [ ] Verify all tests pass
-- [ ] Update CHECKLIST.md
-- [ ] Update STATUS.md
+**BLOCKED** - These modules require dependencies from Phase 4 & 5:
+- Module 5: core/codex (needs `core/client` from Phase 4)
+- Module 6: core/codex-conversation (needs Module 5)
+- Module 7: core/conversation-manager (needs `AuthManager` from Phase 5)
 
----
-
-## Module 6: core/codex-conversation
-
-- [ ] Read codex-rs/core/src/codex_conversation.rs
-- [ ] Create codex-ts/src/core/codex-conversation.ts
-- [ ] Implement CodexConversation class
-- [ ] Implement submit method (delegate to codex)
-- [ ] Implement next_event method (delegate to codex)
-- [ ] Implement rollout_path getter
-- [ ] Create codex-ts/src/core/codex-conversation.test.ts
-- [ ] Write tests for conversation wrapper (min 10 tests)
-- [ ] Write tests for delegation
-- [ ] Verify all tests pass
-- [ ] Update CHECKLIST.md
-- [ ] Update STATUS.md
-
----
-
-## Module 7: core/conversation-manager
-
-- [ ] Read codex-rs/core/src/conversation_manager.rs
-- [ ] Create codex-ts/src/core/conversation-manager.ts
-- [ ] Implement ConversationManager class
-- [ ] Implement new_conversation method
-- [ ] Implement get_conversation method
-- [ ] Implement resume_conversation_from_rollout method
-- [ ] Implement fork_conversation method
-- [ ] Implement remove_conversation method
-- [ ] Implement conversation tracking (in-memory map)
-- [ ] Create codex-ts/src/core/conversation-manager.test.ts
-- [ ] Write tests for create/resume/fork (min 20 tests)
-- [ ] Write tests for conversation tracking
-- [ ] Write integration tests (end-to-end flows)
-- [ ] Verify all tests pass
-- [ ] Update CHECKLIST.md
-- [ ] Update STATUS.md
+**Will be ported in Phase 4.5 after dependencies available**
 
 ---
 

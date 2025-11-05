@@ -39,14 +39,16 @@ TASK: Port Phase 2 modules (core engine) using Test-Driven Development:
 12. Update codex-ts/PORT_LOG_MASTER.md (update module status)
 13. If bugs found: add to codex-ts/KNOWN_BUGS.md (don't fix unless critical)
 
-START ORDER:
-1. core/config (foundation, 8-12 hours)
-2. core/config-loader (depends on config, 4-6 hours)
-3. core/message-history (simple, 4-6 hours)
-4. core/rollout (persistence, 8-12 hours)
-5. core/codex (orchestrator, depends on all above, 16-20 hours)
-6. core/codex-conversation (wrapper, 6-8 hours)
-7. core/conversation-manager (high level, depends on all, 12-16 hours)
+START ORDER (4 modules only):
+1. core/config (foundation)
+2. core/config-loader (depends on config)
+3. core/message-history (can be parallel with config-loader)
+4. core/rollout (persistence)
+
+DEFERRED (blocked by Phase 4/5 dependencies):
+- core/codex (needs core/client from Phase 4)
+- core/codex-conversation (needs core/codex)
+- core/conversation-manager (needs AuthManager from Phase 5)
 
 DEV STANDARDS (see codex-ts/DEV_STANDARDS.md):
 - Use npm (not pnpm/bun)

@@ -13,47 +13,36 @@ Phase 2 builds the core conversation engine by porting configuration management,
 
 ## What Needs Porting
 
-### Core Modules (7 modules)
+### Core Modules (4 modules - Configuration & Persistence Only)
 
-1. **core/config.rs** (~400 lines, 8-12 hours)
+1. **core/config.rs**
    - Configuration data structure
    - Config validation
    - Default values
    - Dependencies: `protocol/config-types`
 
-2. **core/config_loader.rs** (~300 lines, 4-6 hours)
+2. **core/config_loader.rs**
    - Load config from TOML files
    - Environment variable overrides
    - CLI argument overrides
    - Dependencies: `core/config`, `common/config-override`
 
-3. **core/message_history.rs** (~200 lines, 4-6 hours)
+3. **core/message_history.rs**
    - Track conversation turns
    - Manage turn items
    - Dependencies: `protocol/message-history`, `protocol/items`
 
-4. **core/rollout.rs** (~800 lines, 8-12 hours)
+4. **core/rollout.rs**
    - Persist conversations to disk
    - Load conversations from disk
    - Archive and delete operations
    - Dependencies: `protocol/*`
 
-5. **core/codex.rs** (~1200 lines, 16-20 hours) **LARGEST**
-   - Main orchestrator
-   - Spawn conversations
-   - Event loop
-   - Dependencies: ALL above + `core/client`
+### Deferred to Later Phases (BLOCKED by dependencies)
 
-6. **core/codex_conversation.rs** (~40 lines, 6-8 hours)
-   - Conversation wrapper
-   - Submit operations
-   - Receive events
-   - Dependencies: `core/codex`
-
-7. **core/conversation_manager.rs** (~200 lines, 12-16 hours)
-   - High-level conversation API
-   - Create/resume/fork/list operations
-   - Dependencies: ALL above
+5. **core/codex.rs** → DEFERRED (needs `core/client` from Phase 4)
+6. **core/codex_conversation.rs** → DEFERRED (needs core/codex)
+7. **core/conversation_manager.rs** → DEFERRED (needs `AuthManager` from Phase 5)
 
 ## Module Dependencies
 
@@ -78,14 +67,10 @@ core/conversation-manager ← ALL above
 **Recommended sequence:**
 1. `core/config` (foundation)
 2. `core/config-loader` (depends on config)
-3. `core/message-history` (independent, can be parallel)
+3. `core/message-history` (can be parallel with config-loader)
 4. `core/rollout` (persistence layer)
-5. `core/codex` (main orchestrator, largest)
-6. `core/codex-conversation` (thin wrapper)
-7. `core/conversation-manager` (high-level API)
 
-**Parallel opportunities:**
-- `core/message-history` can be done in parallel with `core/config-loader`
+**Modules 5-7 deferred** - moved to Phase 4.5 after dependencies available
 
 ## Testing Strategy
 
@@ -134,26 +119,17 @@ core/conversation-manager ← ALL above
 ## Success Criteria
 
 - [x] Phase 1 complete (prerequisite)
-- [ ] All 7 core modules ported
-- [ ] Minimum 100+ tests (avg 15 per module)
+- [ ] 4 configuration & persistence modules ported
+- [ ] Comprehensive tests for each module
 - [ ] 100% test pass rate
 - [ ] Integration tests passing
-- [ ] Can create conversation from config
-- [ ] Can persist and resume conversation
 - [ ] Config loads from all sources (TOML, env, CLI)
+- [ ] Can persist and load rollout files
 - [ ] Documentation updated
 
-## Estimated Effort
+## Time Estimates
 
-- **core/config**: 8-12 hours
-- **core/config-loader**: 4-6 hours
-- **core/message-history**: 4-6 hours
-- **core/rollout**: 8-12 hours
-- **core/codex**: 16-20 hours
-- **core/codex-conversation**: 6-8 hours
-- **core/conversation-manager**: 12-16 hours
-
-**Total**: 58-80 hours (~3 weeks at 20 hours/week)
+**REMOVED** - estimates are unreliable. Work until done, track actual time.
 
 ## File Structure
 
