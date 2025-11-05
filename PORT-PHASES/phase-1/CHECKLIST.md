@@ -1,0 +1,199 @@
+# Phase 1 Checklist
+
+**Phase Start Date:** _Not started_
+**Phase End Date:** _Not completed_
+**Current Status:** Not Started
+
+---
+
+## Setup & Infrastructure
+
+- [ ] Review PORT-PLAN.md and phase-1/README.md
+- [ ] Create test-utils directory structure
+- [ ] Set up golden file testing utilities
+- [ ] Create protocol test fixtures directory
+- [ ] Set up protocol test factories
+
+---
+
+## Protocol Module Porting
+
+### protocol/config-types.ts
+- [ ] Read codex-rs/protocol/src/config_types.rs
+- [ ] Create codex-ts/src/protocol/config-types.ts
+- [ ] Define SandboxMode enum
+- [ ] Define ApprovalMode enum
+- [ ] Define ModelProviderConfig types
+- [ ] Define McpServerConfig types
+- [ ] Create codex-ts/src/protocol/config-types.test.ts
+- [ ] Write serialization tests (min 8 tests)
+- [ ] Write validation tests
+- [ ] Verify all tests pass
+
+### protocol/account.ts
+- [ ] Read codex-rs/protocol/src/account.rs
+- [ ] Create codex-ts/src/protocol/account.ts
+- [ ] Define Account/User types
+- [ ] Define authentication status types
+- [ ] Create codex-ts/src/protocol/account.test.ts
+- [ ] Write serialization tests (min 5 tests)
+- [ ] Verify all tests pass
+
+### protocol/message-history.ts
+- [ ] Read codex-rs/protocol/src/message_history.rs
+- [ ] Create codex-ts/src/protocol/message-history.ts
+- [ ] Define message history types
+- [ ] Define turn tracking types
+- [ ] Create codex-ts/src/protocol/message-history.test.ts
+- [ ] Write tests (min 5 tests)
+- [ ] Verify all tests pass
+
+### protocol/custom-prompts.ts
+- [ ] Read codex-rs/protocol/src/custom_prompts.rs
+- [ ] Create codex-ts/src/protocol/custom-prompts.ts
+- [ ] Define prompt template types
+- [ ] Define placeholder handling
+- [ ] Create codex-ts/src/protocol/custom-prompts.test.ts
+- [ ] Write tests (min 6 tests)
+- [ ] Verify all tests pass
+
+### protocol/plan-tool.ts
+- [ ] Read codex-rs/protocol/src/plan_tool.rs
+- [ ] Create codex-ts/src/protocol/plan-tool.ts
+- [ ] Define TodoItem types
+- [ ] Define plan tracking types
+- [ ] Create codex-ts/src/protocol/plan-tool.test.ts
+- [ ] Write tests (min 6 tests)
+- [ ] Verify all tests pass
+
+### protocol/items.ts
+- [ ] Read codex-rs/protocol/src/items.rs
+- [ ] Read sdk/typescript/src/items.ts for comparison
+- [ ] Create codex-ts/src/protocol/items.ts
+- [ ] Define TurnItem union type
+- [ ] Define CommandExecutionItem
+- [ ] Define FileChangeItem
+- [ ] Define McpToolCallItem
+- [ ] Define AgentMessageItem
+- [ ] Define ReasoningItem
+- [ ] Define WebSearchItem
+- [ ] Define TodoListItem
+- [ ] Define ErrorItem
+- [ ] Verify types match SDK exactly
+- [ ] Create codex-ts/src/protocol/items.test.ts
+- [ ] Write serialization tests for each item type (min 12 tests)
+- [ ] Write validation tests
+- [ ] Write SDK compatibility tests
+- [ ] Verify all tests pass
+
+### protocol/models.rs
+- [ ] Read codex-rs/protocol/src/models.rs
+- [ ] Create codex-ts/src/protocol/models.ts
+- [ ] Define ModelRequest types
+- [ ] Define ModelResponse types
+- [ ] Define provider-specific types (OpenAI, Anthropic, etc.)
+- [ ] Define streaming response types
+- [ ] Define tool call types
+- [ ] Create codex-ts/src/protocol/models.test.ts
+- [ ] Write serialization tests (min 15 tests)
+- [ ] Write validation tests
+- [ ] Write streaming response tests
+- [ ] Verify all tests pass
+
+### protocol/protocol.ts (LARGEST MODULE)
+- [ ] Read codex-rs/protocol/src/protocol.rs thoroughly
+- [ ] Create codex-ts/src/protocol/protocol.ts
+- [ ] Define Event type
+- [ ] Define EventMsg union type
+- [ ] Define Op type
+- [ ] Define Submission type
+- [ ] Define SessionConfiguredEvent
+- [ ] Define all event message variants
+- [ ] Define request/response types
+- [ ] Define session management types
+- [ ] Create codex-ts/src/protocol/protocol.test.ts
+- [ ] Write Event serialization tests (min 10 tests)
+- [ ] Write EventMsg variant tests (min 15 tests)
+- [ ] Write Op serialization tests (min 5 tests)
+- [ ] Write Submission tests (min 5 tests)
+- [ ] Write integration round-trip tests
+- [ ] Verify all tests pass
+
+---
+
+## Integration & Testing
+
+### Test Infrastructure
+- [ ] Create codex-ts/test-utils/protocol-factories.ts
+- [ ] Add factory functions for all protocol types
+- [ ] Create codex-ts/test-utils/test-helpers.ts
+- [ ] Add assertion helpers for protocol types
+- [ ] Create codex-ts/test-utils/golden-file-utils.ts
+- [ ] Add golden file comparison utilities
+
+### Golden File Tests
+- [ ] Generate golden JSON files from Rust codebase
+- [ ] Store in codex-ts/test-fixtures/protocol/
+- [ ] Create golden file test for Events
+- [ ] Create golden file test for Models
+- [ ] Create golden file test for Items
+- [ ] Verify golden tests pass
+
+### SDK Compatibility
+- [ ] Compare protocol/items.ts with sdk/typescript/src/items.ts
+- [ ] Verify type compatibility
+- [ ] Compare protocol/protocol.ts events with sdk/typescript/src/events.ts
+- [ ] Verify event type compatibility
+- [ ] Document any differences in DECISIONS.md
+
+### Integration Tests
+- [ ] Create protocol round-trip integration test
+- [ ] Test: Create Event → serialize → deserialize → verify equality
+- [ ] Test: Create all item types → serialize → deserialize → verify
+- [ ] Test: Create complex message flow → verify serialization
+- [ ] All integration tests pass
+
+---
+
+## Documentation & Cleanup
+
+- [ ] Update codex-ts/src/protocol/index.ts with all exports
+- [ ] Add JSDoc comments to all exported types
+- [ ] Update ts-port-status.md with completed modules
+- [ ] Update test count in ts-port-status.md
+- [ ] Run `pnpm test` and verify 100% pass rate
+- [ ] Run `pnpm build` and verify no errors
+- [ ] Run linter and fix all warnings
+- [ ] Review all code for TODOs and fix/document them
+- [ ] Update STATUS.md with final summary
+
+---
+
+## Final Validation
+
+- [ ] All 8 protocol modules ported
+- [ ] Minimum 80 new tests written
+- [ ] 100% test pass rate achieved
+- [ ] All golden file tests pass
+- [ ] SDK type compatibility verified
+- [ ] Documentation complete
+- [ ] No TypeScript errors
+- [ ] No linter warnings
+- [ ] DECISIONS.md has all technical decisions documented
+- [ ] STATUS.md has complete progress log
+- [ ] Ready for Phase 2
+
+---
+
+## Summary Stats
+
+**Total Tasks:** 100+
+**Completed:** 0
+**In Progress:** 0
+**Blocked:** 0
+
+**Test Target:** 80+ new tests
+**Current Test Count:** TBD
+
+**Estimated Hours:** 35-45
+**Actual Hours:** TBD
