@@ -23,6 +23,8 @@
   },
   "dependencies": {
     "@iarna/toml": "^2.2.5",
-    "lru-cache": "^11.2.2"
+    "@types/uuid": "^10.0.0",
+    "lru-cache": "^11.2.2",
+    "uuid": "^13.0.0"
   }
 }

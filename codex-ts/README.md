@@ -8,8 +8,8 @@ This project ports portable, algorithmic modules from the codex-rs Rust workspac
 
 ## Status
 
-- **Modules Ported**: 14
-- **Tests Passing**: 113
+- **Modules Ported**: 16
+- **Tests Passing**: 138
 - **Test Coverage**: Comprehensive unit tests ported from Rust
 
 See [PORTING_STATUS.md](./PORTING_STATUS.md) for detailed porting progress and rationale.
@@ -47,6 +47,15 @@ npm run type-check
   - `AskForApproval` enum - Approval policies
   - `SandboxPolicy` type - Sandbox configurations
   - `ReasoningEffort` enum - Model reasoning levels
+
+- **protocol/num-format** - Number formatting with locale support
+  - `formatWithSeparators()` - Locale-aware digit separators
+  - `formatSiSuffix()` - SI suffix formatting (K, M, G) to 3 significant figures
+
+- **protocol/conversation-id** - UUIDv7-based conversation identifiers
+  - `ConversationId` class - Time-ordered unique conversation IDs
+  - `fromString()` - Parse UUID strings
+  - `equals()` - Equality comparison
 
 ### Utils
 - **utils/string** - UTF-8 safe string truncation at character boundaries
@@ -111,7 +120,7 @@ npm run type-check
 ## Test Coverage
 
 ```
-Test Files:  14 passed (14)
-Tests:       113 passed (113)
+Test Files:  17 passed (17)
+Tests:       138 passed (138)
 Success Rate: 100%
 ```
