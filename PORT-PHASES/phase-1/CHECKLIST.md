@@ -19,16 +19,17 @@
 ## Protocol Module Porting
 
 ### protocol/config-types.ts
-- [ ] Read codex-rs/protocol/src/config_types.rs
-- [ ] Create codex-ts/src/protocol/config-types.ts
-- [ ] Define SandboxMode enum
-- [ ] Define ApprovalMode enum
-- [ ] Define ModelProviderConfig types
-- [ ] Define McpServerConfig types
-- [ ] Create codex-ts/src/protocol/config-types.test.ts
-- [ ] Write serialization tests (min 8 tests)
-- [ ] Write validation tests
-- [ ] Verify all tests pass
+- [x] Read codex-rs/protocol/src/config_types.rs
+- [x] Create codex-ts/src/protocol/config-types.ts
+- [x] Define SandboxMode enum
+- [x] Define ReasoningEffort enum
+- [x] Define ReasoningSummary enum
+- [x] Define Verbosity enum
+- [x] Define ForcedLoginMethod enum
+- [x] Create codex-ts/src/protocol/config-types.test.ts
+- [x] Write serialization tests (min 8 tests)
+- [x] Write validation tests
+- [x] Verify all tests pass
 
 ### protocol/account.ts
 - [x] Read codex-rs/protocol/src/account.rs
@@ -58,33 +59,32 @@
 - [x] Verify all tests pass
 
 ### protocol/plan-tool.ts
-- [ ] Read codex-rs/protocol/src/plan_tool.rs
-- [ ] Create codex-ts/src/protocol/plan-tool.ts
-- [ ] Define TodoItem types
-- [ ] Define plan tracking types
-- [ ] Create codex-ts/src/protocol/plan-tool.test.ts
-- [ ] Write tests (min 6 tests)
-- [ ] Verify all tests pass
+- [x] Read codex-rs/protocol/src/plan_tool.rs
+- [x] Create codex-ts/src/protocol/plan-tool.ts
+- [x] Define TodoItem types
+- [x] Define plan tracking types
+- [x] Create codex-ts/src/protocol/plan-tool.test.ts
+- [x] Write tests (min 6 tests)
+- [x] Verify all tests pass
 
 ### protocol/items.ts
-- [ ] Read codex-rs/protocol/src/items.rs
-- [ ] Read sdk/typescript/src/items.ts for comparison
-- [ ] Create codex-ts/src/protocol/items.ts
-- [ ] Define TurnItem union type
-- [ ] Define CommandExecutionItem
-- [ ] Define FileChangeItem
-- [ ] Define McpToolCallItem
-- [ ] Define AgentMessageItem
-- [ ] Define ReasoningItem
-- [ ] Define WebSearchItem
-- [ ] Define TodoListItem
-- [ ] Define ErrorItem
-- [ ] Verify types match SDK exactly
-- [ ] Create codex-ts/src/protocol/items.test.ts
-- [ ] Write serialization tests for each item type (min 12 tests)
-- [ ] Write validation tests
-- [ ] Write SDK compatibility tests
-- [ ] Verify all tests pass
+- [x] Read codex-rs/protocol/src/items.rs
+- [x] Read codex-rs/protocol/src/user_input.rs for dependencies
+- [x] Read sdk/typescript/src/items.ts for comparison
+- [x] Create codex-ts/src/protocol/items.ts
+- [x] Define UserInput union type (text, image, local_image)
+- [x] Define AgentMessageContent type
+- [x] Define TurnItem union type (user_message, agent_message, reasoning, web_search)
+- [x] Define UserMessageItem
+- [x] Define AgentMessageItem
+- [x] Define ReasoningItem
+- [x] Define WebSearchItem
+- [x] Create helper functions (getTurnItemId, create*, extract* functions)
+- [x] Create codex-ts/src/protocol/items.test.ts
+- [x] Write serialization tests for each item type (min 12 tests)
+- [x] Write validation tests
+- [x] Write helper function tests
+- [x] Verify all tests pass
 
 ### protocol/models.rs
 - [ ] Read codex-rs/protocol/src/models.rs
