@@ -5,9 +5,9 @@ This document tracks the progress of porting codex-rs modules to TypeScript.
 ## Summary
 
 - **Total Modules Analyzed**: 42 workspace members
-- **Modules Ported**: 5
-- **Tests Passing**: 47
-- **Test Files**: 5
+- **Modules Ported**: 6
+- **Tests Passing**: 52
+- **Test Files**: 6
 
 ## Ported Modules ✅
 
@@ -43,6 +43,12 @@ This document tracks the progress of porting codex-rs modules to TypeScript.
 - **Tests**: 9 passing
 - **Coverage**: Tab expansion, multi-line handling
 
+### 6. common/format-env-display (62 lines Rust)
+- `formatEnvDisplay()` - Format environment variables with masked values
+- Sorts env map entries, preserves vars array order
+- **Tests**: 5 passing
+- **Coverage**: Empty handling, sorting, combining sources
+
 ## Not Applicable to TypeScript ❌
 
 These modules are platform-specific or binary-related and cannot be meaningfully ported:
@@ -72,7 +78,6 @@ These modules could be ported but require porting their type dependencies first:
 - **common/model_presets** - Requires protocol types
 - **common/approval_presets** - Requires core protocol types
 - **common/config_override** - Requires config types
-- **common/format_env_display** - Simple, could port
 - **mcp-types** - Auto-generated using ts-rs (may already exist)
 - **protocol** - Large (2887 lines), core type definitions
 - **protocol-ts** - TypeScript code generator (not needed in TS)
@@ -103,8 +108,8 @@ Continue porting modules with no external dependencies:
 3. ✅ common/fuzzy-match
 4. ✅ common/elapsed
 5. ✅ ansi-escape
-6. utils/cache - LRU cache wrapper
-7. common/format_env_display - Environment display formatting
+6. ✅ common/format-env-display
+7. utils/cache - LRU cache wrapper
 
 ### Future Considerations
 - Define minimal protocol types needed for common modules
