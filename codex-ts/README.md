@@ -8,8 +8,8 @@ This project ports portable, algorithmic modules from the codex-rs Rust workspac
 
 ## Status
 
-- **Modules Ported**: 6
-- **Tests Passing**: 52
+- **Modules Ported**: 8
+- **Tests Passing**: 70
 - **Test Coverage**: Comprehensive unit tests ported from Rust
 
 See [PORTING_STATUS.md](./PORTING_STATUS.md) for detailed porting progress and rationale.
@@ -47,6 +47,10 @@ npm run type-check
   - `takeBytesAtCharBoundary()` - Truncate to byte budget (prefix)
   - `takeLastBytesAtCharBoundary()` - Take suffix within byte budget
 
+- **utils/cache** - LRU cache with SHA-1 hashing
+  - `LruCache` - LRU cache wrapper
+  - `sha1Digest()` - SHA-1 hashing for cache keys
+
 ### Async Utilities
 - **async-utils** - Promise cancellation utilities
   - `orCancel()` - Race promise against AbortSignal (Rust tokio::select! pattern)
@@ -69,10 +73,15 @@ npm run type-check
   - `processAnsiEscape()` - Basic ANSI processing
   - `processAnsiEscapeLine()` - Single-line processing
 
+### Ollama
+- **ollama/url** - Ollama URL utilities
+  - `isOpenAiCompatibleBaseUrl()` - Detect OpenAI-compatible URLs
+  - `baseUrlToHostRoot()` - Convert provider URL to host root
+
 ## Design Principles
 
 1. **Idiomatic TypeScript**: Use modern TypeScript patterns, not literal Rust translations
 2. **Comprehensive Tests**: Port all Rust tests and maintain coverage
 3. **Unicode Correctness**: Preserve Rust's careful Unicode handling
 4. **Type Safety**: Leverage TypeScript's type system fully
-5. **No Dependencies**: Minimize external dependencies where possible
+5. **Minimal Dependencies**: Use existing libraries where appropriate (lru-cache for caching)
