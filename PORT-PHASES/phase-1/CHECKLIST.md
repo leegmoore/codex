@@ -31,13 +31,13 @@
 - [ ] Verify all tests pass
 
 ### protocol/account.ts
-- [ ] Read codex-rs/protocol/src/account.rs
-- [ ] Create codex-ts/src/protocol/account.ts
-- [ ] Define Account/User types
-- [ ] Define authentication status types
-- [ ] Create codex-ts/src/protocol/account.test.ts
-- [ ] Write serialization tests (min 5 tests)
-- [ ] Verify all tests pass
+- [x] Read codex-rs/protocol/src/account.rs
+- [x] Create codex-ts/src/protocol/account.ts
+- [x] Define Account/User types
+- [x] Define authentication status types
+- [x] Create codex-ts/src/protocol/account.test.ts
+- [x] Write serialization tests (min 5 tests)
+- [x] Verify all tests pass
 
 ### protocol/message-history.ts
 - [ ] Read codex-rs/protocol/src/message_history.rs
