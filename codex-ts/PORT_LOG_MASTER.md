@@ -1,19 +1,19 @@
 # Codex TypeScript Port - Master Log
 
 **Last Updated:** 2025-11-05
-**Project Status:** ✅ PHASE 1 COMPLETE - Ready for Phase 2
+**Project Status:** 🔄 PHASE 3 IN PROGRESS
 
 ---
 
 ## Quick Stats
 
 - **Total Modules Planned:** ~40 core modules across 5 phases
-- **Completed:** 31 (Pre-work: 21, Phase 1: 8, Phase 2: 2)
-- **In Progress:** Phase 2 (2/4 modules done - 50% complete!)
-- **Test Pass Rate:** 476/476 (100%) 🎉
+- **Completed:** 32 (Pre-work: 21, Phase 1: 8, Phase 2: 4, Phase 3: 1)
+- **In Progress:** Phase 3 (1/7 modules done - 14% complete!)
+- **Test Pass Rate:** 581/581 (100%) 🎉
 - **Known Bugs:** 2 (pre-existing, see KNOWN_BUGS.md)
 - **Rust Source:** ~41K LOC in `core/` alone
-- **Current Branch:** claude/phase2-port-config-011CUqLLDHJiWWH1fkx1BZ4F
+- **Current Branch:** claude/phase3-apply-patch-011CUqc5Es1kzrtVbqh86kUs
 
 ---
 
@@ -75,41 +75,42 @@
 
 ---
 
-### 🔄 Phase 2: Configuration & Persistence (In Progress - 50% Complete!)
-**Status:** IN PROGRESS (2/4 modules complete)
+### ✅ Phase 2: Configuration & Persistence - COMPLETE
+**Status:** ✅ COMPLETE (4/4 modules)
 **Start Date:** 2025-11-05
-**Duration So Far:** ~4 hours
+**Duration:** ~6 hours
 **Dependencies:** Phase 1 ✅
+**Log:** [PORT_LOG_PHASE2.md](./PORT_LOG_PHASE2.md)
 
-| Module | Status | Dependencies | Time Spent | Notes |
-|--------|--------|--------------|------------|-------|
-| core/config | ✅ DONE | protocol/config-types | ~2h | Simplified for Phase 2 (18 tests) |
-| core/config-loader | ✅ DONE | core/config | ~2h | TOML loading + layer merging (13 tests) |
-| core/message-history | ⏳ WAITING | protocol/message-history | - | Can be parallel |
-| core/rollout | ⏳ WAITING | protocol/* | - | Persistence layer |
-| core/codex | ❌ DEFERRED | core/client (Phase 4) | - | Moved to Phase 4.5 |
-| core/codex-conversation | ❌ DEFERRED | core/codex | - | Moved to Phase 4.5 |
-| core/conversation-manager | ❌ DEFERRED | AuthManager (Phase 5) | - | Moved to Phase 5 |
+| Module | Status | Tests | Notes |
+|--------|--------|-------|-------|
+| core/config | ✅ DONE | 18/18 | Simplified for Phase 2 |
+| core/config-loader | ✅ DONE | 13/13 | TOML loading + layer merging |
+| core/message-history | ✅ DONE | 26/26 | JSONL-based conversation tracking |
+| core/rollout | ✅ DONE | 30/30 | Persistence layer |
 
-**Scope Change:** Reduced from 7 to 4 modules (3 deferred to later phases due to dependencies)
+**Total:** 87 tests (100% pass rate)
 
 ---
 
-### ⏳ Phase 3: Execution & Tools
-**Status:** NOT STARTED
-**Dependencies:** Phase 2
+### 🔄 Phase 3: Execution & Tools (In Progress - 14% Complete!)
+**Status:** IN PROGRESS (1/7 modules complete)
+**Start Date:** 2025-11-05
+**Duration So Far:** ~2 hours
+**Dependencies:** Phase 2 ✅
+**Log:** [PORT-PHASES/phase-3/STATUS.md](../PORT-PHASES/phase-3/STATUS.md)
 
-| Module | Status | Dependencies | Estimated Hours |
-|--------|--------|--------------|-----------------|
-| core/exec | ⏳ WAITING | exec, execpolicy | 12-16 hours |
-| exec | ⏳ WAITING | - | 8-12 hours |
-| execpolicy | ⏳ WAITING | - | 6-8 hours |
-| apply-patch | ⏳ WAITING | - | 8-12 hours |
-| file-search | ⏳ WAITING | common/fuzzy-match | 4-6 hours |
-| core/tools | ⏳ WAITING | all above | 8-12 hours |
-| core/sandboxing | ⏳ WAITING | linux-sandbox, etc. | 12-16 hours |
+| Module | Status | Dependencies | Tests | Notes |
+|--------|--------|--------------|-------|-------|
+| apply-patch | ✅ DONE | - | 49/49 | Parser, seek-sequence, apply logic |
+| file-search | ⏳ WAITING | common/fuzzy-match | - | Standalone |
+| execpolicy | ⏳ WAITING | - | - | Standalone |
+| core/sandboxing | ⏳ WAITING | execpolicy | - | Policy enforcement |
+| exec | ⏳ WAITING | execpolicy | - | Execution interface |
+| core/exec | ⏳ WAITING | exec, core/sandboxing | - | Execution engine |
+| core/tools | ⏳ WAITING | all above | - | Tool coordination |
 
-**Total Estimated:** 58-82 hours
+**Total So Far:** 49 tests (100% pass rate)
 
 ---
 

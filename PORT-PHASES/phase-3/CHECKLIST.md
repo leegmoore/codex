@@ -7,14 +7,14 @@
 ## Standalone Modules (Can Work in Parallel)
 
 ### apply-patch
-- [ ] Read codex-rs/apply-patch/src/lib.rs
-- [ ] Read tests in codex-rs/apply-patch/tests/
-- [ ] Create codex-ts/src/apply-patch/index.ts
-- [ ] Port patch parsing logic
-- [ ] Port patch application logic
-- [ ] Port tree-sitter integration
-- [ ] Create tests
-- [ ] Verify tests pass
+- [x] Read codex-rs/apply-patch/src/lib.rs
+- [x] Read tests in codex-rs/apply-patch/tests/
+- [x] Create codex-ts/src/apply-patch/index.ts
+- [x] Port patch parsing logic
+- [x] Port patch application logic
+- [x] Port tree-sitter integration (stub for now - TODO)
+- [x] Create tests (49 tests)
+- [x] Verify tests pass (49/49 ✅)
 - [ ] Update logs
 
 ### file-search
