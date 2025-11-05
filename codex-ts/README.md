@@ -8,8 +8,8 @@ This project ports portable, algorithmic modules from the codex-rs Rust workspac
 
 ## Status
 
-- **Modules Ported**: 8
-- **Tests Passing**: 70
+- **Modules Ported**: 14
+- **Tests Passing**: 113
 - **Test Coverage**: Comprehensive unit tests ported from Rust
 
 See [PORTING_STATUS.md](./PORTING_STATUS.md) for detailed porting progress and rationale.
@@ -42,6 +42,12 @@ npm run type-check
 
 ## Ported Modules
 
+### Protocol Types
+- **protocol/types** - Core protocol type definitions
+  - `AskForApproval` enum - Approval policies
+  - `SandboxPolicy` type - Sandbox configurations
+  - `ReasoningEffort` enum - Model reasoning levels
+
 ### Utils
 - **utils/string** - UTF-8 safe string truncation at character boundaries
   - `takeBytesAtCharBoundary()` - Truncate to byte budget (prefix)
@@ -50,6 +56,9 @@ npm run type-check
 - **utils/cache** - LRU cache with SHA-1 hashing
   - `LruCache` - LRU cache wrapper
   - `sha1Digest()` - SHA-1 hashing for cache keys
+
+- **utils/json-to-toml** - JSON to TOML conversion
+  - `jsonToToml()` - Recursive conversion with proper type handling
 
 ### Async Utilities
 - **async-utils** - Promise cancellation utilities
@@ -67,6 +76,15 @@ npm run type-check
 - **common/format-env-display** - Environment variable display
   - `formatEnvDisplay()` - Format env vars with masked values
 
+- **common/sandbox-summary** - Sandbox policy summarization
+  - `summarizeSandboxPolicy()` - Human-readable policy descriptions
+
+- **common/approval-presets** - Built-in approval/sandbox presets
+  - `builtinApprovalPresets()` - Read Only, Auto, Full Access configurations
+
+- **common/model-presets** - Built-in model configurations
+  - `builtinModelPresets()` - gpt-5-codex, gpt-5 with reasoning effort settings
+
 ### ANSI Processing
 - **ansi-escape** - ANSI escape sequence processing
   - `expandTabs()` - Replace tabs with spaces
@@ -78,6 +96,10 @@ npm run type-check
   - `isOpenAiCompatibleBaseUrl()` - Detect OpenAI-compatible URLs
   - `baseUrlToHostRoot()` - Convert provider URL to host root
 
+- **ollama/parser** - Ollama pull stream parsing
+  - `PullEvent` types - Status, progress, success events
+  - `pullEventsFromValue()` - Parse JSON stream events
+
 ## Design Principles
 
 1. **Idiomatic TypeScript**: Use modern TypeScript patterns, not literal Rust translations
@@ -85,3 +107,11 @@ npm run type-check
 3. **Unicode Correctness**: Preserve Rust's careful Unicode handling
 4. **Type Safety**: Leverage TypeScript's type system fully
 5. **Minimal Dependencies**: Use existing libraries where appropriate (lru-cache for caching)
+
+## Test Coverage
+
+```
+Test Files:  14 passed (14)
+Tests:       113 passed (113)
+Success Rate: 100%
+```
