@@ -8,12 +8,12 @@
 ## Quick Stats
 
 - **Total Modules Planned:** ~40 core modules across 5 phases
-- **Completed:** 29 (Pre-work: 21, Phase 1: 8)
-- **In Progress:** None - Phase 1 complete!
-- **Test Pass Rate:** 445/445 (100%) 🎉
+- **Completed:** 31 (Pre-work: 21, Phase 1: 8, Phase 2: 2)
+- **In Progress:** Phase 2 (2/4 modules done - 50% complete!)
+- **Test Pass Rate:** 476/476 (100%) 🎉
 - **Known Bugs:** 2 (pre-existing, see KNOWN_BUGS.md)
 - **Rust Source:** ~41K LOC in `core/` alone
-- **Current Branch:** main
+- **Current Branch:** claude/phase2-port-config-011CUqLLDHJiWWH1fkx1BZ4F
 
 ---
 
@@ -75,22 +75,23 @@
 
 ---
 
-### ⏳ Phase 2: Core Engine (Next Up!)
-**Status:** NOT STARTED
-**Estimated Duration:** 3 weeks
+### 🔄 Phase 2: Configuration & Persistence (In Progress - 50% Complete!)
+**Status:** IN PROGRESS (2/4 modules complete)
+**Start Date:** 2025-11-05
+**Duration So Far:** ~4 hours
 **Dependencies:** Phase 1 ✅
 
-| Module | Status | Dependencies | Estimated Hours |
-|--------|--------|--------------|-----------------|
-| core/config | ⏳ WAITING | protocol/config-types | 8-12 hours |
-| core/config-loader | ⏳ WAITING | core/config | 4-6 hours |
-| core/conversation-manager | ⏳ WAITING | core/codex, core/auth | 12-16 hours |
-| core/codex-conversation | ⏳ WAITING | core/codex | 6-8 hours |
-| core/codex | ⏳ WAITING | core/client, protocol/* | 16-20 hours |
-| core/message-history | ⏳ WAITING | protocol/message-history | 4-6 hours |
-| core/rollout | ⏳ WAITING | protocol/* | 8-12 hours |
+| Module | Status | Dependencies | Time Spent | Notes |
+|--------|--------|--------------|------------|-------|
+| core/config | ✅ DONE | protocol/config-types | ~2h | Simplified for Phase 2 (18 tests) |
+| core/config-loader | ✅ DONE | core/config | ~2h | TOML loading + layer merging (13 tests) |
+| core/message-history | ⏳ WAITING | protocol/message-history | - | Can be parallel |
+| core/rollout | ⏳ WAITING | protocol/* | - | Persistence layer |
+| core/codex | ❌ DEFERRED | core/client (Phase 4) | - | Moved to Phase 4.5 |
+| core/codex-conversation | ❌ DEFERRED | core/codex | - | Moved to Phase 4.5 |
+| core/conversation-manager | ❌ DEFERRED | AuthManager (Phase 5) | - | Moved to Phase 5 |
 
-**Total Estimated:** 58-80 hours
+**Scope Change:** Reduced from 7 to 4 modules (3 deferred to later phases due to dependencies)
 
 ---
 
