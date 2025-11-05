@@ -55,18 +55,18 @@
 
 ## Module 3: core/message-history
 
-- [ ] Read codex-rs/core/src/message_history.rs
-- [ ] Create codex-ts/src/core/message-history.ts
-- [ ] Implement MessageHistory class/interface
-- [ ] Implement add/get/clear operations
-- [ ] Implement turn tracking
-- [ ] Create codex-ts/src/core/message-history.test.ts
-- [ ] Write tests for history operations (min 12 tests)
-- [ ] Write tests for turn tracking
-- [ ] Write tests for edge cases
-- [ ] Verify all tests pass
-- [ ] Update CHECKLIST.md
-- [ ] Update STATUS.md
+- [x] Read codex-rs/core/src/message_history.rs
+- [x] Create codex-ts/src/core/message-history.ts
+- [x] Implement MessageHistory class/interface
+- [x] Implement add/get/clear operations
+- [x] Implement turn tracking
+- [x] Create codex-ts/src/core/message-history.test.ts
+- [x] Write tests for history operations (26 tests - exceeded target!)
+- [x] Write tests for turn tracking
+- [x] Write tests for edge cases
+- [x] Verify all tests pass (26/26 ✅)
+- [x] Update CHECKLIST.md
+- [x] Update STATUS.md
 
 ---
 

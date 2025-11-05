@@ -9,13 +9,13 @@
 
 ## Progress Overview
 
-- **Modules Completed:** 2 / 4 (reduced from 7)
-- **Tests Written:** 31 / 100+ (31% of target)
-- **Tests Passing:** 31 / 31 (100%)
-- **Hours Logged:** ~4 hours
+- **Modules Completed:** 3 / 4 (reduced from 7)
+- **Tests Written:** 57 / 100+ (57% of target)
+- **Tests Passing:** 57 / 57 (100%)
+- **Hours Logged:** ~6 hours
 - **Status:** 🔄 IN PROGRESS
 
-**Visual Progress:** ✅✅⬜⬜ (2/4 modules - 50% complete!)
+**Visual Progress:** ✅✅✅⬜ (3/4 modules - 75% complete!)
 
 ---
 
@@ -84,18 +84,52 @@
 
 ---
 
+### 2025-11-05 - Session 3
+
+**Focus:** core/message-history module
+
+**Completed:**
+- ✅ Ported core/message-history module with JSONL persistence
+- ✅ Created 26 comprehensive tests for message-history
+- ✅ Implemented appendEntry with file locking and retries
+- ✅ Implemented historyMetadata for file tracking
+- ✅ Implemented lookup for entry retrieval by offset
+- ✅ Added helper functions: readAllEntries and clearHistory
+- ✅ All tests passing (26/26, exceeding 12 test target by 217%)
+
+**In Progress:**
+- Planning core/rollout module (final Phase 2 module!)
+
+**Blocked:**
+- None
+
+**Decisions Made:**
+1. **File Locking:** Used best-effort file locking approach in TypeScript (Node.js doesn't have built-in advisory locking like Rust)
+2. **Platform Support:** Implemented Unix inode tracking for file identity, graceful fallback on Windows
+3. **Test Coverage:** Added extensive edge case testing including special characters, empty text, concurrent access patterns
+4. **Helper Functions:** Added readAllEntries and clearHistory for testing convenience
+
+**Next Steps:**
+1. Port core/rollout module (final Phase 2 module)
+2. Complete Phase 2 integration tests
+3. Update documentation and prepare for Phase 3
+
+**Hours:** ~2 hours
+
+---
+
 ## Module Status
 
 | Module | Status | Tests | Time Spent | Notes |
 |--------|--------|-------|------------|-------|
 | core/config | ✅ DONE | 18/18 | ~2h | Simplified interface for Phase 2 |
 | core/config-loader | ✅ DONE | 13/13 | ~2h | TOML loading + layer merging |
-| core/message-history | ⏳ WAITING | 0 | - | Can be done parallel with config-loader |
+| core/message-history | ✅ DONE | 26/26 | ~2h | JSONL persistence with file locking |
 | core/rollout | ⏳ WAITING | 0 | - | Persistence layer |
 | core/codex | ❌ DEFERRED | 0 | - | Moved to Phase 4.5 (needs core/client) |
 | core/codex-conversation | ❌ DEFERRED | 0 | - | Moved to Phase 4.5 (needs core/codex) |
 | core/conversation-manager | ❌ DEFERRED | 0 | - | Moved to Phase 5 (needs AuthManager) |
-| **TOTAL** | **2/4** | **31** | **~4h** | 3 modules deferred to later phases |
+| **TOTAL** | **3/4** | **57** | **~6h** | 3 modules deferred to later phases |
 
 ---
 
