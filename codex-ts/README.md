@@ -8,8 +8,8 @@ This project ports portable, algorithmic modules from the codex-rs Rust workspac
 
 ## Status
 
-- **Modules Ported**: 20
-- **Tests Passing**: 144
+- **Modules Ported**: 21
+- **Tests Passing**: 162
 - **Test Coverage**: Comprehensive unit tests ported from Rust
 
 See [PORTING_STATUS.md](./PORTING_STATUS.md) for detailed porting progress and rationale.
@@ -114,6 +114,11 @@ npm run type-check
 - **common/model-presets** - Built-in model configurations
   - `builtinModelPresets()` - gpt-5-codex, gpt-5 with reasoning effort settings
 
+- **common/config-override** - CLI configuration override parsing
+  - `CliConfigOverrides` - Parse and apply `-c key=value` overrides
+  - `parseTomlValue()` - Parse TOML values from strings
+  - Support for nested paths and automatic type conversion
+
 ### ANSI Processing
 - **ansi-escape** - ANSI escape sequence processing
   - `expandTabs()` - Replace tabs with spaces
@@ -140,7 +145,7 @@ npm run type-check
 ## Test Coverage
 
 ```
-Test Files:  18 passed (18)
-Tests:       144 passed (144)
+Test Files:  19 passed (19)
+Tests:       162 passed (162)
 Success Rate: 100%
 ```
