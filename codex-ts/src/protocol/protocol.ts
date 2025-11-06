@@ -7,32 +7,32 @@
  * Ported from: codex-rs/protocol/src/protocol.rs
  */
 
-import type { UserInput } from './items.js';
-import type { TurnItem } from './items.js';
-import type { CustomPrompt } from './custom-prompts.js';
-import type { UpdatePlanArgs } from './plan-tool.js';
-import type { HistoryEntry } from './message-history.js';
-import type { ReasoningEffort, ReasoningSummary } from './config-types.js';
-import type { ResponseItem } from './models.js';
+import type { UserInput } from "./items.js";
+import type { TurnItem } from "./items.js";
+import type { CustomPrompt } from "./custom-prompts.js";
+import type { UpdatePlanArgs } from "./plan-tool.js";
+import type { HistoryEntry } from "./message-history.js";
+import type { ReasoningEffort, ReasoningSummary } from "./config-types.js";
+import type { ResponseItem } from "./models.js";
 
 // ============================================================================
 // Constants
 // ============================================================================
 
 /** Open tag for user instructions */
-export const USER_INSTRUCTIONS_OPEN_TAG = '<user_instructions>';
+export const USER_INSTRUCTIONS_OPEN_TAG = "<user_instructions>";
 
 /** Close tag for user instructions */
-export const USER_INSTRUCTIONS_CLOSE_TAG = '</user_instructions>';
+export const USER_INSTRUCTIONS_CLOSE_TAG = "</user_instructions>";
 
 /** Open tag for environment context */
-export const ENVIRONMENT_CONTEXT_OPEN_TAG = '<environment_context>';
+export const ENVIRONMENT_CONTEXT_OPEN_TAG = "<environment_context>";
 
 /** Close tag for environment context */
-export const ENVIRONMENT_CONTEXT_CLOSE_TAG = '</environment_context>';
+export const ENVIRONMENT_CONTEXT_CLOSE_TAG = "</environment_context>";
 
 /** Begin marker for user message */
-export const USER_MESSAGE_BEGIN = '## My request for Codex:';
+export const USER_MESSAGE_BEGIN = "## My request for Codex:";
 
 // ============================================================================
 // Core Types
@@ -68,10 +68,10 @@ export interface Event {
  * Operations that can be submitted to the agent.
  */
 export type Op =
-  | { type: 'interrupt' }
-  | { type: 'user_input'; items: UserInput[] }
+  | { type: "interrupt" }
+  | { type: "user_input"; items: UserInput[] }
   | {
-      type: 'user_turn';
+      type: "user_turn";
       items: UserInput[];
       cwd: string;
       approval_policy: AskForApproval;
@@ -82,7 +82,7 @@ export type Op =
       final_output_json_schema?: unknown;
     }
   | {
-      type: 'override_turn_context';
+      type: "override_turn_context";
       cwd?: string;
       approval_policy?: AskForApproval;
       sandbox_policy?: SandboxPolicy;
@@ -90,17 +90,17 @@ export type Op =
       effort?: ReasoningEffort | null;
       summary?: ReasoningSummary;
     }
-  | { type: 'exec_approval'; id: string; decision: ReviewDecision }
-  | { type: 'patch_approval'; id: string; decision: ReviewDecision }
-  | { type: 'add_to_history'; text: string }
-  | { type: 'get_history_entry_request'; offset: number; log_id: number }
-  | { type: 'list_mcp_tools' }
-  | { type: 'list_custom_prompts' }
-  | { type: 'compact' }
-  | { type: 'undo' }
-  | { type: 'review'; review_request: ReviewRequest }
-  | { type: 'shutdown' }
-  | { type: 'run_user_shell_command'; command: string };
+  | { type: "exec_approval"; id: string; decision: ReviewDecision }
+  | { type: "patch_approval"; id: string; decision: ReviewDecision }
+  | { type: "add_to_history"; text: string }
+  | { type: "get_history_entry_request"; offset: number; log_id: number }
+  | { type: "list_mcp_tools" }
+  | { type: "list_custom_prompts" }
+  | { type: "compact" }
+  | { type: "undo" }
+  | { type: "review"; review_request: ReviewRequest }
+  | { type: "shutdown" }
+  | { type: "run_user_shell_command"; command: string };
 
 // ============================================================================
 // Policy Enums
@@ -110,19 +110,19 @@ export type Op =
  * Determines when the user is consulted to approve commands.
  */
 export type AskForApproval =
-  | 'untrusted' // Unless trusted (only safe read commands auto-approved)
-  | 'on-failure' // Auto-approve all, escalate on failure
-  | 'on-request' // Model decides (default)
-  | 'never'; // Never ask user
+  | "untrusted" // Unless trusted (only safe read commands auto-approved)
+  | "on-failure" // Auto-approve all, escalate on failure
+  | "on-request" // Model decides (default)
+  | "never"; // Never ask user
 
 /**
  * Execution restrictions for model shell commands.
  */
 export type SandboxPolicy =
-  | { mode: 'danger-full-access' }
-  | { mode: 'read-only' }
+  | { mode: "danger-full-access" }
+  | { mode: "read-only" }
   | {
-      mode: 'workspace-write';
+      mode: "workspace-write";
       writable_roots?: string[];
       network_access?: boolean;
       exclude_tmpdir_env_var?: boolean;
@@ -132,23 +132,23 @@ export type SandboxPolicy =
 export namespace SandboxPolicy {
   /** Create a read-only sandbox policy */
   export function newReadOnlyPolicy(): SandboxPolicy {
-    return { mode: 'read-only' }
+    return { mode: "read-only" };
   }
 
   /** Create a workspace-write sandbox policy */
   export function newWorkspaceWritePolicy(): SandboxPolicy {
     return {
-      mode: 'workspace-write',
+      mode: "workspace-write",
       writable_roots: [],
       network_access: false,
       exclude_tmpdir_env_var: false,
       exclude_slash_tmp: false,
-    }
+    };
   }
 
   /** Create a danger-full-access sandbox policy */
   export function newDangerFullAccessPolicy(): SandboxPolicy {
-    return { mode: 'danger-full-access' }
+    return { mode: "danger-full-access" };
   }
 }
 
@@ -156,10 +156,10 @@ export namespace SandboxPolicy {
  * User's decision in response to an approval request.
  */
 export type ReviewDecision =
-  | 'approved' // Approve this command
-  | 'approved_for_session' // Approve and auto-approve future identical
-  | 'denied' // Deny but continue session (default)
-  | 'abort'; // Deny and stop until next user command
+  | "approved" // Approve this command
+  | "approved_for_session" // Approve and auto-approve future identical
+  | "denied" // Deny but continue session (default)
+  | "abort"; // Deny and stop until next user command
 
 // ============================================================================
 // Event Messages (EventMsg)
@@ -171,21 +171,25 @@ export type ReviewDecision =
  * Large union type with 40+ event variants.
  */
 export type EventMsg =
-  | { type: 'error'; message: string; details?: string }
-  | { type: 'warning'; message: string; details?: string }
-  | { type: 'task_started'; model_context_window?: number }
-  | { type: 'task_complete'; last_agent_message?: string }
-  | { type: 'token_count'; info?: TokenUsageInfo; rate_limits?: RateLimitSnapshot }
-  | { type: 'agent_message'; message: string }
-  | { type: 'user_message'; message: string; images?: string[] }
-  | { type: 'agent_message_delta'; delta: string }
-  | { type: 'agent_reasoning'; text: string }
-  | { type: 'agent_reasoning_delta'; delta: string }
-  | { type: 'agent_reasoning_raw_content'; text: string }
-  | { type: 'agent_reasoning_raw_content_delta'; delta: string }
-  | { type: 'agent_reasoning_section_break' }
+  | { type: "error"; message: string; details?: string }
+  | { type: "warning"; message: string; details?: string }
+  | { type: "task_started"; model_context_window?: number }
+  | { type: "task_complete"; last_agent_message?: string }
   | {
-      type: 'session_configured';
+      type: "token_count";
+      info?: TokenUsageInfo;
+      rate_limits?: RateLimitSnapshot;
+    }
+  | { type: "agent_message"; message: string }
+  | { type: "user_message"; message: string; images?: string[] }
+  | { type: "agent_message_delta"; delta: string }
+  | { type: "agent_reasoning"; text: string }
+  | { type: "agent_reasoning_delta"; delta: string }
+  | { type: "agent_reasoning_raw_content"; text: string }
+  | { type: "agent_reasoning_raw_content_delta"; delta: string }
+  | { type: "agent_reasoning_section_break" }
+  | {
+      type: "session_configured";
       session_id: string;
       model: string;
       reasoning_effort?: ReasoningEffort;
@@ -194,12 +198,17 @@ export type EventMsg =
       initial_messages?: EventMsg[];
       rollout_path: string;
     }
-  | { type: 'mcp_tool_call_begin'; invocation: McpInvocation }
-  | { type: 'mcp_tool_call_end'; invocation: McpInvocation; result?: unknown; error?: string }
-  | { type: 'web_search_begin'; call_id: string }
-  | { type: 'web_search_end'; call_id: string }
+  | { type: "mcp_tool_call_begin"; invocation: McpInvocation }
   | {
-      type: 'exec_command_begin';
+      type: "mcp_tool_call_end";
+      invocation: McpInvocation;
+      result?: unknown;
+      error?: string;
+    }
+  | { type: "web_search_begin"; call_id: string }
+  | { type: "web_search_end"; call_id: string }
+  | {
+      type: "exec_command_begin";
       call_id: string;
       command: string[];
       cwd?: string;
@@ -207,13 +216,13 @@ export type EventMsg =
       env?: Record<string, string>;
     }
   | {
-      type: 'exec_command_output_delta';
+      type: "exec_command_output_delta";
       call_id: string;
       stream: ExecOutputStream;
       data: string;
     }
   | {
-      type: 'exec_command_end';
+      type: "exec_command_end";
       call_id: string;
       stdout: string;
       stderr: string;
@@ -221,9 +230,9 @@ export type EventMsg =
       signal?: string;
       timed_out: boolean;
     }
-  | { type: 'view_image_tool_call'; path: string; image_data: string }
+  | { type: "view_image_tool_call"; path: string; image_data: string }
   | {
-      type: 'exec_approval_request';
+      type: "exec_approval_request";
       id: string;
       command: string[];
       cwd: string;
@@ -231,49 +240,59 @@ export type EventMsg =
       assessment: SandboxCommandAssessment;
     }
   | {
-      type: 'apply_patch_approval_request';
+      type: "apply_patch_approval_request";
       id: string;
       file_changes: Record<string, FileChange>;
     }
-  | { type: 'deprecation_notice'; message: string }
-  | { type: 'background_event'; message: string }
-  | { type: 'undo_started' }
-  | { type: 'undo_completed'; success: boolean }
-  | { type: 'stream_error'; error: string }
-  | { type: 'stream_info'; message: string }
-  | { type: 'patch_apply_begin'; file_path: string }
-  | { type: 'patch_apply_end'; file_path: string; success: boolean; error?: string }
-  | { type: 'turn_diff'; added_items: TurnItem[]; removed_items: TurnItem[] }
-  | { type: 'get_history_entry_response'; entry?: HistoryEntry }
+  | { type: "deprecation_notice"; message: string }
+  | { type: "background_event"; message: string }
+  | { type: "undo_started" }
+  | { type: "undo_completed"; success: boolean }
+  | { type: "stream_error"; error: string }
+  | { type: "stream_info"; message: string }
+  | { type: "patch_apply_begin"; file_path: string }
   | {
-      type: 'mcp_list_tools_response';
+      type: "patch_apply_end";
+      file_path: string;
+      success: boolean;
+      error?: string;
+    }
+  | { type: "turn_diff"; added_items: TurnItem[]; removed_items: TurnItem[] }
+  | { type: "get_history_entry_response"; entry?: HistoryEntry }
+  | {
+      type: "mcp_list_tools_response";
       tools_by_server: Record<string, McpToolInfo[]>;
     }
-  | { type: 'list_custom_prompts_response'; prompts: CustomPrompt[] }
-  | { type: 'plan_update' } & UpdatePlanArgs
-  | { type: 'turn_aborted'; reason: TurnAbortReason }
-  | { type: 'shutdown_complete' }
-  | { type: 'entered_review_mode'; review_request: ReviewRequest }
-  | { type: 'exited_review_mode'; output?: ReviewOutputEvent }
-  | { type: 'raw_response_item'; item: ResponseItem }
-  | { type: 'item_started'; thread_id: string; turn_id: string; item: TurnItem }
-  | { type: 'item_completed'; thread_id: string; turn_id: string; item: TurnItem }
+  | { type: "list_custom_prompts_response"; prompts: CustomPrompt[] }
+  | ({ type: "plan_update" } & UpdatePlanArgs)
+  | { type: "turn_aborted"; reason: TurnAbortReason }
+  | { type: "shutdown_complete" }
+  | { type: "entered_review_mode"; review_request: ReviewRequest }
+  | { type: "exited_review_mode"; output?: ReviewOutputEvent }
+  | { type: "raw_response_item"; item: ResponseItem }
+  | { type: "item_started"; thread_id: string; turn_id: string; item: TurnItem }
   | {
-      type: 'agent_message_content_delta';
+      type: "item_completed";
+      thread_id: string;
+      turn_id: string;
+      item: TurnItem;
+    }
+  | {
+      type: "agent_message_content_delta";
       thread_id: string;
       turn_id: string;
       item_id: string;
       delta: string;
     }
   | {
-      type: 'reasoning_content_delta';
+      type: "reasoning_content_delta";
       thread_id: string;
       turn_id: string;
       item_id: string;
       delta: string;
     }
   | {
-      type: 'reasoning_raw_content_delta';
+      type: "reasoning_raw_content_delta";
       thread_id: string;
       turn_id: string;
       item_id: string;
@@ -304,21 +323,39 @@ export interface TokenUsageInfo {
 }
 
 /**
- * Rate limit snapshot.
+ * Rate limit snapshot with primary and secondary windows.
+ *
+ * Ported from: codex-rs/protocol/src/protocol.rs (RateLimitSnapshot)
  */
 export interface RateLimitSnapshot {
-  requests?: RateLimitWindow;
-  tokens?: RateLimitWindow;
+  primary?: RateLimitWindow;
+  secondary?: RateLimitWindow;
 }
 
 /**
  * Rate limit window information.
+ *
+ * Ported from: codex-rs/protocol/src/protocol.rs (RateLimitWindow)
  */
 export interface RateLimitWindow {
-  limit: number;
-  remaining: number;
-  reset_at?: string;
+  /** Percentage (0-100) of the window that has been consumed */
+  usedPercent: number;
+  /** Rolling window duration, in minutes */
+  windowMinutes?: number;
+  /** Unix timestamp (seconds since epoch) when the window resets */
+  resetsAt?: number;
 }
+
+/**
+ * MCP authentication status.
+ *
+ * Ported from: codex-rs/protocol/src/protocol.rs (McpAuthStatus)
+ */
+export type McpAuthStatus =
+  | "unsupported"
+  | "not_logged_in"
+  | "bearer_token"
+  | "oauth";
 
 /**
  * MCP tool invocation information.
@@ -342,12 +379,12 @@ export interface McpToolInfo {
 /**
  * Execution output stream type.
  */
-export type ExecOutputStream = 'stdout' | 'stderr';
+export type ExecOutputStream = "stdout" | "stderr";
 
 /**
  * Sandbox risk level.
  */
-export type SandboxRiskLevel = 'low' | 'medium' | 'high';
+export type SandboxRiskLevel = "low" | "medium" | "high";
 
 /**
  * Sandbox command assessment.
@@ -361,15 +398,15 @@ export interface SandboxCommandAssessment {
  * File change types.
  */
 export type FileChange =
-  | { type: 'add'; content: string }
-  | { type: 'delete'; content: string }
-  | { type: 'update'; unified_diff: string };
+  | { type: "add"; content: string }
+  | { type: "delete"; content: string }
+  | { type: "update"; unified_diff: string };
 
 /**
  * Review request.
  */
 export interface ReviewRequest {
-  mode: 'full' | 'quick';
+  mode: "full" | "quick";
   focus_areas?: string[];
 }
 
@@ -385,7 +422,7 @@ export interface ReviewOutputEvent {
  * Review finding.
  */
 export interface ReviewFinding {
-  severity: 'error' | 'warning' | 'info';
+  severity: "error" | "warning" | "info";
   message: string;
   location?: ReviewCodeLocation;
 }
@@ -410,10 +447,10 @@ export interface ReviewLineRange {
  * Turn abort reason.
  */
 export type TurnAbortReason =
-  | 'user_requested'
-  | 'max_turns_reached'
-  | 'error'
-  | 'context_overflow';
+  | "user_requested"
+  | "max_turns_reached"
+  | "error"
+  | "context_overflow";
 
 // ============================================================================
 // Helper Functions
@@ -437,15 +474,15 @@ export function createEvent(id: string, msg: EventMsg): Event {
  * Check if a sandbox policy allows full write access.
  */
 export function hasFullDiskWriteAccess(policy: SandboxPolicy): boolean {
-  return policy.mode === 'danger-full-access';
+  return policy.mode === "danger-full-access";
 }
 
 /**
  * Check if a sandbox policy allows network access.
  */
 export function hasNetworkAccess(policy: SandboxPolicy): boolean {
-  if (policy.mode === 'danger-full-access') return true;
-  if (policy.mode === 'workspace-write') {
+  if (policy.mode === "danger-full-access") return true;
+  if (policy.mode === "workspace-write") {
     return policy.network_access === true;
   }
   return false;
@@ -455,7 +492,7 @@ export function hasNetworkAccess(policy: SandboxPolicy): boolean {
  * Create a read-only sandbox policy.
  */
 export function createReadOnlyPolicy(): SandboxPolicy {
-  return { mode: 'read-only' };
+  return { mode: "read-only" };
 }
 
 /**
@@ -463,7 +500,7 @@ export function createReadOnlyPolicy(): SandboxPolicy {
  */
 export function createWorkspaceWritePolicy(): SandboxPolicy {
   return {
-    mode: 'workspace-write',
+    mode: "workspace-write",
     writable_roots: [],
     network_access: false,
     exclude_tmpdir_env_var: false,
@@ -474,24 +511,26 @@ export function createWorkspaceWritePolicy(): SandboxPolicy {
 /**
  * Check if an event is an error.
  */
-export function isErrorEvent(msg: EventMsg): msg is Extract<EventMsg, { type: 'error' }> {
-  return msg.type === 'error';
+export function isErrorEvent(
+  msg: EventMsg,
+): msg is Extract<EventMsg, { type: "error" }> {
+  return msg.type === "error";
 }
 
 /**
  * Check if an event is task complete.
  */
 export function isTaskCompleteEvent(
-  msg: EventMsg
-): msg is Extract<EventMsg, { type: 'task_complete' }> {
-  return msg.type === 'task_complete';
+  msg: EventMsg,
+): msg is Extract<EventMsg, { type: "task_complete" }> {
+  return msg.type === "task_complete";
 }
 
 /**
  * Check if an event is an agent message.
  */
 export function isAgentMessageEvent(
-  msg: EventMsg
-): msg is Extract<EventMsg, { type: 'agent_message' }> {
-  return msg.type === 'agent_message';
+  msg: EventMsg,
+): msg is Extract<EventMsg, { type: "agent_message" }> {
+  return msg.type === "agent_message";
 }
