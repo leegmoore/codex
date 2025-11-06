@@ -753,7 +753,7 @@ Your design is successful if:
 ## Output Instructions
 
 **Write your complete design document to:**
-`/Users/leemoore/code/codex-port-02/MESSAGES_API_INTEGRATION_DESIGN.md`
+`/Users/leemoore/code/codex-port-02/MESSAGES_API_INTEGRATION_DESIGN_CODEX.md`
 
 **Format:** Markdown with clear sections, code examples, and diagrams.
 
