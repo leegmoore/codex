@@ -10,10 +10,10 @@ This directory contains detailed plans, checklists, and progress tracking for ea
 
 ## Phases
 
-### [Phase 1: Foundation & Protocol](./phase-1/README.md) ⬅️ START HERE
+### [Phase 1: Foundation & Protocol](./phase-1/README.md)
 **Goal:** Complete protocol layer and establish testing infrastructure
 
-**Status:** Not Started
+**Status:** ✅ COMPLETE
 
 **Documents:**
 - [README.md](./phase-1/README.md) - Detailed phase plan
@@ -58,17 +58,34 @@ This directory contains detailed plans, checklists, and progress tracking for ea
 
 ---
 
-### Phase 4: Model Integration & MCP
-**Goal:** LLM communication and MCP server support
+### Phase 4: Model Integration & MCP (Split into 4 sub-phases)
+**Goal:** LLM communication, multi-provider support, and MCP server integration
 
-**Status:** Not Started
+**Status:** 🔄 IN PROGRESS
 
-**Key Deliverables:**
-- `core/client` and `core/chat_completions`
-- `backend-client` (API communication)
-- `ollama/client` and remaining ollama modules
-- `chatgpt` integration
-- `mcp-server` and `mcp-types`
+#### [Phase 4.0](./phase-4/) - MCP Foundation ✅ COMPLETE
+- mcp-types, ollama/client (57 tests)
+
+#### [Phase 4.1](./phase-4.1/) - OpenAI Client ✅ COMPLETE
+- client-common, model-provider-info, stub-auth, chat-completions, client, tool-converters (114 tests)
+
+#### [Phase 4.2](./phase-4.2/) - Anthropic Messages API 🔄 IN PROGRESS
+- Add Messages API as third provider (167 tests target)
+- **Design:** [MESSAGES_API_INTEGRATION_DESIGN_CODEX.md](../MESSAGES_API_INTEGRATION_DESIGN_CODEX.md)
+- 11 stages: types, tool conversion, request builder, SSE parser, streaming adapter, etc.
+
+#### [Phase 4.3](./phase-4.3/) - Backend Services & MCP ⏳ NEXT
+- backend-client, chatgpt, rmcp-client, mcp-server, core/mcp (5 modules)
+
+#### [Phase 4.4](./phase-4.4/) - Script Harness Core ⏳ PLANNED
+- Script-based tool harness (5 weeks, 14 modules, 40 tests)
+- **Design:** [SCRIPT_HARNESS_DESIGN_FINAL.md](../SCRIPT_HARNESS_DESIGN_FINAL.md)
+- QuickJS runtime, XML detection, tool facade, promise tracking, approvals
+
+#### [Phase 4.5](./phase-4.5/) - Script Harness Hardening ⏳ PLANNED
+- Production hardening (5 weeks, 60 total tests)
+- **Design:** [SCRIPT_HARNESS_DESIGN_FINAL.md](../SCRIPT_HARNESS_DESIGN_FINAL.md)
+- isolated-vm runtime, tools.spawn, security review, documentation
 
 ---
 
