@@ -36,6 +36,9 @@ export enum WireApi {
 
   /** Regular Chat Completions compatible with `/v1/chat/completions` */
   Chat = 'chat',
+
+  /** Anthropic Messages API at `/v1/messages` */
+  Messages = 'messages',
 }
 
 /**
@@ -262,6 +265,8 @@ export function getFullUrl(
       return `${baseUrl}/responses${queryString}`
     case WireApi.Chat:
       return `${baseUrl}/chat/completions${queryString}`
+    case WireApi.Messages:
+      return `${baseUrl}/messages${queryString}`
   }
 }
 

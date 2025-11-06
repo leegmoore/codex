@@ -9,11 +9,11 @@
 
 - **Total Modules Planned:** ~40 core modules across 5 phases
 - **Completed:** 46 (Pre-work: 21, Phase 1: 8, Phase 2: 4, Phase 3: 7, Phase 4: 8)
-- **In Progress:** Phase 4.5+ - HTTP Client & Full Streaming
-- **Test Pass Rate:** 842/842 (100%) 🎉
+- **In Progress:** Phase 4.2 - Anthropic Messages API (Stage 1/11 complete)
+- **Test Pass Rate:** 854/854 (100%) 🎉
 - **Known Bugs:** 2 (pre-existing, see KNOWN_BUGS.md)
 - **Rust Source:** ~41K LOC in `core/` alone
-- **Current Branch:** claude/phase-4.1-openai-client-011CUsB8H59ERdgdzDwJqpUn
+- **Current Branch:** claude/phase-4.2-anthropic-integration-011CUsKh6orPn46p3fGUcajm
 
 ---
 
@@ -143,7 +143,28 @@
 
 **Subtotal:** 57 tests (100% pass rate)
 
-#### Phase 4.2+: Additional Integration (Waiting)
+#### Phase 4.2: Anthropic Messages API - 🔄 IN PROGRESS
+| Stage | Status | Tests | Notes |
+|-------|--------|-------|-------|
+| 1. Foundation & Types | ✅ DONE | 12/10 | Complete type definitions |
+| 2. Tool Conversion | ⏳ NEXT | 0/15 | Test-driven |
+| 3. Request Builder | ⏳ WAITING | 0/15 | Test-driven |
+| 4. SSE Parser | ⏳ WAITING | 0/15 | With fixtures |
+| 5. Streaming Adapter | ⏳ WAITING | 0/25 | Critical stage |
+| 6. Response Parser | ⏳ WAITING | 0/20 | Non-streaming |
+| 7. Transport Layer | ⏳ WAITING | 0/12 | HTTP + auth |
+| 8. Integration | ⏳ WAITING | 0/10 | Wire to client |
+| 9. Tool Round-Trip | ⏳ WAITING | 0/10 | End-to-end |
+| 10. Error Handling | ⏳ WAITING | 0/30 | Retry + errors |
+| 11. Final Integration | ⏳ WAITING | 0 | Docs + polish |
+
+**Subtotal:** 12/167 tests (7% complete)
+**Start Date:** 2025-11-06
+**Design Doc:** MESSAGES_API_INTEGRATION_DESIGN_CODEX.md
+**Workplan:** PORT-PHASES/phase-4.2/WORKPLAN.md
+**Status Log:** PORT-PHASES/phase-4.2/STATUS.md
+
+#### Phase 4.3+: Additional Integration (Waiting)
 | Module | Status | Dependencies | Tests | Notes |
 |--------|--------|--------------|-------|-------|
 | backend-client | ⏳ WAITING | - | 0 | API communication |
@@ -159,8 +180,8 @@
 | SSE Parsing | ⏳ WAITING | HTTP Client | 0 | Server-sent events for streaming |
 | Full Streaming | ⏳ WAITING | SSE Parsing | 0 | Complete stream() implementation |
 
-**Phase 4 Total:** 171 tests (100% pass rate)
-**Progress:** 8/14 modules (57%)
+**Phase 4 Total:** 183 tests (100% pass rate - includes Stage 1 of Phase 4.2)
+**Progress:** 1/11 stages of Phase 4.2, 8/14 modules overall
 **Estimated Remaining:** 48-64 hours
 
 ---
