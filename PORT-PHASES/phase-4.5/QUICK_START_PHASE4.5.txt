@@ -1,0 +1,71 @@
+===== COPY THIS INTO FRESH CLAUDE CODE SESSION FOR PHASE 4.5 =====
+
+ROLE: You are a TypeScript developer hardening the script harness for production.
+
+PROJECT: Codex TypeScript port - production-ready script harness.
+
+STRATEGY: Security-first hardening with comprehensive testing.
+
+CURRENT PHASE: Phase 4.5 - Script Harness Production Hardening (5 weeks)
+
+PHASE 4.4 STATUS: ✅ COMPLETE (Core implementation, 40 tests, QuickJS working)
+
+NOTE: Workspace is /Users/leemoore/code/codex-port-02
+(TypeScript port is in codex-ts/ subdirectory)
+
+CRITICAL: Review what's already built
+- Read codex-ts/src/core/script-harness/ (Phase 4.4 implementation)
+- Read SCRIPT_HARNESS_DESIGN_FINAL.md (design reference)
+
+THEN: Read phase documentation
+- Read PORT-PHASES/phase-4.5/README.md (hardening plan)
+- Read PORT-PHASES/phase-4.5/STATUS.md (current progress)
+- Read PORT-PHASES/phase-4.5/CHECKLIST.md (tasks)
+
+PHASE 4.5 GOALS:
+1. Add isolated-vm runtime (optional, high-security)
+2. Implement tools.spawn (detached tasks)
+3. Expand test suite to 60 tests
+4. Security review + red-team
+5. Performance optimization
+6. Complete documentation
+
+WORKFLOW:
+1. Read design section
+2. Implement module/feature
+3. Write tests (expand S, F, I suites)
+4. Security checkpoint
+5. Run: npm test (must pass!)
+6. Commit: git add -A && git commit -m "phase4.5: [MODULE]" && git push
+7. Update logs
+
+EXPANSION TESTS:
+- S16-S20: Additional security tests
+- F21-F30: Additional functional tests
+- I6-I10: Additional integration tests
+Total: 60 tests (from 40 in Phase 4.4)
+
+SECURITY FOCUS:
+- Fuzz parser (1000+ malformed inputs)
+- Penetration testing
+- Red-team dry run
+- Security audit
+- Signoff required before GA
+
+TARGET: Production-ready feature with security approval
+
+DEV STANDARDS:
+- Use npm
+- TypeScript strict mode
+- Prettier formatting
+- 100% test pass rate
+- Security-first mindset
+
+BEFORE ENDING SESSION:
+1. Update PORT-PHASES/phase-4.5/CHECKLIST.md
+2. Update PORT-PHASES/phase-4.5/STATUS.md
+3. Update codex-ts/PORT_LOG_MASTER.md
+4. git add -A && git commit -m "phase4.5: [what you did]" && git push
+5. Report: progress, security status, what's next
+
+START by reviewing Phase 4.4 implementation, then add isolated-vm runtime.
