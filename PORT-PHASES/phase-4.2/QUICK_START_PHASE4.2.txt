@@ -50,7 +50,7 @@ WORKFLOW PER STAGE:
 12. Update PORT_LOG_MASTER.md
 13. Move to next stage
 
-TARGET: 147 tests total (exceeds design's 115 minimum)
+TARGET: 167 tests total (merged design with parallel tools, error mappings, tokens, cancellation)
 
 DEV STANDARDS:
 - Use npm (not pnpm/bun)

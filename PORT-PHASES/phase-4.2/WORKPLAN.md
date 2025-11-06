@@ -207,20 +207,24 @@
 
 ---
 
-## Stage 10: Error Handling & Edge Cases
+## Stage 10: Error Handling & Advanced Features
 
-**Goal:** Robust error handling
+**Goal:** Robust error handling, token mapping, cancellation
 
 **Tasks:**
-1. Implement error normalization
-2. Implement retry logic (if different from Responses/Chat)
-3. Write error handling tests:
-   - EH-01 through EH-15 from design doc (15 tests)
-4. Verify all tests pass
+1. Implement error normalization (Anthropic errors → Codex errors)
+2. Implement retry logic with backoff (250ms initial, 2x, max 6 attempts)
+3. Implement rate limit header parsing
+4. Implement token usage normalization (with reasoning_tokens, cache tokens)
+5. Implement streaming cancellation (AbortSignal)
+6. Write error handling tests (20 tests including mappings)
+7. Write token usage tests (5 tests)
+8. Write cancellation tests (5 tests)
+9. Verify all 30 tests pass
 
-**Deliverable:** Error handling with 15 tests
+**Deliverable:** Error handling, token mapping, cancellation with 30 tests
 
-**Reference:** Design Section 4.6 (EH tests)
+**Reference:** Design Sections 2.9, 2.10, 2.11
 
 ---
 
