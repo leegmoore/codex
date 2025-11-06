@@ -8,9 +8,9 @@
 ## Quick Stats
 
 - **Total Modules Planned:** ~40 core modules across 5 phases
-- **Completed:** 39 (Pre-work: 21, Phase 1: 8, Phase 2: 4, Phase 3: 7, Phase 4: 1)
-- **In Progress:** Phase 4 - Model Integration & MCP (1/9 modules)
-- **Test Pass Rate:** 707/707 (100%) 🎉
+- **Completed:** 40 (Pre-work: 21, Phase 1: 8, Phase 2: 4, Phase 3: 7, Phase 4: 2)
+- **In Progress:** Phase 4 - Model Integration & MCP (2/9 modules)
+- **Test Pass Rate:** 752/752 (100%) 🎉
 - **Known Bugs:** 2 (pre-existing, see KNOWN_BUGS.md)
 - **Rust Source:** ~41K LOC in `core/` alone
 - **Current Branch:** claude/phase4-model-integration-mcp-011CUrtJtUBGfBqdNLCEh5GA
@@ -116,7 +116,7 @@
 ---
 
 ### 🔄 Phase 4: Model Integration & MCP
-**Status:** IN PROGRESS (1/9 modules complete)
+**Status:** IN PROGRESS (2/9 modules complete)
 **Start Date:** 2025-11-06
 **Dependencies:** Phase 2 & 3
 **Log:** [PORT-PHASES/phase-4/STATUS.md](../PORT-PHASES/phase-4/STATUS.md)
@@ -124,7 +124,7 @@
 | Module | Status | Dependencies | Tests | Notes |
 |--------|--------|--------------|-------|-------|
 | mcp-types | ✅ DONE | - | 12/12 | Official SDK re-exports |
-| ollama/client | ⏳ WAITING | ollama/parser | 0 | Complete ollama module |
+| ollama/client | ✅ DONE | ollama/parser | 45/45 | Full client + progress |
 | core/client | ⏳ WAITING | protocol/models | 0 | Model client interface |
 | core/chat_completions | ⏳ WAITING | core/client | 0 | Streaming handler |
 | backend-client | ⏳ WAITING | - | 0 | API communication |
@@ -133,8 +133,8 @@
 | mcp-server | ⏳ WAITING | mcp-types | 0 | MCP server management |
 | core/mcp | ⏳ WAITING | all above | 0 | MCP integration |
 
-**Total:** 12 tests (100% pass rate)
-**Estimated Remaining:** 72-100 hours
+**Total:** 57 tests (100% pass rate)
+**Estimated Remaining:** 64-92 hours
 
 ---
 
