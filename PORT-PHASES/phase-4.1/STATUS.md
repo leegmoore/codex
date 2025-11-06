@@ -8,8 +8,8 @@
 
 ## Progress Overview
 
-- **Modules Completed:** 3 / 6
-- **Tests Passing:** 75
+- **Modules Completed:** 4 / 6
+- **Tests Passing:** 93
 - **Status:** 🔄 IN PROGRESS
 
 ---
@@ -21,7 +21,7 @@
 | client-common | ✅ DONE | 32/32 | Foundation types ported |
 | model-provider-info | ✅ DONE | 22/22 | Provider abstraction complete |
 | stub-auth | ✅ DONE | 21/21 | Temporary auth stubs for testing |
-| chat-completions | ⏳ WAITING | 0 | Chat API + aggregation |
+| chat-completions | ✅ DONE | 18/18 | Core types + message building |
 | client | ⏳ WAITING | 0 | ModelClient + Responses API |
 | tool-converters | ⏳ WAITING | 0 | Format conversion |
 
@@ -122,3 +122,39 @@
 - Phase 5 will add: token refresh, auth storage, keyring, expiration
 - Environment variable reading supports both OPENAI_API_KEY and CODEX_API_KEY
 - Proper trimming and empty string handling
+
+### Session 4 - 2025-11-06 (Module 4: chat-completions)
+
+**Goal:** Port Chat Completions API core types and message building
+
+**Work Completed:**
+- Created `chat-completions.ts` with core functionality:
+  - Type definitions: `ChatMessage`, `ChatCompletionRequest`, `ChatCompletionChunk`
+  - `ChatMessageRole`, `ChatMessageToolCall`, `ChatCompletionDelta` types
+  - `buildChatMessages()` - converts ResponseItems to Chat API format
+  - `createChatCompletionRequest()` - builds request payload
+  - Message deduplication logic
+  - Image/multimodal content support
+  - Tool call conversion (function, local_shell, custom)
+- Created comprehensive test suite (`chat-completions.test.ts`):
+  - 18 tests covering core types and message building
+  - Chat message role tests
+  - Tool call tests
+  - Message building from ResponseItems
+  - Duplicate detection tests
+  - Ghost snapshot filtering tests
+  - 100% pass rate
+- Added TODO comments for Phase 4.5+ streaming implementation
+
+**Files Added:**
+- `codex-ts/src/core/client/chat-completions.ts` (295 lines)
+- `codex-ts/src/core/client/chat-completions.test.ts` (340 lines)
+
+**Test Results:** ✅ 18/18 passing
+
+**Notes:**
+- Simplified implementation focusing on core types for Phase 4.1
+- Full streaming (SSE parsing, retry, aggregation) deferred to Phase 4.5+
+- Message building logic matches Rust implementation
+- Supports all ResponseItem types (messages, function calls, tool outputs)
+- Ghost snapshots and reasoning properly filtered

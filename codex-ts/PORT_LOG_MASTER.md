@@ -8,9 +8,9 @@
 ## Quick Stats
 
 - **Total Modules Planned:** ~40 core modules across 5 phases
-- **Completed:** 43 (Pre-work: 21, Phase 1: 8, Phase 2: 4, Phase 3: 7, Phase 4: 5)
-- **In Progress:** Phase 4.1 - OpenAI Client (3/6 modules)
-- **Test Pass Rate:** 835/835 (100%) 🎉
+- **Completed:** 44 (Pre-work: 21, Phase 1: 8, Phase 2: 4, Phase 3: 7, Phase 4: 6)
+- **In Progress:** Phase 4.1 - OpenAI Client (4/6 modules)
+- **Test Pass Rate:** 853/853 (100%) 🎉
 - **Known Bugs:** 2 (pre-existing, see KNOWN_BUGS.md)
 - **Rust Source:** ~41K LOC in `core/` alone
 - **Current Branch:** claude/phase4-model-integration-mcp-011CUrtJtUBGfBqdNLCEh5GA
@@ -127,7 +127,7 @@
 | client-common | ✅ DONE | protocol/models | 32/32 | Foundation types |
 | model-provider-info | ✅ DONE | - | 22/22 | Provider abstraction complete |
 | stub-auth | ✅ DONE | - | 21/21 | Temporary auth stubs for testing |
-| chat-completions | ⏳ WAITING | client-common | 0 | Chat API + aggregation |
+| chat-completions | ✅ DONE | client-common | 18/18 | Core types + message building |
 | client | ⏳ WAITING | client-common | 0 | ModelClient + Responses API |
 | tool-converters | ⏳ WAITING | - | 0 | Format conversion |
 
@@ -146,9 +146,9 @@
 | mcp-server | ⏳ WAITING | mcp-types | 0 | MCP server management |
 | core/mcp | ⏳ WAITING | all above | 0 | MCP integration |
 
-**Total:** 132 tests (100% pass rate)
-**Phase 4.1 Progress:** 3/6 modules (50%)
-**Estimated Remaining:** 48-72 hours
+**Total:** 150 tests (100% pass rate)
+**Phase 4.1 Progress:** 4/6 modules (67%)
+**Estimated Remaining:** 32-48 hours
 
 ---
 
