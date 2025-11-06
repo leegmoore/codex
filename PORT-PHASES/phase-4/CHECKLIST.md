@@ -7,18 +7,18 @@
 ## Setup
 
 - [x] Phase 3 complete
-- [ ] Review Phase 4 documentation
+- [x] Review Phase 4 documentation
 
 ---
 
 ## Modules
 
 ### mcp-types
-- [ ] Read codex-rs/mcp-types/src/
-- [ ] Port MCP type definitions
-- [ ] Create tests
-- [ ] Verify tests pass
-- [ ] Update logs
+- [x] Read codex-rs/mcp-types/src/
+- [x] Port MCP type definitions
+- [x] Create tests
+- [x] Verify tests pass (12/12 passing)
+- [x] Update logs
 
 ### ollama/client
 - [ ] Read codex-rs/ollama/src/
