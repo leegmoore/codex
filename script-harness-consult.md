@@ -8,17 +8,56 @@
 
 ## Project Context
 
-**Project:** Codex TypeScript Port (`@openai/codex-core`)
-**Current Phase:** Phase 4 (Model Integration)
+**Project:** Codex TypeScript Port - Creating `@openai/codex-core`
+**Goal:** Port Codex from Rust to TypeScript to create a pure library for AI coding agents that works without subprocess overhead
 **Repository:** `/Users/leemoore/code/codex-port-02`
+**Current Phase:** Phase 4 (Model Integration & Multi-Provider Support)
 
-**Status:**
-- Phase 1-3: ✅ Complete (protocol, config, execution, tools)
-- Phase 4.1: ✅ Complete (OpenAI client with Responses + Chat APIs)
-- Phase 4.2: 🔄 In Progress (Anthropic Messages API integration)
-- Phase 4.4: ⏳ Planning (Script harness - THIS CONSULTATION)
+### Complete Port Status
 
-**Total progress:** 866 tests passing (protocol, core, tools, client)
+**Phase 0: Pre-work** ✅ COMPLETE
+- 21 utility modules ported (162 tests, 100% passing)
+- Modules: ansi-escape, async-utils, common/* (approval-presets, config-override, elapsed, format-env-display, fuzzy-match, model-presets, sandbox-summary), partial protocol/* (approvals, conversation-id, num-format, parse-command, types, user-input), utils/* (cache, json-to-toml, readiness, string, tokenizer)
+- Location: `codex-ts/src/`
+
+**Phase 1: Protocol Layer** ✅ COMPLETE (2025-11-05)
+- 8 protocol modules ported (283 tests, 100% passing)
+- Modules: protocol/protocol (Event, EventMsg, Op types), protocol/models (ResponseItem, ResponseInputItem), protocol/items (TurnItem types), protocol/config-types, protocol/account, protocol/message-history, protocol/custom-prompts, protocol/plan-tool
+- Location: `codex-ts/src/protocol/`
+- Deliverable: Complete type system for events, operations, model responses
+
+**Phase 2: Configuration & Persistence** ✅ COMPLETE (2025-11-05)
+- 4 core modules ported (87 tests, 100% passing)
+- Modules: core/config, core/config-loader (TOML with smol-toml), core/message-history, core/rollout (JSONL persistence)
+- Location: `codex-ts/src/core/`
+- Deliverable: Configuration management and conversation persistence
+
+**Phase 3: Execution & Tools** ✅ COMPLETE (2025-11-06)
+- 7 modules ported (163 tests, 100% passing)
+- Modules: apply-patch (unified diff with tree-sitter), file-search (fuzzy matching with gitignore), execpolicy (JSON-based policies), core/sandboxing (platform detection and wrapping), core/exec (Node.js spawn integration), core/tools (formatting utilities)
+- Location: `codex-ts/src/`
+- Deliverable: Command execution, file operations, sandboxing infrastructure
+
+**Phase 4.0: MCP Foundation** ✅ COMPLETE (2025-11-06)
+- 2 modules ported (57 tests, 100% passing)
+- Modules: mcp-types (using official @modelcontextprotocol/sdk), ollama (complete: client, parser, url, pull progress)
+- Location: `codex-ts/src/mcp-types/`, `codex-ts/src/ollama/`
+- Deliverable: MCP type integration and Ollama local model support
+
+**Phase 4.1: OpenAI Client** ✅ COMPLETE (2025-11-06, just finished!)
+- 6 modules ported (114 tests, 100% passing)
+- Modules: client-common (Prompt, ResponseEvent, ResponseStream, ToolSpec types), model-provider-info (WireApi enum with Responses/Chat, ModelProviderInfo, provider registry), stub-auth (temporary AuthManager/CodexAuth for testing), chat-completions (Chat API types and message building), client (ModelClient class with provider dispatch), tool-converters (format conversion for Responses and Chat APIs)
+- Location: `codex-ts/src/core/client/`, `codex-ts/src/core/auth/`
+- Deliverable: Working ModelClient supporting OpenAI Responses API and Chat Completions API with unified ResponseStream output
+
+**Phase 4.2: Anthropic Messages API** 🔄 IN PROGRESS
+- Adding Anthropic as third provider with complete streaming implementation
+- Design complete (MESSAGES_API_INTEGRATION_DESIGN_CODEX.md)
+- Target: 167 tests for full Messages API integration
+
+**Phase 4.4: Script Harness** ⏳ THIS CONSULTATION
+
+**Current Total:** 866 tests passing across all phases, 100% pass rate maintained
 
 ---
 
@@ -93,9 +132,12 @@ return {
 2. Extract TypeScript code
 3. Execute in sandboxed runtime (QuickJS preferred, but recommend alternatives if better)
 4. Wire in available tools as async functions
-5. Provide execution context object with runtime state
+5. Inject execution context object containing runtime state (conversationId, workingDirectory, etc.)
 6. Capture return value
 7. Send back to model as tool output
+
+**Runtime Context Assumption:**
+A `context` object will be injected into the sandbox containing execution state and metadata. Scripts can access this for information about their environment (e.g., `context.workingDirectory`, `context.conversationId`). The exact contents haven't been defined yet - your design should specify what context should contain, what's safe to expose, and how it's injected securely.
 
 **Note:** We prefer QuickJS for its lightweight nature and good sandboxing, but if you identify a superior alternative (isolated-vm, etc.) with better security, performance, or async handling, please recommend it with justification.
 
@@ -210,7 +252,52 @@ vm.global.set('tools', new Proxy({}, {
 - How to preserve partial results?
 - Stack trace sanitization?
 
-### 5. Return Value Formatting
+### 5. Model Output Integration (IMPORTANT)
+
+**Critical requirement:** Models can freely combine thinking blocks, normal text, and script execution in a single response. ALL components must be preserved in conversation history.
+
+**Example complete model response:**
+```xml
+Let me analyze the test failures.
+
+<thinking>
+I need to search for failing tests, run them in parallel to see errors,
+then apply patches. This is the most efficient approach.
+</thinking>
+
+I'll fix the tests now by searching and patching in parallel.
+
+<tool-calls>
+const tests = await tools.fileSearch({pattern: "*.test.ts", limit: 10});
+const results = await Promise.all(
+  tests.map(t => tools.exec({command: ["npm", "test", t.path]}))
+);
+const failed = results.filter(r => r.exitCode !== 0);
+if (failed.length > 0) {
+  await tools.applyPatch({patch: generateFix(failed)});
+}
+return {totalTests: tests.length, failed: failed.length};
+</tool-calls>
+
+Fixed 3 failing tests. All tests now passing!
+```
+
+**Processing & History:**
+- `<thinking>` block → ResponseItem.reasoning (preserved)
+- Text: "Let me analyze..." → ResponseItem.message
+- Text: "I'll fix..." → ResponseItem.message (continued)
+- `<tool-calls>` execution → ResponseItem.custom_tool_call + ResponseItem.custom_tool_call_output
+- Text: "Fixed 3..." → ResponseItem.message (continued)
+
+**Key points:**
+- All components appear in conversation history in original order
+- Next turn has access to ALL context (thinking + text + tool results)
+- Script harness is transparent to conversation flow
+- Model can explain → think → execute → continue explaining seamlessly
+
+**Design must ensure:** Script execution integrates cleanly without disrupting thinking blocks or text output preservation.
+
+### 6. Return Value Formatting
 
 **Model returns arbitrary shape:**
 ```ts
@@ -222,7 +309,7 @@ return { files: [...], testsPassed: true, summary: "..." };
 - Structured FunctionCallOutputPayload?
 - New CustomScriptOutput type?
 
-### 6. Streaming & Progress
+### 7. Streaming & Progress
 
 **Can we stream partial results?**
 - Script calls tools sequentially
@@ -233,15 +320,21 @@ return { files: [...], testsPassed: true, summary: "..." };
 - How to handle script errors mid-execution?
 - Can model see partial state?
 
-### 7. Feature Flagging
+### 7. Feature Flagging & Execution Control
 
-**How to enable:**
+**How to enable/disable the feature:**
 - Global config (`enable_script_harness: true`)?
 - Per-provider config?
 - Per-turn flag?
 - Always-on with detection?
 
-**Recommendation needed.**
+**Additionally - execution control:**
+- Enable/disable actual execution (not just detection)
+- Dry-run mode: Detect `<tool-calls>`, parse/validate script, but don't execute
+- Use cases: Testing, validation, security auditing
+- Config: `script_execution_mode: 'enabled' | 'dry-run' | 'disabled'`?
+
+**Recommendation needed for both feature enablement AND execution control.**
 
 ### 8. Testing Strategy
 
@@ -478,7 +571,29 @@ const tools = {
 
 ### Async Function Bridging
 
-**Challenge:** Sandbox needs to call async Codex tools.
+**Challenge:** Sandbox needs to call async Codex tools AND handle partial completion scenarios.
+
+**Critical edge case - Partial completion:**
+```ts
+// What if this line completes...
+const fast = await tools.fileSearch({pattern: "*.ts"}); // Completes in 100ms
+
+// But this line hasn't finished when script returns?
+const slow = tools.exec({command: ["sleep", "10"]}); // Takes 10 seconds, not awaited
+
+return fast.length; // Script ends - slow promise is still running!
+// What happens to the slow promise?
+// Does it keep running? Get cancelled? Leak resources?
+```
+
+**Another scenario - One execution path finishes:**
+```ts
+const results = await Promise.race([
+  tools.exec({command: ["npm", "test"]}),      // Finishes first
+  tools.exec({command: ["npm", "run", "build"]}) // Still running
+]);
+// Promise.race completes - what about the losing promise?
+```
 
 **QuickJS approach:**
 ```ts
@@ -497,7 +612,14 @@ const applyPatch = new ivm.Reference(async (args) => {
 context.global.setSync('tools', { applyPatch });
 ```
 
-**Which is cleaner/safer? Provide complete implementation.**
+**Design must address:**
+- Promise lifecycle tracking (all promises created by script)
+- Cleanup for orphaned/non-awaited promises
+- Graceful cancellation when script completes
+- Resource leak prevention
+- Partial result handling
+
+**Which runtime handles this better? Provide complete implementation with promise lifecycle management.**
 
 ### Resource Limits
 
