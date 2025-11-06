@@ -1,27 +1,27 @@
 # Phase 4.3 Checklist
 
-**Status:** Not Started
+**Status:** In Progress (1/5 modules complete)
 
 ---
 
 ## Prerequisites
 
 - [x] Phase 4.2 complete (Messages API integration)
-- [ ] Review Phase 4.3 documentation
+- [x] Review Phase 4.3 documentation
 
 ---
 
 ## Module 1: backend-client
 
-- [ ] Read codex-rs/backend-client/src/
-- [ ] Create codex-ts/src/backend-client/
-- [ ] Port Client class
-- [ ] Port task management endpoints
-- [ ] Port rate limit endpoints
-- [ ] Port account endpoints
-- [ ] Create tests
-- [ ] Verify tests pass
-- [ ] Update logs
+- [x] Read codex-rs/backend-client/src/
+- [x] Create codex-ts/src/backend-client/
+- [x] Port Client class
+- [x] Port task management endpoints
+- [x] Port rate limit endpoints
+- [x] Port account endpoints
+- [x] Create tests
+- [x] Verify tests pass
+- [x] Update logs
 
 ---
 
