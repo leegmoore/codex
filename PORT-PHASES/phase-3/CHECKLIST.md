@@ -18,11 +18,11 @@
 - [ ] Update logs
 
 ### file-search
-- [ ] Read codex-rs/file-search/src/lib.rs
-- [ ] Create codex-ts/src/file-search/index.ts
-- [ ] Port fuzzy search logic
-- [ ] Create tests
-- [ ] Verify tests pass
+- [x] Read codex-rs/file-search/src/lib.rs
+- [x] Create codex-ts/src/file-search/index.ts
+- [x] Port fuzzy search logic (using fuzzysort + globby)
+- [x] Create tests (11 tests)
+- [x] Verify tests pass (11/11 ✅)
 - [ ] Update logs
 
 ### execpolicy
