@@ -45,15 +45,15 @@
 - [ ] Update logs
 
 ### exec
-- [ ] Read codex-rs/exec/src/
-- [ ] Port execution module
-- [ ] Create tests
-- [ ] Update logs
+- [x] Read codex-rs/exec/src/
+- [x] Skipped (CLI-only, not needed for library)
+- [x] Event types will be ported if needed in Phase 4
 
 ### core/exec
-- [ ] Read codex-rs/core/src/exec.rs
-- [ ] Port execution engine
-- [ ] Create tests
+- [x] Read codex-rs/core/src/exec.rs
+- [x] Port execution engine (using Node.js spawn)
+- [x] Create tests (24 tests)
+- [x] Verify tests pass (24/24 ✅)
 - [ ] Update logs
 
 ### core/tools

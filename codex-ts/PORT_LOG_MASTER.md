@@ -8,9 +8,9 @@
 ## Quick Stats
 
 - **Total Modules Planned:** ~40 core modules across 5 phases
-- **Completed:** 35 (Pre-work: 21, Phase 1: 8, Phase 2: 4, Phase 3: 4)
-- **In Progress:** Phase 3 (4/7 modules done - 57% complete!)
-- **Test Pass Rate:** 648/648 (100%) 🎉
+- **Completed:** 37 (Pre-work: 21, Phase 1: 8, Phase 2: 4, Phase 3: 6)
+- **In Progress:** Phase 3 (6/7 modules done - 86% complete!)
+- **Test Pass Rate:** 672/672 (100%) 🎉
 - **Known Bugs:** 2 (pre-existing, see KNOWN_BUGS.md)
 - **Rust Source:** ~41K LOC in `core/` alone
 - **Current Branch:** claude/phase3-apply-patch-011CUqc5Es1kzrtVbqh86kUs
@@ -93,10 +93,10 @@
 
 ---
 
-### 🔄 Phase 3: Execution & Tools (In Progress - 57% Complete!)
-**Status:** IN PROGRESS (4/7 modules complete)
+### 🔄 Phase 3: Execution & Tools (In Progress - 86% Complete!)
+**Status:** IN PROGRESS (6/7 modules complete)
 **Start Date:** 2025-11-05
-**Duration So Far:** ~6.5 hours
+**Duration So Far:** ~8 hours
 **Dependencies:** Phase 2 ✅
 **Log:** [PORT-PHASES/phase-3/STATUS.md](../PORT-PHASES/phase-3/STATUS.md)
 
@@ -106,11 +106,11 @@
 | file-search | ✅ DONE | fuzzysort, globby | 11/11 | Fuzzy file search with gitignore |
 | execpolicy | ✅ DONE | - | 32/32 | JSON-based policy checking |
 | core/sandboxing | ✅ DONE | - | 24/24 | SandboxManager, platform detection |
-| exec | ⏳ WAITING | execpolicy | - | Execution interface |
-| core/exec | ⏳ WAITING | exec, core/sandboxing | - | Execution engine |
+| exec | ✅ SKIPPED | - | N/A | CLI-only crate (not needed for library) |
+| core/exec | ✅ DONE | core/sandboxing | 24/24 | Node.js spawn-based execution engine |
 | core/tools | ⏳ WAITING | all above | - | Tool coordination |
 
-**Total So Far:** 116 tests (100% pass rate)
+**Total So Far:** 140 tests (100% pass rate)
 
 ---
 
