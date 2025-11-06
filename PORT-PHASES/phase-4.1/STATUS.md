@@ -8,9 +8,9 @@
 
 ## Progress Overview
 
-- **Modules Completed:** 4 / 6
-- **Tests Passing:** 93
-- **Status:** 🔄 IN PROGRESS
+- **Modules Completed:** 6 / 6
+- **Tests Passing:** 114
+- **Status:** ✅ COMPLETE
 
 ---
 
@@ -22,8 +22,8 @@
 | model-provider-info | ✅ DONE | 22/22 | Provider abstraction complete |
 | stub-auth | ✅ DONE | 21/21 | Temporary auth stubs for testing |
 | chat-completions | ✅ DONE | 18/18 | Core types + message building |
-| client | ⏳ WAITING | 0 | ModelClient + Responses API |
-| tool-converters | ⏳ WAITING | 0 | Format conversion |
+| client | ✅ DONE | 11/11 | ModelClient with API abstraction |
+| tool-converters | ✅ DONE | 10/10 | Responses/Chat format conversion |
 
 ---
 
@@ -158,3 +158,78 @@
 - Message building logic matches Rust implementation
 - Supports all ResponseItem types (messages, function calls, tool outputs)
 - Ghost snapshots and reasoning properly filtered
+
+### Session 5 - 2025-11-06 (Module 5: client)
+
+**Goal:** Port ModelClient with Responses API support
+
+**Work Completed:**
+- Created `client.ts` with ModelClient class:
+  - `ResponsesApiOptions` interface for configuration
+  - `ModelClient` class with provider/model/auth management
+  - Getter methods: `getProvider()`, `getModelSlug()`, `getWireApi()`, etc.
+  - `stream()` method stub (deferred to Phase 4.5+)
+  - Private methods `streamResponses()` and `streamChat()` (stubs)
+  - Auto-selects API based on provider's wireApi configuration
+- Created comprehensive test suite (`client.test.ts`):
+  - 11 tests covering client instantiation and configuration
+  - Tests for Responses API provider
+  - Tests for Chat API provider
+  - Tests for auth, reasoning effort, reasoning summary
+  - 100% pass rate
+- Added TODO comments for Phase 4.5+ HTTP/streaming implementation
+
+**Files Added:**
+- `codex-ts/src/core/client/client.ts` (158 lines)
+- `codex-ts/src/core/client/client.test.ts` (140 lines)
+
+**Test Results:** ✅ 11/11 passing
+
+**Notes:**
+- Simplified implementation for Phase 4.1 - core structure only
+- Full streaming implementation deferred to Phase 4.5+
+- Supports both WireApi.Responses and WireApi.Chat
+- Reasoning summary defaults to 'auto'
+
+### Session 6 - 2025-11-06 (Module 6: tool-converters)
+
+**Goal:** Port tool format converters for different APIs
+
+**Work Completed:**
+- Created `tool-converters.ts` with conversion functions:
+  - `createToolsJsonForResponsesApi()` - converts all tool types to Responses format
+  - `createToolsJsonForChatCompletionsApi()` - converts and filters to Chat format
+  - Support for function, local_shell, web_search, custom tools
+  - Chat API filters to function tools only and wraps in `function` field
+- Created comprehensive test suite (`tool-converters.test.ts`):
+  - 10 tests covering both conversion functions
+  - Tests for empty arrays
+  - Tests for each tool type (function, local_shell, web_search, custom)
+  - Tests for filtering behavior (Chat API)
+  - Tests for multiple tools
+  - 100% pass rate
+
+**Files Added:**
+- `codex-ts/src/core/client/tool-converters.ts` (95 lines)
+- `codex-ts/src/core/client/tool-converters.test.ts` (237 lines)
+
+**Test Results:** ✅ 10/10 passing
+
+**Notes:**
+- Responses API accepts all tool types in direct format
+- Chat API only supports function tools, others filtered out
+- Chat API wraps function details in `function` field
+- Clean discriminated union handling with switch statements
+
+---
+
+## Phase 4.1 Complete! 🎉
+
+**Final Statistics:**
+- **Total Modules:** 6/6 ✅
+- **Total Tests:** 114 passing
+- **Total Lines Added:** ~2,300 lines (implementation + tests)
+- **Test Coverage:** 100% pass rate
+- **Time:** Single day completion
+
+**Next Phase:** Phase 4.5 - HTTP Client Infrastructure & Full Streaming
