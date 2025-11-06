@@ -8,9 +8,9 @@
 ## Quick Stats
 
 - **Total Modules Planned:** ~40 core modules across 5 phases
-- **Completed:** 40 (Pre-work: 21, Phase 1: 8, Phase 2: 4, Phase 3: 7, Phase 4: 2)
-- **In Progress:** Phase 4 - Model Integration & MCP (2/9 modules)
-- **Test Pass Rate:** 752/752 (100%) 🎉
+- **Completed:** 41 (Pre-work: 21, Phase 1: 8, Phase 2: 4, Phase 3: 7, Phase 4: 3)
+- **In Progress:** Phase 4.1 - OpenAI Client (1/6 modules)
+- **Test Pass Rate:** 792/792 (100%) 🎉
 - **Known Bugs:** 2 (pre-existing, see KNOWN_BUGS.md)
 - **Rust Source:** ~41K LOC in `core/` alone
 - **Current Branch:** claude/phase4-model-integration-mcp-011CUrtJtUBGfBqdNLCEh5GA
@@ -116,25 +116,39 @@
 ---
 
 ### 🔄 Phase 4: Model Integration & MCP
-**Status:** IN PROGRESS (2/9 modules complete)
+**Status:** IN PROGRESS (3/9 modules complete)
 **Start Date:** 2025-11-06
 **Dependencies:** Phase 2 & 3
 **Log:** [PORT-PHASES/phase-4/STATUS.md](../PORT-PHASES/phase-4/STATUS.md)
 
+#### Phase 4.1: OpenAI Client (In Progress)
+| Module | Status | Dependencies | Tests | Notes |
+|--------|--------|--------------|-------|-------|
+| client-common | ✅ DONE | protocol/models | 32/32 | Foundation types |
+| model-provider-info | ⏳ WAITING | - | 0 | Provider abstraction |
+| stub-auth | ⏳ WAITING | - | 0 | Temporary for testing |
+| chat-completions | ⏳ WAITING | client-common | 0 | Chat API + aggregation |
+| client | ⏳ WAITING | client-common | 0 | ModelClient + Responses API |
+| tool-converters | ⏳ WAITING | - | 0 | Format conversion |
+
+#### Phase 4.0: MCP & Ollama (Complete)
 | Module | Status | Dependencies | Tests | Notes |
 |--------|--------|--------------|-------|-------|
 | mcp-types | ✅ DONE | - | 12/12 | Official SDK re-exports |
 | ollama/client | ✅ DONE | ollama/parser | 45/45 | Full client + progress |
-| core/client | ⏳ WAITING | protocol/models | 0 | Model client interface |
-| core/chat_completions | ⏳ WAITING | core/client | 0 | Streaming handler |
+
+#### Phase 4.2+: Additional Integration (Waiting)
+| Module | Status | Dependencies | Tests | Notes |
+|--------|--------|--------------|-------|-------|
 | backend-client | ⏳ WAITING | - | 0 | API communication |
 | chatgpt | ⏳ WAITING | backend-client | 0 | ChatGPT features |
 | rmcp-client | ⏳ WAITING | mcp-types | 0 | MCP client |
 | mcp-server | ⏳ WAITING | mcp-types | 0 | MCP server management |
 | core/mcp | ⏳ WAITING | all above | 0 | MCP integration |
 
-**Total:** 57 tests (100% pass rate)
-**Estimated Remaining:** 64-92 hours
+**Total:** 89 tests (100% pass rate)
+**Phase 4.1 Progress:** 1/6 modules (17%)
+**Estimated Remaining:** 60-88 hours
 
 ---
 

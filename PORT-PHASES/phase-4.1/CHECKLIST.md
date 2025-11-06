@@ -8,24 +8,24 @@
 
 - [x] Phase 3 complete (execution & tools)
 - [x] Phase 4 started (mcp-types, ollama complete)
-- [ ] Review Phase 4.1 documentation
-- [ ] Create src/core/client directory
+- [x] Review Phase 4.1 documentation
+- [x] Create src/core/client directory
 
 ---
 
 ## Module 1: client_common (Foundation)
 
-- [ ] Read codex-rs/core/src/client_common.rs
-- [ ] Create codex-ts/src/core/client/client-common.ts
-- [ ] Port Prompt interface
-- [ ] Port ResponseEvent enum
-- [ ] Port ResponseStream interface
-- [ ] Port ResponsesApiRequest interface
-- [ ] Port tool-related types (ToolSpec, ResponsesApiTool)
-- [ ] Create client-common.test.ts
-- [ ] Write tests (min 15 tests)
-- [ ] Verify tests pass
-- [ ] Update logs
+- [x] Read codex-rs/core/src/client_common.rs
+- [x] Create codex-ts/src/core/client/client-common.ts
+- [x] Port Prompt interface
+- [x] Port ResponseEvent enum
+- [x] Port ResponseStream interface
+- [x] Port ResponsesApiRequest interface
+- [x] Port tool-related types (ToolSpec, ResponsesApiTool)
+- [x] Create client-common.test.ts
+- [x] Write tests (32 tests - exceeded target!)
+- [x] Verify tests pass
+- [x] Update logs
 
 ---
 
