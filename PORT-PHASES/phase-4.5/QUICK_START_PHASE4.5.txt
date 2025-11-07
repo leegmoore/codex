@@ -1,71 +1,70 @@
 ===== COPY THIS INTO FRESH CLAUDE CODE SESSION FOR PHASE 4.5 =====
 
-ROLE: You are a TypeScript developer hardening the script harness for production.
+ROLE: You are a TypeScript developer optimizing the script harness and migrating tools.
 
-PROJECT: Codex TypeScript port - production-ready script harness.
+PROJECT: Codex TypeScript port - production-ready script harness with complete tool set.
 
-STRATEGY: Security-first hardening with comprehensive testing.
+STRATEGY: Tool migration + performance optimization + documentation.
 
-CURRENT PHASE: Phase 4.5 - Script Harness Production Hardening (5 weeks)
+CURRENT PHASE: Phase 4.5 - Script Harness Optimization & Tools
 
-PHASE 4.4 STATUS: ✅ COMPLETE (Core implementation, 40 tests, QuickJS working)
+PHASE 4.4 STATUS: ✅ COMPLETE (Core implementation, 401 tests, QuickJS working)
 
 NOTE: Workspace is /Users/leemoore/code/codex-port-02
 (TypeScript port is in codex-ts/ subdirectory)
 
-CRITICAL: Review what's already built
-- Read codex-ts/src/core/script-harness/ (Phase 4.4 implementation)
-- Read SCRIPT_HARNESS_DESIGN_FINAL.md (design reference)
+FIRST: Read status
+- Read codex-ts/src/core/script-harness/ (what's built)
+- Read PORT-PHASES/phase-4.5/README.md (detailed plan)
+- Read PORT-PHASES/phase-4.5/CHECKLIST.md (task list)
+- Read PORT-PHASES/phase-4.5/STATUS.md (progress)
 
-THEN: Read phase documentation
-- Read PORT-PHASES/phase-4.5/README.md (hardening plan)
-- Read PORT-PHASES/phase-4.5/STATUS.md (current progress)
-- Read PORT-PHASES/phase-4.5/CHECKLIST.md (tasks)
+PHASE 4.5 TASKS:
 
-PHASE 4.5 GOALS:
-1. Add isolated-vm runtime (optional, high-security)
-2. Implement tools.spawn (detached tasks)
-3. Expand test suite to 60 tests
-4. Security review + red-team
-5. Performance optimization
-6. Complete documentation
+Task 1: Tool Migration from codex-port
+- REPLACE applyPatch: Copy ~/code/v/codex-port/src/tools/applyPatch/ (has full tree-sitter, ours is stubbed)
+- ADD readFile: Copy ~/code/v/codex-port/src/tools/readFile.ts (smart indentation mode)
+- ADD listDir: Copy ~/code/v/codex-port/src/tools/listDir.ts (recursive listing)
+- ADD grepFiles: Copy ~/code/v/codex-port/src/tools/grepFiles.ts (ripgrep search)
+- Adapt: Update imports (.js), types (ToolResult), Bun→Node.js
+- Result: 6 tools vs current 3
+
+Task 2: tools.spawn
+- Detached tasks for long-running ops (phone-a-sme takes 10+ min)
+- spawn.exec() + spawn.cancel()
+
+Task 3: Performance
+- Worker pool (reuse workers)
+- Context reuse (reset vs recreate)
+- Script caching (by hash)
+- Compilation caching (TS→JS)
+
+Task 4: Documentation
+- 5 guides (user, API, config, errors, ops)
 
 WORKFLOW:
-1. Read design section
-2. Implement module/feature
-3. Write tests (expand S, F, I suites)
-4. Security checkpoint
-5. Run: npm test (must pass!)
-6. Commit: git add -A && git commit -m "phase4.5: [MODULE]" && git push
-7. Update logs
+1. Complete tool migration first (critical)
+2. Then tools.spawn
+3. Then performance optimizations
+4. Finally documentation
 
-EXPANSION TESTS:
-- S16-S20: Additional security tests
-- F21-F30: Additional functional tests
-- I6-I10: Additional integration tests
-Total: 60 tests (from 40 in Phase 4.4)
-
-SECURITY FOCUS:
-- Fuzz parser (1000+ malformed inputs)
-- Penetration testing
-- Red-team dry run
-- Security audit
-- Signoff required before GA
-
-TARGET: Production-ready feature with security approval
+PER TASK:
+1. Follow CHECKLIST steps
+2. Run: npm test (must pass!)
+3. Commit: git add -A && git commit -m "phase4.5: [TASK]" && git push
+4. Update logs
 
 DEV STANDARDS:
 - Use npm
 - TypeScript strict mode
 - Prettier formatting
 - 100% test pass rate
-- Security-first mindset
 
 BEFORE ENDING SESSION:
 1. Update PORT-PHASES/phase-4.5/CHECKLIST.md
 2. Update PORT-PHASES/phase-4.5/STATUS.md
 3. Update codex-ts/PORT_LOG_MASTER.md
 4. git add -A && git commit -m "phase4.5: [what you did]" && git push
-5. Report: progress, security status, what's next
+5. Report: tasks done, tools added, what's next
 
-START by reviewing Phase 4.4 implementation, then add isolated-vm runtime.
+START with Task 1 (tool migration) - most critical.
