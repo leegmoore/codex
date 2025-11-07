@@ -13,27 +13,28 @@
 
 ## Deferred Tests (Valid Skips)
 
-The following 9 tests are intentionally skipped pending future feature implementation:
+The following 4 tests are intentionally skipped due to technical limitations:
 
 **Module:** `core/script-harness/runtime`
 **File:** `src/core/script-harness/runtime/quickjs-runtime.test.ts`
-**Status:** DEFERRED (not bugs - awaiting feature implementation)
+**Status:** DEFERRED (not bugs - fundamental limitations)
 
 | Test | Reason | Blocked By |
 |------|--------|------------|
-| QR7 | Empty/comment handling | Special case handling needed for comment-only scripts |
-| QR10 | Function marshalling | QuickJS limitation - cannot inject JavaScript functions |
-| QR12 | Async script execution | Async/await support not yet implemented |
-| QR13 | Async function execution | Async/await support not yet implemented |
-| QR14 | Promise.all handling | Async/await support not yet implemented |
-| QR20 | Timeout enforcement | Interrupt-based timeout mechanism not yet implemented |
-| QR21 | Timeout override | Interrupt-based timeout mechanism not yet implemented |
-| QR23 | Tool call count tracking | Requires async support |
-| QR27 | AbortSignal cancellation | Interrupt-based cancellation not yet implemented |
+| QR13 | Async function execution | Async function injection requires Promise bridging (complex) |
+| QR14 | Promise.all handling | Requires async function injection |
+| QR23 | Tool call count tracking | Requires async function injection |
+| QR27 | AbortSignal mid-execution | Impossible - QuickJS blocks event loop during execution |
 
-**Impact:** None - these are advanced features not currently needed
-**Priority:** Low - implement as needed for future use cases
-**Test Coverage:** 1,734/1,743 tests passing (99.5% of total, 100% of enabled tests)
+**Recently Fixed (Phase 4.7):**
+- ✅ QR7: Empty/comment handling - Fixed by adding newlines in function wrapping
+- ✅ QR10: Function marshalling - Implemented sync function injection with `vm.newFunction()`
+- ✅ QR12: Async script execution - Implemented async/await support with promise handling
+- ✅ QR20, QR21: Timeout enforcement - Implemented interrupt-based timeout with `vm.runtime.setInterruptHandler()`
+
+**Impact:** Low - remaining tests require async function injection (complex, not essential)
+**Priority:** Low - async function injection would require Promise bridging
+**Test Coverage:** 1,739/1,743 tests passing (99.8% of total, 100% of enabled tests)
 
 ---
 
@@ -200,16 +201,17 @@ When you discover a bug:
 ## Bug Tracking Stats
 
 - **Total Active:** 0 🎉
-- **Total Deferred:** 9 (skipped tests - valid feature gaps)
-- **Total Fixed:** 4
+- **Total Deferred:** 4 (skipped tests - fundamental limitations)
+- **Total Fixed:** 9 (including 5 in Phase 4.7)
 - **By Severity:**
   - Critical: 0
   - High: 0
   - Medium: 0 (2 fixed)
-  - Low: 0 (1 fixed - flaky tests)
+  - Low: 0 (7 fixed total)
 - **By Phase:**
-  - Phase 0 (pre-work): 0 (2 fixed)
-  - Phase 4: 0 (1 fixed - retry test pollution)
-- **Last Bug Pass:** 2025-11-07 (Phase 4.7 - fixed QuickJS isolation tests)
+  - Phase 0 (pre-work): 2 fixed
+  - Phase 4: 2 fixed (retry test pollution, QuickJS isolation)
+  - Phase 4.7: 5 fixed (QR7, QR10, QR12, QR20, QR21)
+- **Last Bug Pass:** 2025-11-07 (Phase 4.7 - fixed 5 QuickJS runtime issues)
 - **Next Bug Pass:** When 5+ bugs accumulated or before release
-- **Test Coverage:** 1,734/1,743 passing (99.5% total, 100% of enabled tests)
+- **Test Coverage:** 1,739/1,743 passing (99.8% total, 100% of enabled tests)
