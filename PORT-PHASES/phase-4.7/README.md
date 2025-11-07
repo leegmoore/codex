@@ -8,10 +8,12 @@ Phase 4.7 implements web search with intelligent caching and document management
 
 ## Goals
 
-1. **Web search** - Perplexity API integration with ranked results
-2. **URL fetching** - Firecrawl integration with Redis caching
-3. **File Cabinet stubs** - Document storage/retrieval interface (full implementation later)
-4. **Cache layer** - Redis-based URL content caching (24hr TTL)
+1. **Web search** - Perplexity API integration with ranked results (FULL IMPL)
+2. **URL fetching** - Firecrawl integration with Redis caching (FULL IMPL)
+3. **Document tools** - File Cabinet stubs (interfaces for later)
+4. **Prompt tools** - Prompt caching stubs (interfaces for later)
+5. **Agent tools** - Agent orchestration stubs (interfaces for later)
+6. **Lock in APIs** - Establish stable interfaces before core wiring
 
 ## Tools to Implement
 
@@ -75,14 +77,27 @@ fetchUrl(params: {
 
 ### 3-5. File Cabinet Tools (Stubs)
 
-**saveToFC** - Save fileKey to permanent storage
-**fetchFromFC** - Retrieve by fileKey
-**writeFile** - Write fileKey content to filesystem
+**saveToFC** - Save fileKey with note to File Cabinet (30 day storage)
+**fetchFromFC** - Retrieve content by fileKey
+**writeFile** - Write fileKey content directly to filesystem (zero-token transfer)
 
-**Stub implementation:**
-- Proper TypeScript interfaces
-- Clear TODO comments
-- Return mock success (actual storage deferred)
+### 6-7. Prompt Tools (Stubs)
+
+**prompts.save** - Store prompts in Redis, return promptKeys
+**prompts.get** - Retrieve prompts by keys
+
+### 8-10. Agent Orchestration Tools (Stubs)
+
+**agents.llm.chat** - Single-shot LLM call with prompt keys
+**agents.launch.sync** - Synchronous agent execution (waits for completion)
+**agents.launch.async** - Background agent execution (returns fileKeys for response + log)
+
+**All stubs:**
+- Complete TypeScript interfaces
+- Parameter validation
+- TODO comments for implementation phase
+- Mock return values
+- Tests (interface validation)
 
 ## Architecture
 
