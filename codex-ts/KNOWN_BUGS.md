@@ -7,36 +7,7 @@
 
 ## Active Bugs
 
-### 🐛 Bug #3: Flaky tests in full suite run
-**Module:** `async-utils`, `file-search`
-**Files:** `src/async-utils/index.test.ts`, `src/file-search/search.test.ts`
-**Severity:** Low (tests pass individually)
-
-**Description:**
-When running the full test suite, 11 tests timeout after 5000ms. These tests pass consistently when run individually or in small groups, suggesting test pollution or resource exhaustion in the full suite.
-
-**Failing tests:**
-- `async-utils/index.test.ts`: "returns Err when signal aborted first" (1 test)
-- `file-search/search.test.ts`: All 11 tests timeout
-
-**Error:**
-```
-Error: Test timed out in 5000ms.
-```
-
-**Impact:**
-- Full test suite shows: 11 failed | 1137 passed (1148)
-- Individual test runs: All tests pass (100%)
-- Likely test pollution or resource contention issue
-
-**Notes:**
-- Tests pass individually: `npm test -- src/file-search/search.test.ts` ✓
-- Tests fail in full suite: `npm test` ✗
-- Vitest config uses `singleFork: true` (sequential execution)
-- May be related to temporary file cleanup or async resource exhaustion
-- Fixed 1 test (was 12 failures, now 11) by improving abort listener cleanup
-
-**Priority:** Low (doesn't block core functionality, tests pass individually)
+*None - All bugs fixed!* 🎉
 
 ---
 
@@ -97,6 +68,32 @@ Created `.eslintrc.json` with TypeScript-appropriate configuration:
 
 ---
 
+### ✅ Bug #3: Flaky tests in full suite (FIXED)
+**Module:** `core/client/messages/retry`
+**File:** `src/core/client/messages/retry.test.ts`
+**Fixed:** 2025-11-07
+
+**Original Issue:**
+11 tests timed out after 5000ms when running full test suite, but passed when run individually. This was caused by test pollution from retry tests leaving unhandled promise rejections.
+
+**Root Cause:**
+1. `afterEach()` hook only called `vi.restoreAllMocks()` but didn't restore timers with `vi.useRealTimers()`
+2. Tests used real `setTimeout()` instead of fake timer-aware code
+3. Unhandled promise rejections from earlier tests polluted the test environment
+4. Later tests (async-utils, file-search) timed out waiting for event loop to clear
+
+**Fix:**
+1. Added `vi.useRealTimers()` to `afterEach()` to properly clean up fake timers
+2. Removed real `setTimeout()` calls and used `vi.advanceTimersByTimeAsync()` instead
+3. Ensured proper async/await sequencing to avoid race conditions
+
+**Verification:**
+- Full test suite: 1148/1148 passing (100%) ✓
+- Ran 4 consecutive full suite runs - all passed consistently
+- No more test pollution or timeout issues
+
+---
+
 ## Bug Triage Guidelines
 
 **Severity Levels:**
@@ -142,15 +139,15 @@ When you discover a bug:
 
 ## Bug Tracking Stats
 
-- **Total Active:** 1
-- **Total Fixed:** 2
+- **Total Active:** 0 🎉
+- **Total Fixed:** 3
 - **By Severity:**
   - Critical: 0
   - High: 0
   - Medium: 0 (2 fixed)
-  - Low: 1 (flaky tests)
+  - Low: 0 (1 fixed - flaky tests)
 - **By Phase:**
   - Phase 0 (pre-work): 0 (2 fixed)
-  - Phase 1-5: 1 (flaky tests)
-- **Last Bug Pass:** 2025-11-07 (after Phase 5 completion)
+  - Phase 4: 0 (1 fixed - retry test pollution)
+- **Last Bug Pass:** 2025-11-07 (after Phase 5 completion - all bugs fixed!)
 - **Next Bug Pass:** When 5+ bugs accumulated or before release

@@ -23,6 +23,7 @@ describe("Retry Logic - Stage 10", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.useRealTimers();
   });
 
   describe("Retry Delay Calculation", () => {
@@ -131,8 +132,9 @@ describe("Retry Logic - Stage 10", () => {
       const promise = sleep(5000, controller.signal);
 
       // Abort after 100ms
-      setTimeout(() => controller.abort(), 100);
-      vi.advanceTimersByTime(100);
+      const advancePromise = vi.advanceTimersByTimeAsync(100);
+      await advancePromise;
+      controller.abort();
 
       await expect(promise).rejects.toThrow("Aborted");
     });
@@ -223,12 +225,17 @@ describe("Retry Logic - Stage 10", () => {
         controller.signal,
       );
 
+      // Start advancing timers, which will trigger the retry sleep
+      const advancePromise = vi.advanceTimersByTimeAsync(500);
+      await advancePromise;
+
       // Abort after first attempt
-      setTimeout(() => controller.abort(), 500);
+      controller.abort();
+
+      // Finish advancing timers
+      await vi.advanceTimersByTimeAsync(500);
 
       try {
-        await vi.advanceTimersByTimeAsync(500);
-        await vi.advanceTimersByTimeAsync(500);
         await promise;
         throw new Error("Should have thrown");
       } catch (e: any) {
