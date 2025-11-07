@@ -14,11 +14,11 @@
 ## Authentication Modules
 
 ### keyring-store
-- [ ] Read codex-rs/keyring-store/src/
-- [ ] Port credential storage
-- [ ] Create tests
-- [ ] Verify tests pass
-- [ ] Update logs
+- [x] Read codex-rs/keyring-store/src/
+- [x] Port credential storage
+- [x] Create tests
+- [x] Verify tests pass
+- [x] Update logs
 
 ### login
 - [ ] Read codex-rs/login/src/

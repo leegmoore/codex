@@ -1,19 +1,19 @@
 # Codex TypeScript Port - Master Log
 
-**Last Updated:** 2025-11-06
-**Project Status:** 🔄 PHASE 4 IN PROGRESS (Phase 4.3 Complete!)
+**Last Updated:** 2025-11-07
+**Project Status:** 🔄 PHASE 5 IN PROGRESS (Phase 4 Complete!)
 
 ---
 
 ## Quick Stats
 
 - **Total Modules Planned:** ~40 core modules across 5 phases
-- **Completed:** 51 (Pre-work: 21, Phase 1: 8, Phase 2: 4, Phase 3: 7, Phase 4: 13)
-- **In Progress:** Phase 4.5+ - HTTP Client & Streaming
-- **Test Pass Rate:** 876/876 (100%) 🎉
+- **Completed:** 52 (Pre-work: 21, Phase 1: 8, Phase 2: 4, Phase 3: 7, Phase 4: 13, Phase 5: 1)
+- **In Progress:** Phase 5 - Authentication & CLI
+- **Test Pass Rate:** 897/897 (100%) 🎉
 - **Known Bugs:** 2 (pre-existing, see KNOWN_BUGS.md)
 - **Rust Source:** ~41K LOC in `core/` alone
-- **Current Branch:** claude/phase-4.3-backend-services-011CUsPuv4XZ8MjXDRXyT74v
+- **Current Branch:** claude/phase5-auth-cli-port-011CUseoYQcbdfkYvLthABGN
 
 ---
 
@@ -168,14 +168,16 @@
 
 ---
 
-### ⏳ Phase 5: CLI, Auth & Polish
-**Status:** NOT STARTED
+### 🔄 Phase 5: CLI, Auth & Polish
+**Status:** IN PROGRESS (1/9 modules)
+**Start Date:** 2025-11-07
 **Dependencies:** All previous phases
+**Log:** [PORT-PHASES/phase-5/STATUS.md](../PORT-PHASES/phase-5/STATUS.md)
 
-| Module | Status | Dependencies | Estimated Hours |
-|--------|--------|--------------|-----------------|
-| login | ⏳ WAITING | keyring-store | 8-12 hours |
-| keyring-store | ⏳ WAITING | - | 6-8 hours |
+| Module | Status | Dependencies | Tests | Notes |
+|--------|--------|--------------|-------|-------|
+| keyring-store | ✅ DONE | - | 21/21 | Interface and mock implementation |
+| login | ⏳ WAITING | keyring-store | 0 | Next up |
 | core/auth | ⏳ WAITING | login | 8-12 hours |
 | exec/exec_events | ⏳ WAITING | protocol/* | 6-8 hours |
 | cli | ⏳ WAITING | all core | 12-16 hours |
