@@ -132,9 +132,8 @@ describe("Retry Logic - Stage 10", () => {
       const promise = sleep(5000, controller.signal);
 
       // Abort after 100ms
-      const advancePromise = vi.advanceTimersByTimeAsync(100);
-      await advancePromise;
-      controller.abort();
+      setTimeout(() => controller.abort(), 100);
+      vi.advanceTimersByTime(100);
 
       await expect(promise).rejects.toThrow("Aborted");
     });
@@ -201,16 +200,18 @@ describe("Retry Logic - Stage 10", () => {
         maxAttempts: 3,
       });
 
+      // Attach rejection handler immediately to prevent unhandled rejection
+      const resultPromise = promise.catch((e) => e);
+
       // Advance through all retries
-      try {
-        await vi.advanceTimersByTimeAsync(100);
-        await vi.advanceTimersByTimeAsync(100);
-        await promise;
-        throw new Error("Should have thrown");
-      } catch (e: any) {
-        expect(e.statusCode).toBe(429);
-        expect(e.message).toBe("Rate limited");
-      }
+      await vi.advanceTimersByTimeAsync(100);
+      await vi.advanceTimersByTimeAsync(100);
+
+      const result = await resultPromise;
+      expect(result).toMatchObject({
+        statusCode: 429,
+        message: "Rate limited",
+      });
 
       expect(fn).toHaveBeenCalledTimes(3);
     });
@@ -225,22 +226,17 @@ describe("Retry Logic - Stage 10", () => {
         controller.signal,
       );
 
-      // Start advancing timers, which will trigger the retry sleep
-      const advancePromise = vi.advanceTimersByTimeAsync(500);
-      await advancePromise;
+      // Attach rejection handler immediately to prevent unhandled rejection
+      const resultPromise = promise.catch((e) => e);
 
       // Abort after first attempt
-      controller.abort();
-
-      // Finish advancing timers
+      setTimeout(() => controller.abort(), 500);
+      await vi.advanceTimersByTimeAsync(500);
       await vi.advanceTimersByTimeAsync(500);
 
-      try {
-        await promise;
-        throw new Error("Should have thrown");
-      } catch (e: any) {
-        expect(e.message).toBe("Aborted");
-      }
+      const result = await resultPromise;
+      expect(result).toBeInstanceOf(Error);
+      expect(result.message).toBe("Aborted");
     });
 
     it("should throw immediately if signal already aborted", async () => {
