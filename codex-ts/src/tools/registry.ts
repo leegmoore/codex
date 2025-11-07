@@ -11,6 +11,14 @@ import { listDir, type ListDirParams } from './list-dir/index.js';
 import { grepFiles, type GrepFilesParams } from './grep-files/index.js';
 import { viewImage, type ViewImageParams } from './view-image/index.js';
 import { updatePlan, type UpdatePlanParams } from './plan/index.js';
+import {
+  listMcpResources,
+  listMcpResourceTemplates,
+  readMcpResource,
+  type ListMcpResourcesParams,
+  type ListMcpResourceTemplatesParams,
+  type ReadMcpResourceParams,
+} from './mcp-resource/index.js';
 import { processExecToolCall, type ExecParams, type ExecToolCallOutput } from '../core/exec/index.js';
 import { run as fileSearchRun, type FileSearchOptions, type FileSearchResults } from '../file-search/index.js';
 import { ToolOptions } from './types.js';
@@ -171,6 +179,40 @@ export class ToolRegistry {
       },
       execute: async (params: UpdatePlanParams) => {
         return await updatePlan(params);
+      },
+    });
+
+    // MCP Resource tools (3 operations)
+    this.register({
+      metadata: {
+        name: 'listMcpResources',
+        description: 'List available resources from MCP servers',
+        requiresApproval: false,
+      },
+      execute: async (params: ListMcpResourcesParams) => {
+        return await listMcpResources(params);
+      },
+    });
+
+    this.register({
+      metadata: {
+        name: 'listMcpResourceTemplates',
+        description: 'List available resource templates from MCP servers',
+        requiresApproval: false,
+      },
+      execute: async (params: ListMcpResourceTemplatesParams) => {
+        return await listMcpResourceTemplates(params);
+      },
+    });
+
+    this.register({
+      metadata: {
+        name: 'readMcpResource',
+        description: 'Read content from a specific MCP resource',
+        requiresApproval: false,
+      },
+      execute: async (params: ReadMcpResourceParams) => {
+        return await readMcpResource(params);
       },
     });
   }
