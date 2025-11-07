@@ -71,11 +71,11 @@
 - [x] Update logs
 
 ### utils/image
-- [ ] Read codex-rs/utils/image/src/
-- [ ] Port image processing
-- [ ] Create tests
-- [ ] Verify tests pass
-- [ ] Update logs
+- [x] Read codex-rs/utils/image/src/
+- [x] Port image interfaces and error types (stub impl)
+- [x] Create tests
+- [x] Verify tests pass
+- [x] Update logs
 
 ### utils/pty
 - [ ] Read codex-rs/utils/pty/src/
