@@ -10,6 +10,7 @@ import { readFile, type ReadFileParams } from './read-file/index.js';
 import { listDir, type ListDirParams } from './list-dir/index.js';
 import { grepFiles, type GrepFilesParams } from './grep-files/index.js';
 import { viewImage, type ViewImageParams } from './view-image/index.js';
+import { updatePlan, type UpdatePlanParams } from './plan/index.js';
 import { processExecToolCall, type ExecParams, type ExecToolCallOutput } from '../core/exec/index.js';
 import { run as fileSearchRun, type FileSearchOptions, type FileSearchResults } from '../file-search/index.js';
 import { ToolOptions } from './types.js';
@@ -158,6 +159,18 @@ export class ToolRegistry {
       },
       execute: async (params: ViewImageParams) => {
         return await viewImage(params);
+      },
+    });
+
+    // Plan (update_plan) tool
+    this.register({
+      metadata: {
+        name: 'updatePlan',
+        description: 'Update the task plan with structured steps. At most one step can be in_progress at a time.',
+        requiresApproval: false,
+      },
+      execute: async (params: UpdatePlanParams) => {
+        return await updatePlan(params);
       },
     });
   }
