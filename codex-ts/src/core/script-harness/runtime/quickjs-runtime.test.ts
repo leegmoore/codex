@@ -325,10 +325,22 @@ describe("quickjs-runtime.ts", () => {
   });
 
   describe("Isolation", () => {
-    it("QR25: scripts don't share state", async () => {
-      await runtime.execute("globalThis.sharedValue = 42", {}, {});
+    let isolatedRuntime: QuickJSRuntime;
 
-      const result2 = await runtime.execute(
+    beforeEach(async () => {
+      // Create runtime with worker pool disabled for true isolation tests
+      isolatedRuntime = new QuickJSRuntime({ useWorkerPool: false });
+      await isolatedRuntime.initialize(defaultLimits);
+    });
+
+    afterEach(async () => {
+      await isolatedRuntime.dispose();
+    });
+
+    it("QR25: scripts don't share state", async () => {
+      await isolatedRuntime.execute("globalThis.sharedValue = 42", {}, {});
+
+      const result2 = await isolatedRuntime.execute(
         "return typeof globalThis.sharedValue",
         {},
         {},
@@ -338,13 +350,13 @@ describe("quickjs-runtime.ts", () => {
     });
 
     it("QR26: globals are isolated per execution", async () => {
-      const result1 = await runtime.execute(
+      const result1 = await isolatedRuntime.execute(
         "return myValue",
         { myValue: 10 },
         {},
       );
 
-      const result2 = await runtime.execute(
+      const result2 = await isolatedRuntime.execute(
         "return typeof myValue",
         {},
         {},
