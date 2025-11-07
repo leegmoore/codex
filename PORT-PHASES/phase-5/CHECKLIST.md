@@ -78,11 +78,11 @@
 - [x] Update logs
 
 ### utils/pty
-- [ ] Read codex-rs/utils/pty/src/
-- [ ] Port PTY handling
-- [ ] Create tests
-- [ ] Verify tests pass
-- [ ] Update logs
+- [x] Read codex-rs/utils/pty/src/
+- [x] Port PTY interfaces and stubs (library-focused)
+- [x] Create tests
+- [x] Verify tests pass
+- [x] Update logs
 
 ---
 

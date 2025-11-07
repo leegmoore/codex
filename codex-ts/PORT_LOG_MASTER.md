@@ -8,9 +8,9 @@
 ## Quick Stats
 
 - **Total Modules Planned:** ~40 core modules across 5 phases
-- **Completed:** 58 (Pre-work: 21, Phase 1: 8, Phase 2: 4, Phase 3: 7, Phase 4: 13, Phase 5: 7)
-- **In Progress:** Phase 5 - Authentication & CLI (78% complete!)
-- **Test Pass Rate:** 981/981 (100%) 🎉
+- **Completed:** 59 (Pre-work: 21, Phase 1: 8, Phase 2: 4, Phase 3: 7, Phase 4: 13, Phase 5: 8)
+- **In Progress:** Phase 5 - Authentication & CLI (89% complete!)
+- **Test Pass Rate:** 986/986 (100%) 🎉
 - **Known Bugs:** 2 (pre-existing, see KNOWN_BUGS.md)
 - **Rust Source:** ~41K LOC in `core/` alone
 - **Current Branch:** claude/phase5-auth-cli-port-011CUseoYQcbdfkYvLthABGN
@@ -169,7 +169,7 @@
 ---
 
 ### 🔄 Phase 5: CLI, Auth & Polish
-**Status:** IN PROGRESS (7/9 modules - 78% complete!)
+**Status:** IN PROGRESS (8/9 modules - 89% complete!)
 **Start Date:** 2025-11-07
 **Dependencies:** All previous phases
 **Log:** [PORT-PHASES/phase-5/STATUS.md](../PORT-PHASES/phase-5/STATUS.md)
@@ -183,9 +183,9 @@
 | cli | ✅ DONE | - | 6/6 | CLI utilities: safeFormatKey (library port from 2,231 lines) |
 | app-server-protocol | ✅ DONE | - | 14/14 | JSON-RPC types for IDE communication (library port from 990 lines) |
 | utils/image | ✅ DONE | - | 8/8 | Image processing interfaces + stubs (library port from 277 lines) |
+| utils/pty | ✅ DONE | - | 5/5 | PTY interfaces + stubs (library port from 210 lines) |
 | exec/exec_events | ⏳ WAITING | protocol/* | 6-8 hours |
 | app-server | ⏳ WAITING | all core | 16-20 hours |
-| utils/pty | ⏳ WAITING | - | 6-8 hours |
 
 **Total Estimated:** 74-102 hours
 
