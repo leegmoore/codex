@@ -8,9 +8,9 @@
 
 ## Progress Overview
 
-- **Modules Completed:** 3/9
-- **Tests Passing:** 55
-- **Status:** 🔄 IN PROGRESS
+- **Modules Completed:** 4/9
+- **Tests Passing:** 77
+- **Status:** 🔄 IN PROGRESS (44% COMPLETE!)
 
 ---
 
@@ -21,10 +21,10 @@
 | keyring-store | ✅ DONE | 21/21 | Credential storage interface and mock |
 | login | ✅ DONE | 7/7 | PKCE utilities and stub types (library port) |
 | core/auth | ✅ DONE | 27/27 | CodexAuth, AuthManager, file/keyring storage backends |
+| utils/git | ✅ DONE | 22/22 | Git operations: apply patches, ghost commits, repo utils (1,814 lines!) |
 | cli | ⏳ WAITING | 0 | CLI interface |
 | app-server-protocol | ⏳ WAITING | 0 | Protocol types |
 | app-server | ⏳ WAITING | 0 | IDE server |
-| utils/git | ⏳ WAITING | 0 | Git operations |
 | utils/image | ⏳ WAITING | 0 | Image processing |
 | utils/pty | ⏳ WAITING | 0 | PTY handling |
 
@@ -117,3 +117,40 @@
 - AuthManager provides thread-safe caching pattern
 - Token refresh logic can be added when HTTP client is integrated
 - Following library-first approach: Essential auth + storage, CLI features deferred
+
+### Session 4: 2025-11-07 - utils/git (ANOTHER BEAST!)
+**Duration:** ~120 minutes
+**Completed:** utils/git module (22 tests) - 1,814 lines of Rust!
+
+**Work done:**
+1. Read Rust source for utils/git (6 files: errors.rs, platform.rs, operations.rs, apply.rs: 715 lines, ghost_commits.rs: 709 lines)
+2. Analyzed module structure:
+   - Error types for git operations
+   - Cross-platform symlink handling
+   - Git command execution via process spawning
+   - Git patch application with conflict detection
+   - Ghost commit creation/restoration (snapshot system)
+3. Created comprehensive TypeScript port (22 test cases):
+   - `GitToolingError` class - Structured errors with codes
+   - `runGit()` - Git command executor using child_process.spawn
+   - `ensureGitRepository()`, `resolveHead()`, `resolveRepositoryRoot()`
+   - `normalizeRelativePath()` - Path validation
+   - `createGhostCommit()` - Snapshot working tree state
+   - `applyGitPatch()` - Apply unified diffs with git apply
+   - `parseGitApplyOutput()` - Parse applied/skipped/conflicted paths
+   - `restoreGhostCommit()`, `restoreToCommit()` - Restore state
+   - `createSymlink()` - Cross-platform symlink creation
+4. Implemented using Node.js child_process for git command execution
+5. All 22 tests passing (100%) - Fixed git commit signing issue in test env
+6. Zero TypeScript errors
+7. Updated documentation
+
+**Notes:**
+- Another MASSIVE module (1,814 lines of Rust)
+- Fully functional git operations for library usage
+- Uses child_process.spawn for git command execution
+- Comprehensive error handling with structured error types
+- Ghost commits provide powerful snapshot/undo functionality
+- Path validation prevents repository escapes
+- Tests cover: repository detection, HEAD resolution, ghost commits, patch application, restore operations
+- Library-appropriate: All features portable and useful for library consumers

@@ -64,11 +64,11 @@
 ## Utilities
 
 ### utils/git
-- [ ] Read codex-rs/utils/git/src/
-- [ ] Port git operations
-- [ ] Create tests
-- [ ] Verify tests pass
-- [ ] Update logs
+- [x] Read codex-rs/utils/git/src/ (1,814 lines!)
+- [x] Port git operations (spawn-based git commands)
+- [x] Create tests (22 comprehensive tests)
+- [x] Verify tests pass
+- [x] Update logs
 
 ### utils/image
 - [ ] Read codex-rs/utils/image/src/
