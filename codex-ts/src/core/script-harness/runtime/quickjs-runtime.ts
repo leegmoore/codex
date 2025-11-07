@@ -151,8 +151,11 @@ export class QuickJSRuntime implements ScriptRuntimeAdapter {
           for (const [key, value] of Object.entries(globals)) {
             if (typeof value === "function") {
               // Inject function as native QuickJS function
-              // Note: Only synchronous functions are supported
-              // Async functions would need Promise bridging which is complex
+              // Note: Only synchronous functions are fully supported
+              // Async functions cannot be bridged because:
+              // 1. vm.newFunction() callback must return synchronously
+              // 2. Promise .then() callbacks are queued as microtasks (async)
+              // 3. No way to synchronously extract a Promise's resolved value
               const fnHandle = vm.newFunction(key, (...argHandles) => {
                 // Convert QuickJS handles to JS values
                 const args = argHandles.map((h) => vm.dump(h));
@@ -160,7 +163,7 @@ export class QuickJSRuntime implements ScriptRuntimeAdapter {
                 // Call the original function
                 const result = value(...args);
 
-                // Convert result back to QuickJS handle
+                // Sync result - convert back to QuickJS handle
                 try {
                   return vm.unwrapResult(
                     vm.evalCode(`(${JSON.stringify(result)})`),

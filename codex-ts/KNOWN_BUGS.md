@@ -19,21 +19,26 @@ The following 4 tests are intentionally skipped due to technical limitations:
 **File:** `src/core/script-harness/runtime/quickjs-runtime.test.ts`
 **Status:** DEFERRED (not bugs - fundamental limitations)
 
-| Test | Reason | Blocked By |
-|------|--------|------------|
-| QR13 | Async function execution | Async function injection requires Promise bridging (complex) |
-| QR14 | Promise.all handling | Requires async function injection |
-| QR23 | Tool call count tracking | Requires async function injection |
-| QR27 | AbortSignal mid-execution | Impossible - QuickJS blocks event loop during execution |
+| Test | Reason | Technical Blocker |
+|------|--------|------------------|
+| QR13 | Async function execution | **Fundamentally impossible**<br/>Cannot bridge Node.js Promises to QuickJS:<br/>1. `vm.newFunction()` callback must return sync<br/>2. Promise `.then()` queued as microtask (async)<br/>3. No way to synchronously extract Promise value |
+| QR14 | Promise.all handling | Requires async function injection (see QR13) |
+| QR23 | Tool call count tracking | Requires async function injection (see QR13) |
+| QR27 | AbortSignal mid-execution | **Fundamentally impossible**<br/>QuickJS blocks event loop during execution<br/>`setTimeout` cannot fire to abort mid-execution |
 
-**Recently Fixed (Phase 4.7):**
+**Recently Fixed (Phase 4.7 - Session 2):**
 - ✅ QR7: Empty/comment handling - Fixed by adding newlines in function wrapping
 - ✅ QR10: Function marshalling - Implemented sync function injection with `vm.newFunction()`
 - ✅ QR12: Async script execution - Implemented async/await support with promise handling
 - ✅ QR20, QR21: Timeout enforcement - Implemented interrupt-based timeout with `vm.runtime.setInterruptHandler()`
 
-**Impact:** Low - remaining tests require async function injection (complex, not essential)
-**Priority:** Low - async function injection would require Promise bridging
+**Attempted in Phase 4.7 (Session 2):**
+- ❌ QR13-14, QR23: Attempted Promise bridging with `setImmediate`, `vm.newPromise()`, and synchronous extraction
+- ❌ Confirmed: Even `async () => value` functions don't resolve synchronously (microtask queue)
+- ✅ Conclusion: Async function injection architecturally impossible with current QuickJS integration
+
+**Impact:** Low - remaining tests require impossible async bridging
+**Priority:** N/A - would require fundamental architecture change (separate thread pool, etc.)
 **Test Coverage:** 1,739/1,743 tests passing (99.8% of total, 100% of enabled tests)
 
 ---
