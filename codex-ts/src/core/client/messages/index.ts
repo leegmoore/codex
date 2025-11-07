@@ -62,9 +62,18 @@ export async function* streamMessages(
 export type { AnthropicProviderConfig, MessagesApiRequest } from './types.js';
 export type { MessagesRequestOptions } from './request-builder.js';
 export type { ToolExecutionResult } from './tool-result-builder.js';
+export type { RetryConfig } from './retry.js';
 export { AnthropicTransportError } from './transport.js';
 export {
   buildToolResult,
   buildToolResultMessage,
   appendToolResults,
 } from './tool-result-builder.js';
+export {
+  withRetry,
+  calculateRetryDelay,
+  shouldRetry,
+  DEFAULT_RETRY_CONFIG,
+  RETRYABLE_STATUS_CODES,
+  RETRYABLE_ERROR_TYPES,
+} from './retry.js';
