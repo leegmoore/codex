@@ -7,65 +7,66 @@
 
 ## Prerequisites
 
-- [x] Phase 4.4 complete (core implementation, 40 tests)
-- [x] QuickJS runtime working
-- [x] Basic tool facade functional
+- [x] Phase 4.4 complete (script harness core)
+- [x] Tool files staged in .migration-staging/tools-from-codex-port/
 - [ ] Review Phase 4.5 plan
 
 ---
 
 ## Task 1: Tool Migration from codex-port
 
+**Source files are in: .migration-staging/tools-from-codex-port/**
+
 ### Migrate applyPatch (REPLACE)
-- [ ] Backup current src/apply-patch/ to .archive/
-- [ ] Copy ~/code/v/codex-port/src/tools/applyPatch/ to src/tools/apply-patch/
-- [ ] Update imports (add .js extensions)
-- [ ] Update return types to match our protocol
-- [ ] Install web-tree-sitter dependency
-- [ ] Adapt tests (port from codex-port if available)
+- [ ] Backup current src/apply-patch/ directory
+- [ ] Copy .migration-staging/tools-from-codex-port/applyPatch/ to codex-ts/src/tools/apply-patch/
+- [ ] Update imports (add .js extensions for ESM)
+- [ ] Update return types to match our ToolResult protocol
+- [ ] Install web-tree-sitter dependency: npm install web-tree-sitter @vscode/tree-sitter-wasm
+- [ ] Adapt tests (create new test files)
 - [ ] Verify tree-sitter heredoc parsing works
 - [ ] Update tool registry
-- [ ] Run tests
+- [ ] Run: npm test -- apply-patch
 - [ ] Verify all passing
 
 ### Add readFile (NEW)
-- [ ] Copy ~/code/v/codex-port/src/tools/readFile.ts to src/tools/read-file/
-- [ ] Update imports (.js extensions)
-- [ ] Update ToolResult type
-- [ ] Replace Bun-specific code with Node.js
+- [ ] Copy .migration-staging/tools-from-codex-port/readFile.ts to codex-ts/src/tools/read-file/index.ts
+- [ ] Copy .migration-staging/tools-from-codex-port/types.ts to codex-ts/src/tools/read-file/types.ts (for ToolResult reference)
+- [ ] Update imports (add .js extensions)
+- [ ] Update ToolResult type to match our protocol
+- [ ] Replace Bun fs.promises with Node.js fs/promises
 - [ ] Add to tool registry
-- [ ] Write tests (15-20 tests)
-- [ ] Test indentation mode
-- [ ] Test slice mode
+- [ ] Write tests (15-20 tests): test indentation mode, slice mode, edge cases
+- [ ] Run: npm test -- read-file
 - [ ] Verify all passing
 
 ### Add listDir (NEW)
-- [ ] Copy ~/code/v/codex-port/src/tools/listDir.ts to src/tools/list-dir/
+- [ ] Copy .migration-staging/tools-from-codex-port/listDir.ts to codex-ts/src/tools/list-dir/index.ts
+- [ ] Copy types.ts reference
 - [ ] Update imports (.js extensions)
 - [ ] Update ToolResult type
-- [ ] Replace Bun-specific code with Node.js
+- [ ] Replace Bun fs with Node.js
 - [ ] Add to tool registry
-- [ ] Write tests (15-20 tests)
-- [ ] Test recursive listing
-- [ ] Test depth control
+- [ ] Write tests (15-20 tests): recursive listing, depth control, entry types
+- [ ] Run: npm test -- list-dir
 - [ ] Verify all passing
 
 ### Add grepFiles (NEW)
-- [ ] Copy ~/code/v/codex-port/src/tools/grepFiles.ts to src/tools/grep-files/
+- [ ] Copy .migration-staging/tools-from-codex-port/grepFiles.ts to codex-ts/src/tools/grep-files/index.ts
+- [ ] Copy types.ts reference
 - [ ] Update imports (.js extensions)
 - [ ] Update ToolResult type
-- [ ] Replace Bun spawn with Node.js spawn
+- [ ] Replace Bun spawn with Node.js child_process spawn
 - [ ] Add to tool registry
-- [ ] Write tests (15-20 tests)
-- [ ] Test pattern matching
-- [ ] Test glob filtering
-- [ ] Verify ripgrep available (or graceful fallback)
+- [ ] Write tests (15-20 tests): pattern matching, glob filtering, timeout
+- [ ] Check ripgrep availability (or provide fallback/error)
+- [ ] Run: npm test -- grep-files
 - [ ] Verify all passing
 
 ### Update Tool Registry
-- [ ] Create central tool registry module
-- [ ] Register all 6 tools (applyPatch, exec, fileSearch, readFile, listDir, grepFiles)
-- [ ] Expose to script harness
+- [ ] Create codex-ts/src/tools/registry.ts (central registry)
+- [ ] Register all 6 tools: applyPatch, exec, fileSearch, readFile, listDir, grepFiles
+- [ ] Expose to script harness via ToolRegistry interface
 - [ ] Test all tools callable from scripts
 - [ ] Verify all passing
 
@@ -74,62 +75,79 @@
 ## Task 2: tools.spawn (Detached Tasks)
 
 ### Implementation
-- [ ] Implement spawn pattern in tool-facade
-- [ ] Add spawn.exec() for detached tasks
-- [ ] Add spawn.cancel() for cancellation
-- [ ] Test detached task execution
-- [ ] Test cancellation
-- [ ] Verify tests pass
-
-### tools.http (optional)
-- [ ] Implement http tool (if policy allows)
-- [ ] Add network policy checks
-- [ ] Test HTTP requests
-- [ ] Verify tests pass
+- [ ] Add spawn to tool-facade.ts
+- [ ] Implement spawn.exec() - returns {id, done: Promise}
+- [ ] Implement spawn.cancel(id) - cancels detached task
+- [ ] Track detached tasks separately (don't auto-cancel)
+- [ ] Write tests (10 tests): detached execution, cancellation, cleanup
+- [ ] Run: npm test -- tool-facade
+- [ ] Verify all passing
 
 ---
 
 ## Task 3: Performance Optimizations
 
 ### Worker Pool
-- [ ] Implement WorkerPool class
-- [ ] Worker reuse logic
-- [ ] Pool size configuration
-- [ ] Test worker reuse
-- [ ] Verify faster than create/destroy
+- [ ] Implement WorkerPool class in runtime/
+- [ ] Worker reuse with borrow/release
+- [ ] Pool size = min(2, cpuCount)
+- [ ] Test worker reuse faster than create/destroy
+- [ ] Verify all passing
 
 ### Context Reuse
-- [ ] Implement context reset
+- [ ] Implement context.reset() method
 - [ ] Contamination detection
-- [ ] Recycle after 100 scripts
-- [ ] Test context isolation
-- [ ] Verify 87% faster init
+- [ ] Recycle worker after 100 scripts
+- [ ] Test context isolation between resets
+- [ ] Verify all passing
 
 ### Script Caching
-- [ ] Implement LRU cache (1000 entries)
+- [ ] Implement LRU cache for parsed scripts
 - [ ] Cache by SHA-256 hash
-- [ ] Test cache hits/misses
-- [ ] Verify faster for repeated scripts
+- [ ] Max 1000 entries
+- [ ] Test cache hits improve performance
+- [ ] Verify all passing
 
 ### Compilation Caching
-- [ ] Cache TS→JS transpilation
+- [ ] Cache TS→JS transpilation results
 - [ ] Cache by source hash
 - [ ] Test cache effectiveness
-- [ ] Verify 20-30ms savings
+- [ ] Verify all passing
 
 ---
 
 ## Task 4: Documentation
 
----
-
 ### User Guide
-- [ ] Write user guide (docs/script-harness.md)
-- [ ] Write security model (docs/script-harness-security.md)
-- [ ] Write tool API reference (docs/script-harness-api.md)
-- [ ] Write configuration guide (docs/script-harness-config.md)
-- [ ] Write error catalog (docs/script-harness-errors.md)
-- [ ] Write operator runbook (docs/script-harness-ops.md)
+- [ ] Write docs/script-harness-user-guide.md
+- [ ] Explain <tool-calls> syntax
+- [ ] Provide examples (serial, parallel, error handling)
+- [ ] Best practices section
+
+### Tool API Reference
+- [ ] Write docs/script-harness-tools-api.md
+- [ ] Document all 6 tools with schemas
+- [ ] Parameter descriptions
+- [ ] Return value types
+- [ ] Error codes
+
+### Configuration Guide
+- [ ] Write docs/script-harness-config.md
+- [ ] Feature flags (disabled/dry-run/enabled)
+- [ ] Resource limits
+- [ ] Tool packs
+
+### Error Catalog
+- [ ] Write docs/script-harness-errors.md
+- [ ] All error types with codes
+- [ ] Remediation steps
+- [ ] Examples
+
+### Operator Guide
+- [ ] Write docs/script-harness-ops.md
+- [ ] Monitoring metrics
+- [ ] Troubleshooting
+- [ ] Performance tuning
 
 ---
 

@@ -19,15 +19,34 @@ FIRST: Read status
 - Read PORT-PHASES/phase-4.5/CHECKLIST.md (task list)
 - Read PORT-PHASES/phase-4.5/STATUS.md (progress)
 
+TOOL MIGRATION SOURCE (IMPORTANT):
+Files are staged in: .migration-staging/tools-from-codex-port/
+- applyPatch/ (directory: applyPatch.ts, parser.ts, seekSequence.ts)
+- readFile.ts
+- listDir.ts
+- grepFiles.ts
+- types.ts (for ToolResult reference)
+
+These files are IN THE REPO - no external paths needed.
+
 PHASE 4.5 TASKS:
 
-Task 1: Tool Migration from codex-port
-- REPLACE applyPatch: Copy ~/code/v/codex-port/src/tools/applyPatch/ (has full tree-sitter, ours is stubbed)
-- ADD readFile: Copy ~/code/v/codex-port/src/tools/readFile.ts (smart indentation mode)
-- ADD listDir: Copy ~/code/v/codex-port/src/tools/listDir.ts (recursive listing)
-- ADD grepFiles: Copy ~/code/v/codex-port/src/tools/grepFiles.ts (ripgrep search)
-- Adapt: Update imports (.js), types (ToolResult), Bun→Node.js
-- Result: 6 tools vs current 3
+Task 1: Tool Migration (COPY from .migration-staging/)
+- REPLACE applyPatch: .migration-staging/tools-from-codex-port/applyPatch/ → codex-ts/src/tools/apply-patch/
+  * Has FULL tree-sitter-bash (ours is stubbed)
+  * Requires: npm install web-tree-sitter @vscode/tree-sitter-wasm
+- ADD readFile: .migration-staging/.../readFile.ts → codex-ts/src/tools/read-file/
+  * Smart indentation-aware file reading
+- ADD listDir: .migration-staging/.../listDir.ts → codex-ts/src/tools/list-dir/
+  * Recursive directory listing
+- ADD grepFiles: .migration-staging/.../grepFiles.ts → codex-ts/src/tools/grep-files/
+  * Ripgrep-based content search
+
+Adaptation needed:
+- Update imports (add .js for ESM)
+- Update ToolResult type (reference: types.ts in staging)
+- Replace Bun → Node.js (spawn, fs.promises)
+- Write tests (15-20 per tool)
 
 Task 2: tools.spawn
 - Detached tasks for long-running ops (phone-a-sme takes 10+ min)
@@ -67,4 +86,4 @@ BEFORE ENDING SESSION:
 4. git add -A && git commit -m "phase4.5: [what you did]" && git push
 5. Report: tasks done, tools added, what's next
 
-START with Task 1 (tool migration) - most critical.
+START with Task 1 (tool migration) - files are in .migration-staging/ ready to copy.
