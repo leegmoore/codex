@@ -26,9 +26,10 @@ const MAX_REQUEST_MAX_RETRIES = 100
  *
  * Most third-party services only implement the classic OpenAI Chat Completions
  * JSON schema, whereas OpenAI itself (and a handful of others) additionally expose
- * the more modern Responses API. The two protocols use different request/response
- * shapes and cannot be auto-detected at runtime, therefore each provider entry
- * must declare which one it expects.
+ * the more modern Responses API. Anthropic uses the Messages API which has its
+ * own request/response format. The three protocols use different shapes and cannot
+ * be auto-detected at runtime, therefore each provider entry must declare which
+ * one it expects.
  */
 export enum WireApi {
   /** The Responses API exposed by OpenAI at `/v1/responses` */
@@ -36,6 +37,9 @@ export enum WireApi {
 
   /** Regular Chat Completions compatible with `/v1/chat/completions` */
   Chat = 'chat',
+
+  /** Anthropic Messages API at `/v1/messages` */
+  Messages = 'messages',
 }
 
 /**
@@ -262,6 +266,8 @@ export function getFullUrl(
       return `${baseUrl}/responses${queryString}`
     case WireApi.Chat:
       return `${baseUrl}/chat/completions${queryString}`
+    case WireApi.Messages:
+      return `${baseUrl}/messages${queryString}`
   }
 }
 

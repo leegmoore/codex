@@ -6,7 +6,8 @@
  * Design reference: MESSAGES_API_INTEGRATION_DESIGN_CODEX.md Section 2.1
  */
 
-import type { Prompt, ResponseItem } from "../client-common.js";
+import type { Prompt } from "../client-common.js";
+import type { ResponseItem } from "../../../protocol/models.js";
 import type {
   MessagesApiRequest,
   AnthropicMessage,
@@ -29,6 +30,8 @@ export interface MessagesRequestOptions {
   stopSequences?: string[];
   /** Optional trace ID for debugging */
   traceId?: string;
+  /** Optional tool choice override */
+  toolChoice?: "auto" | "any" | "none";
 }
 
 /**
@@ -75,10 +78,15 @@ export function buildMessagesRequest(
     const anthropicTools = createToolsJsonForMessagesApi(prompt.tools);
     request.tools = anthropicTools;
 
-    // Set tool_choice based on parallelToolCalls
-    // Note: Anthropic currently serializes tool execution, but we set 'any'
-    // to enable the adapter to handle multiple tool_use blocks if they arrive
-    request.tool_choice = prompt.parallelToolCalls ? "any" : "auto";
+    // Set tool_choice: options override takes precedence, then parallelToolCalls
+    if (options?.toolChoice !== undefined) {
+      request.tool_choice = options.toolChoice;
+    } else {
+      // Set tool_choice based on parallelToolCalls
+      // Note: Anthropic currently serializes tool execution, but we set 'any'
+      // to enable the adapter to handle multiple tool_use blocks if they arrive
+      request.tool_choice = prompt.parallelToolCalls ? "any" : "auto";
+    }
   }
 
   // Add optional parameters
@@ -135,7 +143,7 @@ function convertMessages(items: ResponseItem[]): AnthropicMessage[] {
     if (item.type === "message") {
       // Convert content blocks
       const textContent = item.content
-        .map((block) => {
+        .map((block: any) => {
           if (block.type === "input_text" || block.type === "output_text") {
             return block.text;
           }
@@ -143,7 +151,7 @@ function convertMessages(items: ResponseItem[]): AnthropicMessage[] {
           // They will be handled in later stages
           return "";
         })
-        .filter((text) => text.length > 0)
+        .filter((text: string) => text.length > 0)
         .join("\n");
 
       if (textContent) {

@@ -8,11 +8,9 @@
  */
 
 import type { AnthropicSseEvent } from "./types.js";
-import type {
-  ResponseEvent,
-  ResponseItem,
-  TokenUsage,
-} from "../client-common.js";
+import type { ResponseEvent } from "../client-common.js";
+import type { ResponseItem } from "../../../protocol/models.js";
+import type { TokenUsage } from "../../../protocol/protocol.js";
 
 /**
  * Content block state tracker

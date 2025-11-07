@@ -20,9 +20,16 @@
  */
 
 import type { ModelProviderInfo, WireApi } from './model-provider-info.js'
+import { WireApi as WireApiEnum } from './model-provider-info.js'
 import type { CodexAuth } from '../auth/stub-auth.js'
 import type { ReasoningEffort, ReasoningSummary } from '../../protocol/config-types.js'
-import type { Prompt, ResponseStream } from './client-common.js'
+import type { Prompt, ResponseEvent } from './client-common.js'
+import { streamMessages as streamAnthropicMessages } from './messages/index.js'
+
+/**
+ * Response stream type - async generator of response events.
+ */
+export type ResponseStream = AsyncGenerator<ResponseEvent, void, unknown>
 
 /**
  * Options for creating a ModelClient.
@@ -114,19 +121,24 @@ export class ModelClient {
   /**
    * Stream a model response.
    *
-   * This method automatically selects between Responses API and Chat API
-   * based on the provider's wire_api configuration.
-   *
-   * TODO(Phase 4.5+): Implement full streaming with HTTP client
+   * This method automatically selects between Responses API, Chat API, and
+   * Messages API based on the provider's wire_api configuration.
    *
    * @param prompt - The prompt to send to the model
    * @returns A stream of response events
    */
   async stream(prompt: Prompt): Promise<ResponseStream> {
-    // TODO(Phase 4.5+): Implement actual streaming
-    // For now, this is a stub that will be implemented in Phase 4.5+
-    // when we have the HTTP client infrastructure ready.
-    throw new Error('stream() not yet implemented - deferred to Phase 4.5+')
+    // Route to appropriate API based on wire protocol
+    switch (this.provider.wireApi) {
+      case WireApiEnum.Responses:
+        return this.streamResponses(prompt)
+      case WireApiEnum.Chat:
+        return this.streamChat(prompt)
+      case WireApiEnum.Messages:
+        return this.streamMessages(prompt)
+      default:
+        throw new Error(`Unsupported wire API: ${this.provider.wireApi}`)
+    }
   }
 
   /**
@@ -153,5 +165,59 @@ export class ModelClient {
   private async streamChat(prompt: Prompt): Promise<ResponseStream> {
     // TODO(Phase 4.5+): Implement Chat API streaming
     throw new Error('streamChat() not yet implemented - deferred to Phase 4.5+')
+  }
+
+  /**
+   * Stream using the Anthropic Messages API.
+   *
+   * @param prompt - The prompt to send
+   * @returns A stream of response events
+   */
+  private async streamMessages(prompt: Prompt): Promise<ResponseStream> {
+    // Get API key from auth or environment
+    const apiKey = this.getApiKeyForMessages()
+
+    // Build config
+    const config = {
+      apiKey,
+      baseUrl: this.provider.baseUrl,
+      anthropicVersion: (this.provider as any).anthropicVersion,
+      beta: (this.provider as any).beta,
+    }
+
+    // Build options from prompt metadata
+    const options = {
+      temperature: (prompt as any).temperature,
+      topP: (prompt as any).topP,
+      topK: (prompt as any).topK,
+      stopSequences: (prompt as any).stopSequences,
+      traceId: (prompt as any).traceId,
+      toolChoice: (prompt as any).toolChoice,
+    }
+
+    // Return async generator as ResponseStream
+    return streamAnthropicMessages(prompt, config, this.modelSlug, options)
+  }
+
+  /**
+   * Get API key for Messages API from auth or environment.
+   */
+  private getApiKeyForMessages(): string {
+    // Try experimental bearer token first (for testing)
+    if (this.provider.experimentalBearerToken) {
+      return this.provider.experimentalBearerToken
+    }
+
+    // Try environment variable
+    const envKey = this.provider.envKey || 'ANTHROPIC_API_KEY'
+    const apiKey = process.env[envKey]
+
+    if (!apiKey) {
+      throw new Error(
+        `Missing API key for Anthropic. Set ${envKey} environment variable or configure experimentalBearerToken.`,
+      )
+    }
+
+    return apiKey
   }
 }
