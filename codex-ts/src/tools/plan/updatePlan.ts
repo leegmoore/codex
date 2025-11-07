@@ -30,8 +30,8 @@ export interface UpdatePlanParams {
  * @throws Error if validation fails (e.g., multiple in_progress steps)
  */
 export async function updatePlan(params: UpdatePlanParams): Promise<ToolResult> {
-  // Parse and validate the arguments
-  const args = validateUpdatePlanArgs(params)
+  // Validate the arguments (throws on error)
+  validateUpdatePlanArgs(params)
 
   // In a full implementation, this would emit a plan_update event
   // For now, we just validate and return success

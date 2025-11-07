@@ -53,52 +53,12 @@ export async function viewImage(params: ViewImageParams): Promise<ToolResult> {
     throw new Error(`image path \`${imagePath}\` is not a file`)
   }
 
-  // Read file and convert to base64
-  let fileBuffer: Buffer
-  try {
-    fileBuffer = await fs.readFile(imagePath)
-  } catch (error) {
-    throw new Error(`failed to read image file: ${(error as Error).message}`)
-  }
+  // Note: In full implementation, the image would be read and converted to base64
+  // For now, we just validate that it exists and is a file
+  // The actual injection into conversation happens at a higher level
 
-  // Determine MIME type from extension
-  const mimeType = getMimeType(imagePath)
-  const base64Data = fileBuffer.toString('base64')
-  const dataUrl = `data:${mimeType};base64,${base64Data}`
-
-  // Return success with the image information
-  // Note: The actual injection into conversation happens at a higher level
-  // This tool just validates and prepares the image
   return {
     content: `attached local image path: ${imagePath}`,
     success: true,
-  }
-}
-
-/**
- * Get MIME type from file extension.
- *
- * @param path - File path
- * @returns MIME type string
- */
-function getMimeType(path: string): string {
-  const ext = path.toLowerCase().split('.').pop()
-
-  switch (ext) {
-    case 'png':
-      return 'image/png'
-    case 'jpg':
-    case 'jpeg':
-      return 'image/jpeg'
-    case 'gif':
-      return 'image/gif'
-    case 'webp':
-      return 'image/webp'
-    case 'bmp':
-      return 'image/bmp'
-    case 'svg':
-      return 'image/svg+xml'
-    default:
-      return 'image/png' // Default fallback
   }
 }
