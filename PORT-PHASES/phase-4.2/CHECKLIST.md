@@ -9,35 +9,35 @@
 
 - [x] Phase 4.1 complete (Responses + Chat working)
 - [x] Codex-High design doc complete
-- [ ] Review design document thoroughly
-- [ ] Review workplan (WORKPLAN.md)
+- [x] Review design document thoroughly
+- [x] Review workplan (WORKPLAN.md)
 
 ---
 
-## Stage 1: Foundation & Types
+## Stage 1: Foundation & Types ✅ COMPLETE
 
-- [ ] Create src/core/client/messages/ directory
-- [ ] Create messages/types.ts
-- [ ] Define MessagesApiRequest interface
-- [ ] Define AnthropicMessage interface
-- [ ] Define AnthropicContentBlock union
-- [ ] Define AnthropicTool interface
-- [ ] Define AnthropicSseEvent union
-- [ ] Create messages/types.test.ts
-- [ ] Write type validation tests (10 tests)
-- [ ] Verify tests pass
+- [x] Create src/core/client/messages/ directory
+- [x] Create messages/types.ts
+- [x] Define MessagesApiRequest interface
+- [x] Define AnthropicMessage interface
+- [x] Define AnthropicContentBlock union
+- [x] Define AnthropicTool interface
+- [x] Define AnthropicSseEvent union
+- [x] Create messages/types.test.ts
+- [x] Write type validation tests (21 tests - exceeded target!)
+- [x] Verify tests pass
 
 ---
 
-## Stage 2: Tool Format Conversion
+## Stage 2: Tool Format Conversion ✅ COMPLETE
 
-- [ ] Create messages/tool-bridge.ts
-- [ ] Create messages/tool-bridge.test.ts
-- [ ] Write tests TC-01 through TC-10 (10 tests)
-- [ ] Implement createToolsJsonForMessagesApi()
-- [ ] Implement tool result converter
-- [ ] Write tool result tests (5 tests)
-- [ ] Verify all 15 tests pass
+- [x] Create messages/tool-bridge.ts
+- [x] Create messages/tool-bridge.test.ts
+- [x] Write tests TC-01 through TC-10 (15 tests total)
+- [x] Implement createToolsJsonForMessagesApi()
+- [x] Implement tool result converter (createToolResultBlock)
+- [x] Implement validation (validateToolName)
+- [x] Verify all 15 tests pass
 
 ---
 
