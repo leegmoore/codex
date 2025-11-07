@@ -14,7 +14,7 @@ export type Result<T, E = string> =
  * This provides a simple API over the lru-cache library, similar to
  * the Rust BlockingLruCache implementation.
  */
-export class LruCache<K, V> {
+export class LruCache<K extends {}, V extends {}> {
   private cache: LRUCache<K, V>;
 
   /**
@@ -35,7 +35,7 @@ export class LruCache<K, V> {
    * @param capacity - Maximum number of entries
    * @returns Cache instance or undefined if capacity is 0
    */
-  static tryWithCapacity<K, V>(capacity: number): LruCache<K, V> | undefined {
+  static tryWithCapacity<K extends {}, V extends {}>(capacity: number): LruCache<K, V> | undefined {
     if (capacity > 0) {
       return new LruCache<K, V>(capacity);
     }
