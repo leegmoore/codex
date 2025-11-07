@@ -9,8 +9,18 @@ STRATEGY: Test-Driven Development following merged expert design.
 CURRENT PHASE: Phase 4.4 - Script Harness Core Implementation (5 weeks, 14 modules)
 
 PREREQUISITES:
-- Phase 4.2 ✅ (Anthropic Messages API)
-- Phase 4.3 ✅ (Backend services & MCP)
+- Phase 4.2 ✅ (Anthropic Messages API - 148 tests)
+- Phase 4.3 ✅ (Backend services & MCP - 34 tests)
+
+IMMEDIATE TASK BEFORE STARTING:
+Fix 2 errors in Phase 4.2 retry.test.ts:
+1. Run: npm test -- retry.test.ts
+2. Identify cleanup issues (likely AbortController/timers not cleared)
+3. Fix: Add proper cleanup in afterEach or test teardown
+4. Verify: npm test -- messages (should show 0 errors)
+5. Commit: git add -A && git commit -m "fix: cleanup errors in retry tests" && git push
+
+THEN proceed with script harness implementation.
 
 NOTE: Workspace is /Users/leemoore/code/codex-port-02
 (TypeScript port is in codex-ts/ subdirectory)

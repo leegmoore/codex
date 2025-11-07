@@ -9,6 +9,8 @@
 
 - [x] Phase 4.2 complete (Messages API)
 - [x] Final design complete
+- [ ] Fix Phase 4.2 errors (2 errors in retry.test.ts cleanup)
+- [ ] Verify all tests passing (no errors)
 - [ ] Review design document thoroughly
 - [ ] Install quickjs-emscripten
 
