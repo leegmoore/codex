@@ -20,7 +20,7 @@
 - [ ] Port model lookup table (context windows, max tokens)
 - [ ] Add get_model_info function
 - [ ] Create tests (10 tests)
-- [ ] Test known models (GPT-4, GPT-5, etc.)
+- [ ] Test model lookup (use models from Rust source code)
 - [ ] Test unknown models (returns None)
 - [ ] Verify tests passing
 
