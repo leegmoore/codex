@@ -252,7 +252,7 @@ describe("Promise Tracker - Lifecycle Management", () => {
       const controller2 = new AbortController();
 
       let resolve1: (value: string) => void;
-      let _resolve2: (value: string) => void;
+      let resolve2: (value: string) => void;
 
       const promise1 = new Promise<string>((resolve) => {
         resolve1 = resolve;

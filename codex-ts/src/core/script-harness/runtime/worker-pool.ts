@@ -198,6 +198,16 @@ export class WorkerPool {
       return;
     }
 
+    // Dispose the old context and create a fresh one to ensure isolation
+    // This prevents globals from one execution leaking into the next
+    worker.context.dispose();
+
+    if (!this.quickJS) {
+      throw new HarnessInternalError("Worker pool not initialized");
+    }
+
+    worker.context = this.quickJS.newContext();
+
     // Increment execution count
     worker.executionCount++;
     worker.inUse = false;

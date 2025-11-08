@@ -126,7 +126,7 @@ describe("rollout", () => {
         source: SessionSource.CLI,
       };
 
-      const _recorder1 = await RolloutRecorder.create(testConfig, createParams);
+      const recorder1 = await RolloutRecorder.create(testConfig, createParams);
       const filePath = recorder1.getRolloutPath();
 
       // Write some items
@@ -140,7 +140,7 @@ describe("rollout", () => {
         path: filePath,
       };
 
-      const _recorder2 = await RolloutRecorder.create(testConfig, resumeParams);
+      const recorder2 = await RolloutRecorder.create(testConfig, resumeParams);
       expect(recorder2.getRolloutPath()).toBe(filePath);
 
       // Should be able to read existing content

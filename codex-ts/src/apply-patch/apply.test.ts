@@ -39,7 +39,7 @@ describe("applyPatch", () => {
 +ab
 +cd`);
 
-    const _affected = applyPatch(patch);
+    const affected = applyPatch(patch);
 
     expect(affected.added).toEqual([filePath]);
     expect(affected.modified).toEqual([]);
@@ -52,7 +52,7 @@ describe("applyPatch", () => {
     fs.writeFileSync(filePath, "x");
 
     const patch = wrapPatch(`*** Delete File: ${filePath}`);
-    const _affected = applyPatch(patch);
+    const affected = applyPatch(patch);
 
     expect(affected.deleted).toEqual([filePath]);
     expect(fs.existsSync(filePath)).toBe(false);
@@ -68,7 +68,7 @@ describe("applyPatch", () => {
 -bar
 +baz`);
 
-    const _affected = applyPatch(patch);
+    const affected = applyPatch(patch);
 
     expect(affected.modified).toEqual([filePath]);
     expect(fs.readFileSync(filePath, "utf-8")).toBe("foo\nbaz\n");
@@ -85,7 +85,7 @@ describe("applyPatch", () => {
 -line
 +line2`);
 
-    const _affected = applyPatch(patch);
+    const affected = applyPatch(patch);
 
     expect(affected.modified).toEqual([destPath]);
     expect(fs.existsSync(srcPath)).toBe(false);
@@ -106,7 +106,7 @@ describe("applyPatch", () => {
 -qux
 +QUX`);
 
-    const _affected = applyPatch(patch);
+    const affected = applyPatch(patch);
 
     expect(affected.modified).toEqual([filePath]);
     expect(fs.readFileSync(filePath, "utf-8")).toBe("foo\nBAR\nbaz\nQUX\n");
@@ -131,7 +131,7 @@ describe("applyPatch", () => {
 +g
 *** End of File`);
 
-    const _affected = applyPatch(patch);
+    const affected = applyPatch(patch);
     expect(fs.readFileSync(filePath, "utf-8")).toBe("a\nB\nc\nd\nE\nf\ng\n");
   });
 
@@ -149,7 +149,7 @@ describe("applyPatch", () => {
 -line3
 +line2-replacement`);
 
-    const _affected = applyPatch(patch);
+    const affected = applyPatch(patch);
     expect(fs.readFileSync(filePath, "utf-8")).toBe(
       "line1\nline2-replacement\nafter-context\nsecond-line\n",
     );
@@ -166,7 +166,7 @@ describe("applyPatch", () => {
 -import asyncio  # local import - avoids top-level dep
 +import asyncio  # HELLO`);
 
-    const _affected = applyPatch(patch);
+    const affected = applyPatch(patch);
     expect(fs.readFileSync(filePath, "utf-8")).toBe(
       "import asyncio  # HELLO\n",
     );
@@ -208,7 +208,7 @@ describe("applyPatch", () => {
     const patch = wrapPatch(`*** Add File: ${filePath}
 +created`);
 
-    const _affected = applyPatch(patch);
+    const affected = applyPatch(patch);
     expect(fs.existsSync(filePath)).toBe(true);
     expect(fs.readFileSync(filePath, "utf-8")).toBe("created\n");
   });
@@ -223,7 +223,7 @@ describe("applyPatch", () => {
 +first line
 +second line`);
 
-    const _affected = applyPatch(patch);
+    const affected = applyPatch(patch);
     const contents = fs.readFileSync(filePath, "utf-8");
     expect(contents.endsWith("\n")).toBe(true);
     expect(contents).toBe("first line\nsecond line\n");
