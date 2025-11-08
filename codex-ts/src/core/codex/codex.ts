@@ -12,6 +12,9 @@ import type { SessionConfiguration } from "./types.js";
 import { SUBMISSION_CHANNEL_CAPACITY } from "./types.js";
 import { Session } from "./session.js";
 import { submissionLoop } from "./submission-loop.js";
+import { WireApi } from "../client/model-provider-info.js";
+import { Features } from "../features/index.js";
+import { SessionSource } from "../rollout.js";
 
 /**
  * Error thrown when the Codex agent dies unexpectedly.
@@ -143,13 +146,15 @@ export class Codex {
     const userInstructions = null;
 
     // TODO: Create proper ModelProviderInfo from config
+    // For now, create a minimal provider object with required fields
     const provider = {
       name: config.modelProviderId,
-      // TODO: Add other provider fields
-    } as any;
+      wireApi: WireApi.Responses, // TODO: Determine from config
+      requiresOpenaiAuth: false, // TODO: Determine from config
+    };
 
-    // TODO: Create proper Features from config
-    const features = {} as any;
+    // Create Features instance with default settings
+    const features = Features.withDefaults();
 
     const sessionConfiguration: SessionConfiguration = {
       provider,
@@ -165,7 +170,9 @@ export class Codex {
       cwd: config.cwd,
       features,
       originalConfigDoNotUse: config,
-      sessionSource: sessionSource as any, // TODO: Proper type
+      // TODO: Pass sessionSource properly - for now default to CLI if unknown
+      sessionSource:
+        (sessionSource as SessionSource | null) ?? SessionSource.CLI,
     };
 
     // Create session
