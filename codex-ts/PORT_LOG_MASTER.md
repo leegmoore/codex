@@ -1,19 +1,19 @@
 # Codex TypeScript Port - Master Log
 
-**Last Updated:** 2025-11-07
-**Project Status:** ✅ PHASE 4.6 COMPLETE! (Tools & Tool Packs)
+**Last Updated:** 2025-11-08
+**Project Status:** 🟡 PHASE 5.1 IN PROGRESS (Conversation & History Management)
 
 ---
 
 ## Quick Stats
 
 - **Total Modules Planned:** ~40 core modules across 5 phases
-- **Completed:** 64 (Pre-work: 21, Phase 1: 8, Phase 2: 4, Phase 3: 7, Phase 4: 15, Phase 5: 9)
-- **In Progress:** None - Phase 4.6 COMPLETE! 🎉
-- **Test Pass Rate:** 1263/1265 (99.8%) - 2 pre-existing failures in quickjs-runtime
+- **Completed:** 71.5 (Pre-work: 21, Phase 1: 8, Phase 2: 4, Phase 3: 7, Phase 4: 15, Phase 5: 9, Phase 5.1: 7.5)
+- **In Progress:** Phase 5.1 - conversation_history core implementation
+- **Test Pass Rate:** 1366/1368 (99.8%) - includes 103 new Phase 5.1 tests
 - **Known Bugs:** 0 critical (2 pre-existing test failures, 9 pre-existing skipped tests)
 - **Rust Source:** ~41K LOC in `core/` alone
-- **Current Branch:** claude/phase-4.6-port-tools-011CUtkMRgmb9WR5HhD92pyg
+- **Current Branch:** claude/phase-5.1-conversation-history-011CUvZFydTGWnSHSDoqcSwC
 
 ---
 
@@ -250,6 +250,30 @@
 | app-server | ✅ DONE | - | 3/3 | Constants from 6,737 lines (library-focused port) |
 
 **Total:** 113 tests (100% pass rate) 🎉
+
+---
+
+### 🟡 Phase 5.1: Conversation & History Management - IN PROGRESS
+**Status:** 🟡 IN PROGRESS (87.5% complete)
+**Start Date:** 2025-11-08
+**Current Session:** claude/phase-5.1-conversation-history-011CUvZFydTGWnSHSDoqcSwC
+**Dependencies:** Phases 1-5 complete
+**Log:** [PORT-PHASES/phase-5.1/STATUS.md](../PORT-PHASES/phase-5.1/STATUS.md)
+
+| Module | Status | Tests | Lines | Notes |
+|--------|--------|-------|-------|-------|
+| openai_model_info | ✅ DONE | 20/20 | 87 | Model info lookup table |
+| model_family | ✅ DONE | 26/26 | 192 | Model capabilities & families |
+| parse_turn_item | ✅ DONE | 18/18 | 50 | ResponseItem → TurnItem conversion |
+| shell | ✅ DONE | 6/6 | 20 | Shell detection (stub) |
+| features | ✅ DONE | 8/8 | 30 | Feature flags (stub) |
+| environment_context | ✅ DONE | 14/14 | 50 | Environment context (simplified) |
+| response_processing | ✅ DONE | 11/11 | 104 | Tool call pairing |
+| strategy_interface | ✅ DONE | - | 108 | History strategy pattern |
+| conversation_history | 🟡 TODO | 0 | 1349 | Core implementation remaining |
+
+**Completed:** 103 tests passing across 7 modules + strategy interface
+**Remaining:** conversation_history core implementation (~60 tests estimated)
 
 ---
 
