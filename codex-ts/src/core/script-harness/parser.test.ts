@@ -5,11 +5,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import {
-  parseScript,
-  parseScripts,
-  isValidScript,
-} from "./parser.js";
+import { parseScript, parseScripts, isValidScript } from "./parser.js";
 import {
   BannedIdentifierError,
   ScriptSyntaxError,

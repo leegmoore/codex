@@ -498,7 +498,8 @@ describe("tool-facade.ts", () => {
 
     it("TF27: conditional approval based on args", async () => {
       const tool = createTool("test_tool", {
-        requiresApproval: (args: unknown) => (args as { dangerous?: boolean }).dangerous === true,
+        requiresApproval: (args: unknown) =>
+          (args as { dangerous?: boolean }).dangerous === true,
       });
       registry.register(tool);
 

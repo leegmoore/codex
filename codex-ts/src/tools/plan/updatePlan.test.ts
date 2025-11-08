@@ -207,7 +207,9 @@ describe("PLAN_TOOL_SPEC", () => {
 
   it("should have plan item properties", () => {
     const planProp = PLAN_TOOL_SPEC.parameters.properties.plan;
-    const itemSchema = planProp.items as { properties: { step: unknown; status: unknown } };
+    const itemSchema = planProp.items as {
+      properties: { step: unknown; status: unknown };
+    };
 
     expect(itemSchema.properties.step).toBeDefined();
     expect(itemSchema.properties.status).toBeDefined();
@@ -215,7 +217,9 @@ describe("PLAN_TOOL_SPEC", () => {
 
   it("should have status enum values", () => {
     const planProp = PLAN_TOOL_SPEC.parameters.properties.plan;
-    const itemSchema = planProp.items as { properties: { status: { enum: string[] } } };
+    const itemSchema = planProp.items as {
+      properties: { status: { enum: string[] } };
+    };
     const statusSchema = itemSchema.properties.status;
 
     expect(statusSchema.enum).toEqual(["pending", "in_progress", "completed"]);

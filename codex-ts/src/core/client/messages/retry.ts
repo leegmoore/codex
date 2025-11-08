@@ -102,17 +102,32 @@ export function calculateRetryDelay(
  */
 export function shouldRetry(error: unknown): boolean {
   // Check HTTP status code
-  if (error && typeof error === "object" && "statusCode" in error && typeof error.statusCode === "number") {
+  if (
+    error &&
+    typeof error === "object" &&
+    "statusCode" in error &&
+    typeof error.statusCode === "number"
+  ) {
     return RETRYABLE_STATUS_CODES.has(error.statusCode);
   }
 
   // Check Anthropic error type
-  if (error && typeof error === "object" && "errorType" in error && typeof error.errorType === "string") {
+  if (
+    error &&
+    typeof error === "object" &&
+    "errorType" in error &&
+    typeof error.errorType === "string"
+  ) {
     return RETRYABLE_ERROR_TYPES.has(error.errorType);
   }
 
   // Check for network errors (no response received)
-  if (error && typeof error === "object" && "message" in error && typeof error.message === "string") {
+  if (
+    error &&
+    typeof error === "object" &&
+    "message" in error &&
+    typeof error.message === "string"
+  ) {
     if (error.message.includes("fetch") || error.message.includes("network")) {
       return true;
     }
@@ -187,7 +202,10 @@ export async function withRetry<T>(
 
       // Calculate delay and wait
       const delay = calculateRetryDelay(attempt, cfg);
-      const errorMessage = error && typeof error === "object" && "message" in error ? String(error.message) : String(error);
+      const errorMessage =
+        error && typeof error === "object" && "message" in error
+          ? String(error.message)
+          : String(error);
       console.error(
         `[retry] Attempt ${attempt + 1}/${cfg.maxAttempts} failed. Retrying in ${delay}ms...`,
         errorMessage,

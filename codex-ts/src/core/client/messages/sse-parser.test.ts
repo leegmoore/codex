@@ -320,7 +320,9 @@ describe("SSE Parser - Stage 4", () => {
 /**
  * Helper to create a mock SSE stream from fixture events
  */
-function createMockSseStream(events: Array<{ event: string; data: unknown }>): ReadableStream<Uint8Array> {
+function createMockSseStream(
+  events: Array<{ event: string; data: unknown }>,
+): ReadableStream<Uint8Array> {
   const encoder = new TextEncoder();
   let index = 0;
 

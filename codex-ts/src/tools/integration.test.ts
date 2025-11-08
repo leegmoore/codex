@@ -98,7 +98,10 @@ describe("MCP Resource Integration", () => {
       { uri: "file:///b.txt", name: "b.txt" },
     ]);
 
-    const result = await listMcpResources({}, mockManager as unknown as Parameters<typeof listMcpResources>[1]);
+    const result = await listMcpResources(
+      {},
+      mockManager as unknown as Parameters<typeof listMcpResources>[1],
+    );
 
     expect(result.success).toBe(true);
     const data = JSON.parse(result.content);
@@ -149,7 +152,10 @@ describe("MCP Resource Integration", () => {
       { uriTemplate: "http://{url}", name: "http" },
     ]);
 
-    const result = await listMcpResourceTemplates({}, mockManager as unknown as Parameters<typeof listMcpResources>[1]);
+    const result = await listMcpResourceTemplates(
+      {},
+      mockManager as unknown as Parameters<typeof listMcpResources>[1],
+    );
 
     expect(result.success).toBe(true);
     const data = JSON.parse(result.content);
@@ -214,7 +220,10 @@ describe("MCP Resource Integration", () => {
     ]);
     mockManager.setResources("beta", [{ uri: "file:///b.txt", name: "b.txt" }]);
 
-    const result = await listMcpResources({}, mockManager as unknown as Parameters<typeof listMcpResources>[1]);
+    const result = await listMcpResources(
+      {},
+      mockManager as unknown as Parameters<typeof listMcpResources>[1],
+    );
 
     const data = JSON.parse(result.content);
     expect(data.resources[0].server).toBe("alpha");

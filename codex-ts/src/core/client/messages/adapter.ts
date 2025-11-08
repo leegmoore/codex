@@ -235,7 +235,10 @@ function* processEvent(
 
     default:
       // Unknown event type
-      console.warn("[adapter] Unknown event type:", (event as unknown as { type: string }).type);
+      console.warn(
+        "[adapter] Unknown event type:",
+        (event as unknown as { type: string }).type,
+      );
       break;
   }
 }

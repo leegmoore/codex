@@ -106,7 +106,10 @@ describe("CliConfigOverrides", () => {
     const target: Record<string, unknown> = {};
     overrides.applyOnValue(target);
     expect(
-      (((target.a as Record<string, unknown>).b as Record<string, unknown>).c as Record<string, unknown>).d
+      (
+        ((target.a as Record<string, unknown>).b as Record<string, unknown>)
+          .c as Record<string, unknown>
+      ).d,
     ).toBe("value");
   });
 

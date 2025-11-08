@@ -3,9 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import {
-  QuickJSRuntime,
-} from "./quickjs-runtime.js";
+import { QuickJSRuntime } from "./quickjs-runtime.js";
 import type { ScriptExecutionLimits } from "./types.js";
 
 /**
@@ -155,7 +153,6 @@ describe("quickjs-runtime.ts", () => {
       expect(result.returnValue).toBe(30);
     });
   });
-
 
   describe("Error handling", () => {
     it("QR15: catches syntax errors", async () => {

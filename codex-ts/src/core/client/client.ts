@@ -199,7 +199,11 @@ export class ModelClient {
       topK: promptExtras.topK as number | undefined,
       stopSequences: promptExtras.stopSequences as string[] | undefined,
       traceId: promptExtras.traceId as string | undefined,
-      toolChoice: promptExtras.toolChoice as "auto" | "none" | "any" | undefined,
+      toolChoice: promptExtras.toolChoice as
+        | "auto"
+        | "none"
+        | "any"
+        | undefined,
     };
 
     // Return async generator as ResponseStream

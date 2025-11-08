@@ -5,10 +5,7 @@
  * For now, this is a simplified version that handles basic cases
  */
 
-import type {
-  MaybeApplyPatch,
-  ExtractHeredocError,
-} from "./types.js";
+import type { MaybeApplyPatch, ExtractHeredocError } from "./types.js";
 import { APPLY_PATCH_COMMANDS } from "./types.js";
 import { parsePatch } from "./parser.js";
 
@@ -26,7 +23,10 @@ export function maybeParseApplyPatch(argv: string[]): MaybeApplyPatch {
       return { type: "Body", value: parsed };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      return { type: "PatchParseError", error: { type: "InvalidPatchError", message } };
+      return {
+        type: "PatchParseError",
+        error: { type: "InvalidPatchError", message },
+      };
     }
   }
 
@@ -47,7 +47,10 @@ export function maybeParseApplyPatch(argv: string[]): MaybeApplyPatch {
         return { type: "Body", value: parsed };
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
-        return { type: "PatchParseError", error: { type: "InvalidPatchError", message } };
+        return {
+          type: "PatchParseError",
+          error: { type: "InvalidPatchError", message },
+        };
       }
     } catch (err) {
       if (isExtractHeredocError(err)) {

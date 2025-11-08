@@ -210,7 +210,12 @@ export class ApprovalBridge {
         this.pending.delete(requestId);
         this.stats.pending--;
         this.stats.timedOut++;
-        reject(new ApprovalTimeoutError(request.toolName, this.config.approvalTimeoutMs));
+        reject(
+          new ApprovalTimeoutError(
+            request.toolName,
+            this.config.approvalTimeoutMs,
+          ),
+        );
       }, this.config.approvalTimeoutMs);
 
       // Store pending approval

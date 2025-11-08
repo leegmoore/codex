@@ -247,13 +247,16 @@ export class QuickJSRuntime implements ScriptRuntimeAdapter {
       return result;
     } catch (error: unknown) {
       // Handle execution errors
-      const errorObj = error && typeof error === "object" ? error : { message: String(error) };
-      const errorCode = ("name" in errorObj && typeof errorObj.name === "string")
-        ? errorObj.name
-        : (errorObj.constructor?.name || "Error");
-      const errorMessage = ("message" in errorObj && typeof errorObj.message === "string")
-        ? errorObj.message
-        : String(error);
+      const errorObj =
+        error && typeof error === "object" ? error : { message: String(error) };
+      const errorCode =
+        "name" in errorObj && typeof errorObj.name === "string"
+          ? errorObj.name
+          : errorObj.constructor?.name || "Error";
+      const errorMessage =
+        "message" in errorObj && typeof errorObj.message === "string"
+          ? errorObj.message
+          : String(error);
 
       return {
         ok: false,
@@ -261,7 +264,10 @@ export class QuickJSRuntime implements ScriptRuntimeAdapter {
           code: errorCode,
           message: errorMessage,
           phase: "executing" as const,
-          stack: ("stack" in errorObj && typeof errorObj.stack === "string") ? errorObj.stack : undefined,
+          stack:
+            "stack" in errorObj && typeof errorObj.stack === "string"
+              ? errorObj.stack
+              : undefined,
         },
         metadata: {
           duration_ms: Date.now() - startTime,

@@ -189,7 +189,10 @@ export async function resolveHead(path: string): Promise<string | undefined> {
     return await runGitForStdout(path, ["rev-parse", "--verify", "HEAD"]);
   } catch (error: unknown) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (error instanceof GitToolingError && (error.details as any)?.exitCode === 128) {
+    if (
+      error instanceof GitToolingError &&
+      (error.details as Record<string, unknown>)?.exitCode === 128
+    ) {
       return undefined;
     }
     throw error;
@@ -457,8 +460,7 @@ export function createSymlink(
 
   if (isWindows) {
     // Check if source is a directory
-    const isDir =
-      existsSync(source) && statSync(source).isDirectory();
+    const isDir = existsSync(source) && statSync(source).isDirectory();
     if (isDir) {
       symlinkSync(linkTarget, destination, "dir");
     } else {

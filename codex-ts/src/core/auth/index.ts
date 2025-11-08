@@ -114,7 +114,12 @@ class FileAuthStorage implements AuthStorageBackend {
 
       return data;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") {
+      if (
+        error &&
+        typeof error === "object" &&
+        "code" in error &&
+        error.code === "ENOENT"
+      ) {
         return undefined;
       }
       throw error;
@@ -143,7 +148,12 @@ class FileAuthStorage implements AuthStorageBackend {
       await unlink(authFile);
       return true;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") {
+      if (
+        error &&
+        typeof error === "object" &&
+        "code" in error &&
+        error.code === "ENOENT"
+      ) {
         return false;
       }
       throw error;

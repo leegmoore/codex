@@ -141,7 +141,9 @@ describe("TuiProgressReporter", () => {
 
   beforeEach(() => {
     stderrWrite = process.stderr.write;
-    process.stderr.write = vi.fn(() => true) as unknown as typeof process.stderr.write;
+    process.stderr.write = vi.fn(
+      () => true,
+    ) as unknown as typeof process.stderr.write;
   });
 
   afterEach(() => {

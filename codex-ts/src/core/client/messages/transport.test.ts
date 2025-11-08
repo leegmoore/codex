@@ -6,9 +6,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import {
-  createAnthropicTransport,
-} from "./transport.js";
+import { createAnthropicTransport } from "./transport.js";
 import type { MessagesApiRequest } from "./types.js";
 
 describe("Transport Layer - Stage 7", () => {

@@ -6,10 +6,7 @@
  */
 
 import { deepFreeze } from "./hardening.js";
-import type {
-  ScriptContext,
-  ScriptExecutionLimits,
-} from "./runtime/types.js";
+import type { ScriptContext, ScriptExecutionLimits } from "./runtime/types.js";
 
 /**
  * Seed data for creating script contexts

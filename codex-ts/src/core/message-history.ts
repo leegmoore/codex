@@ -230,7 +230,12 @@ export async function historyMetadata(
     count = (content.match(/\n/g) || []).length;
   } catch (error: unknown) {
     // If file doesn't exist or can't be read, return zeros
-    if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") {
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "ENOENT"
+    ) {
       return { logId: 0, count: 0 };
     }
     // For other errors, still return zeros but could log
@@ -304,7 +309,12 @@ export async function readAllEntries(config: Config): Promise<HistoryEntry[]> {
 
     return lines.map((line) => JSON.parse(line) as HistoryEntry);
   } catch (error: unknown) {
-    if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") {
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "ENOENT"
+    ) {
       return [];
     }
     throw error;
@@ -323,7 +333,14 @@ export async function clearHistory(config: Config): Promise<void> {
     await fs.unlink(filepath);
   } catch (error: unknown) {
     // Ignore if file doesn't exist
-    if (!(error && typeof error === "object" && "code" in error && error.code === "ENOENT")) {
+    if (
+      !(
+        error &&
+        typeof error === "object" &&
+        "code" in error &&
+        error.code === "ENOENT"
+      )
+    ) {
       throw error;
     }
   }

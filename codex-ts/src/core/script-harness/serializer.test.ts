@@ -3,9 +3,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import {
-  serializeExecutionResult,
-} from "./serializer.js";
+import { serializeExecutionResult } from "./serializer.js";
 import type { ExecutionResult } from "./orchestrator.js";
 
 describe("serializer.ts", () => {

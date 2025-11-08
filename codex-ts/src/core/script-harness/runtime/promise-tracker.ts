@@ -316,8 +316,13 @@ export class PromiseTracker {
    * Returns results from successfully completed tool calls,
    * useful when script fails mid-execution.
    */
-  getCompletedResults(): Array<{ id: string; toolName: string; result: unknown }> {
-    const results: Array<{ id: string; toolName: string; result: unknown }> = [];
+  getCompletedResults(): Array<{
+    id: string;
+    toolName: string;
+    result: unknown;
+  }> {
+    const results: Array<{ id: string; toolName: string; result: unknown }> =
+      [];
 
     for (const [id, entry] of this.completed) {
       if (entry.status === "resolved" && entry.result !== undefined) {

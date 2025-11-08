@@ -3,10 +3,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import {
-  ApprovalBridge,
-  type ApprovalRequest,
-} from "./approvals-bridge.js";
+import { ApprovalBridge, type ApprovalRequest } from "./approvals-bridge.js";
 import { ApprovalTimeoutError, ApprovalDeniedError } from "./errors.js";
 
 describe("approvals-bridge.ts", () => {

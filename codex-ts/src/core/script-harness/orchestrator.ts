@@ -203,11 +203,12 @@ export class Orchestrator {
         // 2. Parse and validate script
         const parseResult = parseScript(block.code);
         if (!parseResult.success || !parseResult.script) {
-          const errorMessage = typeof parseResult.error === "string"
-            ? parseResult.error
-            : parseResult.error instanceof Error
-            ? parseResult.error.message
-            : "Invalid script syntax";
+          const errorMessage =
+            typeof parseResult.error === "string"
+              ? parseResult.error
+              : parseResult.error instanceof Error
+                ? parseResult.error.message
+                : "Invalid script syntax";
 
           const error = {
             ok: false as const,
@@ -326,7 +327,8 @@ export class Orchestrator {
         }
       } catch (error: unknown) {
         const errorName = error instanceof Error ? error.name : "Error";
-        const errorMessage = error instanceof Error ? error.message : String(error);
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
 
         const scriptError: ScriptResult = {
           ok: false,
