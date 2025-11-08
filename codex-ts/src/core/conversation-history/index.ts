@@ -6,7 +6,7 @@
  * and output truncation for model context.
  */
 
-import type { ResponseItem, FunctionCallOutputPayload, FunctionCallOutputContentItem } from '../../protocol/models'
+import type { ResponseItem, FunctionCallOutputContentItem } from '../../protocol/models'
 import type { TokenUsage, TokenUsageInfo } from '../../protocol/protocol'
 import { takeBytesAtCharBoundary, takeLastBytesAtCharBoundary } from '../../utils/string'
 import { newOrAppendTokenUsage, fillToContextWindow, fullContextWindow } from './utils'
@@ -88,7 +88,9 @@ export class ConversationHistory {
   removeFirstItem(): void {
     if (this.items.length === 0) return
 
-    const removed = this.items.shift()!
+    const removed = this.items.shift()
+    if (!removed) return
+
     // If the removed item participates in a call/output pair, also remove
     // its corresponding counterpart to keep invariants intact.
     this.removeCorrespondingFor(removed)

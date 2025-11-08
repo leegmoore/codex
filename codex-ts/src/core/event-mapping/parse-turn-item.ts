@@ -6,7 +6,7 @@
  * conversation history tracking.
  */
 
-import type { ResponseItem, ContentItem, ReasoningItemReasoningSummary, ReasoningItemContent } from '../../protocol/models'
+import type { ResponseItem, ContentItem } from '../../protocol/models'
 import type { TurnItem, UserMessageItem, AgentMessageItem, UserInput, AgentMessageContent, ReasoningItem, WebSearchItem } from '../../protocol/items'
 
 // Session prefix marker (filters out internal messages)
