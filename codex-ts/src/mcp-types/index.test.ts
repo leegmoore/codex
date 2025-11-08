@@ -8,14 +8,14 @@ import { describe, it, expect } from "vitest";
 import {
   JSONRPC_VERSION,
   MCP_SCHEMA_VERSION,
-  JSONRPCMessage,
+  
   JSONRPCRequest,
   JSONRPCNotification,
-  ClientRequest,
-  ServerNotification,
+  
+  
   JSONRPCMessageSchema,
-  ClientRequestSchema,
-  ServerNotificationSchema,
+  
+  
   type InitializeRequest,
   type ClientCapabilities,
   type Implementation,

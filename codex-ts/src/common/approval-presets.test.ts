@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { builtinApprovalPresets, ApprovalPreset } from "./approval-presets.js";
+import { builtinApprovalPresets } from "./approval-presets.js";
 import { AskForApproval } from "../protocol/types.js";
 
 describe("builtinApprovalPresets", () => {

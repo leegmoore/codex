@@ -4,7 +4,7 @@
 
 import { describe, it, expect } from "vitest";
 import { parsePatch, resolveHunkPath } from "../../src/apply-patch/parser.js";
-import type { Hunk, ParseError } from "../../src/apply-patch/types.js";
+import type { Hunk } from "../../src/apply-patch/types.js";
 
 describe("parsePatch", () => {
   it("should reject patch without Begin marker", () => {

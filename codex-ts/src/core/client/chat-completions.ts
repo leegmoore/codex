@@ -17,7 +17,8 @@
  * TODO(Phase 4.5+): Add delta aggregation stream adapter
  */
 
-import type { ResponseItem, ContentItem } from "../../protocol/models.js";
+// Type imports for future use - currently commented out to avoid linter warnings
+// import type { ResponseItem, ContentItem } from "../../protocol/models.js";
 import type { Prompt } from "./client-common.js";
 
 // ============================================================================

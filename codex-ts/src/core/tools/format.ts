@@ -94,7 +94,7 @@ export function truncateForPreview(
   const bytes = encoder.encode(result);
   if (bytes.length > maxBytes) {
     const suffix = "...\n" + truncationNotice;
-    const suffixBytes = encoder.encode(suffix).length;
+    const _suffixBytes = encoder.encode(suffix).length;
 
     // Binary search for the right length
     let low = 0;

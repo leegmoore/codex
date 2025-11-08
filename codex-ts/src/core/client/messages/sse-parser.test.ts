@@ -6,8 +6,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { parseSseStream, createSseStream } from "./sse-parser.js";
-import type { AnthropicSseEvent } from "./types.js";
+import { parseSseStream } from "./sse-parser.js";
 
 // Import test fixtures
 import textOnlyFixture from "./fixtures/text-only.json";

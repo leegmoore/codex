@@ -10,13 +10,7 @@ import type {
   ResponseEvent,
   ResponsesApiRequest,
   ToolSpec,
-  ResponsesApiTool,
-  FreeformTool,
-  FreeformToolFormat,
   Reasoning,
-  TextControls,
-  TextFormat,
-  OpenAiVerbosity,
 } from "./client-common.js";
 import {
   createReasoningParamForRequest,
@@ -32,7 +26,7 @@ interface ModelFamily {
   supportsReasoningSummaries: boolean;
 }
 
-const APPLY_PATCH_TOOL_INSTRUCTIONS = `
+const _APPLY_PATCH_TOOL_INSTRUCTIONS = `
 ## When modifying files
 
 When you need to modify files, use the apply_patch tool instead of other editing methods.

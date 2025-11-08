@@ -6,7 +6,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   ApprovalBridge,
   type ApprovalRequest,
-  type ApprovalBridgeConfig,
 } from "./approvals-bridge.js";
 import { ApprovalTimeoutError, ApprovalDeniedError } from "./errors.js";
 

@@ -11,7 +11,6 @@ import type {
   AffectedPaths,
   ApplyPatchFileUpdate,
   ApplyPatchFileChange,
-  ApplyPatchAction,
   MaybeApplyPatchVerified,
   ApplyPatchArgs,
 } from "./types.js";
@@ -260,7 +259,7 @@ export function unifiedDiffFromChunks(
 export function unifiedDiffFromChunksWithContext(
   filePath: string,
   chunks: UpdateFileChunk[],
-  contextLines: number,
+  _contextLines: number,
 ): ApplyPatchFileUpdate {
   const { originalContents, newContents } = deriveNewContentsFromChunks(
     filePath,

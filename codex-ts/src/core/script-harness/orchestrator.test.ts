@@ -6,7 +6,6 @@ import { describe, it, expect, beforeEach } from "vitest";
 import {
   Orchestrator,
   type OrchestratorConfig,
-  type ExecutionResult,
 } from "./orchestrator.js";
 import { QuickJSRuntime } from "./runtime/quickjs-runtime.js";
 import type { ToolRegistry, ApprovalBridge } from "./tool-facade.js";

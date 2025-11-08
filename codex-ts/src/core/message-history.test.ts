@@ -15,7 +15,6 @@ import {
   lookup,
   readAllEntries,
   clearHistory,
-  type HistoryEntry,
 } from "./message-history.js";
 import { Config } from "./config.js";
 import { HistoryPersistence } from "./config.js";

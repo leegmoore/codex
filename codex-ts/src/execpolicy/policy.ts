@@ -9,7 +9,6 @@ import type {
   CheckResult,
   ForbiddenProgramRegex,
 } from "./types.js";
-import { NoSpecForProgramError } from "./types.js";
 import { checkProgramSpec } from "./checker.js";
 
 /**

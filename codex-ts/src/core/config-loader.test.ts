@@ -7,7 +7,6 @@ import {
   loadConfigAsTOMLWithOverrides,
   loadConfigLayersWithOverrides,
   mergeTomlValues,
-  LoadedConfigLayers,
   LoaderOverrides,
 } from "./config-loader";
 import { CONFIG_TOML_FILE } from "./config";

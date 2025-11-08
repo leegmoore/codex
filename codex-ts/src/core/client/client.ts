@@ -152,7 +152,7 @@ export class ModelClient {
    * @param prompt - The prompt to send
    * @returns A stream of response events
    */
-  private async streamResponses(prompt: Prompt): Promise<ResponseStream> {
+  private async streamResponses(_prompt: Prompt): Promise<ResponseStream> {
     // TODO(Phase 4.5+): Implement Responses API streaming
     throw new Error(
       "streamResponses() not yet implemented - deferred to Phase 4.5+",
@@ -167,7 +167,7 @@ export class ModelClient {
    * @param prompt - The prompt to send
    * @returns A stream of response events
    */
-  private async streamChat(prompt: Prompt): Promise<ResponseStream> {
+  private async streamChat(_prompt: Prompt): Promise<ResponseStream> {
     // TODO(Phase 4.5+): Implement Chat API streaming
     throw new Error(
       "streamChat() not yet implemented - deferred to Phase 4.5+",

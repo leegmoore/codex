@@ -9,9 +9,9 @@
  */
 
 import { spawn } from "node:child_process";
-import { writeFile, mkdir, mkdtemp, rm } from "node:fs/promises";
+import { writeFile, mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join, relative, normalize, isAbsolute, sep } from "node:path";
+import { join, normalize, isAbsolute, sep } from "node:path";
 import { symlinkSync, existsSync, statSync } from "node:fs";
 import { platform } from "node:os";
 

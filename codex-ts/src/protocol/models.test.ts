@@ -9,7 +9,7 @@ import type {
   ResponseItem,
   LocalShellStatus,
   LocalShellAction,
-  LocalShellExecAction,
+
   WebSearchAction,
   ReasoningItemReasoningSummary,
   ReasoningItemContent,
@@ -18,7 +18,7 @@ import type {
   FunctionCallOutputContentItem,
   FunctionCallOutputPayload,
   CallToolResult,
-  ContentBlock,
+
 } from "./models.js";
 import {
   responseInputItemToResponseItem,

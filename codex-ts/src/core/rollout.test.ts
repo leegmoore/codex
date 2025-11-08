@@ -126,7 +126,7 @@ describe("rollout", () => {
         source: SessionSource.CLI,
       };
 
-      const recorder1 = await RolloutRecorder.create(testConfig, createParams);
+      const _recorder1 = await RolloutRecorder.create(testConfig, createParams);
       const filePath = recorder1.getRolloutPath();
 
       // Write some items
@@ -140,7 +140,7 @@ describe("rollout", () => {
         path: filePath,
       };
 
-      const recorder2 = await RolloutRecorder.create(testConfig, resumeParams);
+      const _recorder2 = await RolloutRecorder.create(testConfig, resumeParams);
       expect(recorder2.getRolloutPath()).toBe(filePath);
 
       // Should be able to read existing content
@@ -367,7 +367,7 @@ describe("rollout", () => {
 
     it("should sort conversations newest first", async () => {
       const conv1 = ConversationId.new();
-      const recorder1 = await RolloutRecorder.create(testConfig, {
+      const _recorder1 = await RolloutRecorder.create(testConfig, {
         type: "create",
         conversationId: conv1,
         source: SessionSource.CLI,
@@ -377,7 +377,7 @@ describe("rollout", () => {
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       const conv2 = ConversationId.new();
-      const recorder2 = await RolloutRecorder.create(testConfig, {
+      const _recorder2 = await RolloutRecorder.create(testConfig, {
         type: "create",
         conversationId: conv2,
         source: SessionSource.CLI,

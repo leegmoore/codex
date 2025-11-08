@@ -7,10 +7,6 @@ import { ArgType } from "./types.js";
 import {
   flag,
   opt,
-  ARG_RFILES,
-  ARG_RFILES_OR_CWD,
-  ARG_WFILE,
-  ARG_OPAQUE_VALUE,
   ARG_POS_INT,
   oneOrMore,
   zeroOrMore,

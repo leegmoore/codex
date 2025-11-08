@@ -10,7 +10,6 @@ import {
   type ContextSeed,
   type CreateContextOptions,
 } from "./context.js";
-import type { ScriptContext } from "./runtime/types.js";
 
 describe("context.ts", () => {
   // Helper to create valid seed

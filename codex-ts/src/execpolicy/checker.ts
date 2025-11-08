@@ -10,7 +10,6 @@ import type {
   MatchedArg,
   ValidExec,
   CheckResult,
-  OptMeta,
   ArgMatcher,
 } from "./types.js";
 import {

@@ -8,7 +8,7 @@
  * Design reference: SCRIPT_HARNESS_DESIGN_FINAL.md Section 8.3
  */
 
-import { scanForBannedIdentifiers, BANNED_IDENTIFIERS } from "./hardening.js";
+import { scanForBannedIdentifiers } from "./hardening.js";
 import {
   BannedIdentifierError,
   ScriptSyntaxError,

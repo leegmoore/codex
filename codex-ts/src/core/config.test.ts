@@ -5,7 +5,6 @@ import {
   HistoryPersistence,
   UriBasedFileOpener,
 } from "./config";
-import { AskForApproval, SandboxPolicy } from "../protocol/protocol";
 import { ReasoningSummary } from "../protocol/config-types";
 
 describe("Config", () => {

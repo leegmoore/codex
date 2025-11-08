@@ -67,7 +67,7 @@ describe("ReadinessFlag", () => {
   it("multiple subscribers require all to mark ready", async () => {
     const flag = new ReadinessFlag();
     const token1 = await flag.subscribe();
-    const token2 = await flag.subscribe();
+    const _token2 = await flag.subscribe();
 
     expect(flag.isReady()).toBe(false);
 

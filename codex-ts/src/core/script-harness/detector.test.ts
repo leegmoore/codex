@@ -14,8 +14,6 @@ import {
   countScriptBlocks,
   removeScriptBlocks,
   replaceScriptBlocks,
-  type ScriptBlock,
-  type SegmentedText,
 } from "./detector.js";
 
 describe("Script Block Detector", () => {

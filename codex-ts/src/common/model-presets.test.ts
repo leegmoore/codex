@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { builtinModelPresets, ModelPreset } from "./model-presets.js";
+import { builtinModelPresets } from "./model-presets.js";
 import { ReasoningEffort } from "../protocol/types.js";
 
 describe("builtinModelPresets", () => {

@@ -384,7 +384,7 @@ export function createToolsProxy(
         })();
 
         // Register promise with tracker
-        const promiseId = tracker.register(toolName, toolPromise, abort);
+        const _promiseId = tracker.register(toolName, toolPromise, abort);
 
         // Return the promise
         return toolPromise;

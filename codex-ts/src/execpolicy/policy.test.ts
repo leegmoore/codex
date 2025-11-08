@@ -5,7 +5,6 @@
 import { describe, it, expect } from "vitest";
 import { Policy } from "./policy.js";
 import { DEFAULT_POLICY } from "./default-policy.js";
-import type { ExecCall } from "./types.js";
 
 describe("execpolicy", () => {
   const policy = new Policy(DEFAULT_POLICY);

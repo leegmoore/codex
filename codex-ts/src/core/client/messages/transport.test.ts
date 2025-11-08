@@ -8,7 +8,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   createAnthropicTransport,
-  type TransportOptions,
 } from "./transport.js";
 import type { MessagesApiRequest } from "./types.js";
 

@@ -182,7 +182,7 @@ export class ApprovalBridge {
    */
   async requestApproval(request: ApprovalRequest): Promise<boolean> {
     // Generate unique request ID
-    const requestId = `req_${Date.now()}_${++this.requestCounter}`;
+    const _requestId = `req_${Date.now()}_${++this.requestCounter}`;
 
     // Update stats
     this.stats.total++;
@@ -295,7 +295,7 @@ export class ApprovalBridge {
    * @param reason - Cancellation reason
    */
   cancelAll(reason = "Script execution cancelled"): void {
-    for (const [requestId, entry] of this.pending) {
+    for (const [_requestId, entry] of this.pending) {
       clearTimeout(entry.timer);
       entry.reject(new ApprovalDeniedError(entry.request.toolName, reason));
     }

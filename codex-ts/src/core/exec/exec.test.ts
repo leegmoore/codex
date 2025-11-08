@@ -10,13 +10,12 @@ import {
   type ExecParams,
   type ExecToolCallOutput,
   SandboxTimeoutError,
-  SandboxDeniedError,
   EXEC_TIMEOUT_EXIT_CODE,
 } from "./index.js";
 import { SandboxType, SandboxManager } from "../sandboxing/index.js";
 import type { SandboxPolicy } from "../../protocol/protocol.js";
 import { tmpdir } from "os";
-import { mkdirSync, writeFileSync, rmSync } from "fs";
+import { mkdirSync, rmSync } from "fs";
 import { join } from "path";
 
 describe("Core Execution Engine", () => {

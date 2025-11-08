@@ -2,7 +2,7 @@
  * Argument type helpers for building policies
  */
 
-import type { ArgMatcher, Opt, OptMeta } from "./types.js";
+import type { ArgMatcher, Opt } from "./types.js";
 import { ArgType } from "./types.js";
 
 /**

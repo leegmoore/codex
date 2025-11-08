@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { pullEventsFromValue, PullEvent } from "./parser.js";
+import { pullEventsFromValue } from "./parser.js";
 
 describe("pullEventsFromValue", () => {
   it("parses status events", () => {

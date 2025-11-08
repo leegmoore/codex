@@ -98,7 +98,7 @@ async function ensureOwnerOnlyPermissions(filepath: string): Promise<void> {
  * Note: Node.js doesn't have built-in advisory locking across all platforms,
  * so we implement a best-effort approach using exclusive file opening.
  */
-async function tryLockExclusive(fd: number): Promise<boolean> {
+async function tryLockExclusive(_fd: number): Promise<boolean> {
   // Node.js doesn't have a direct equivalent to Rust's try_lock
   // We'll use the open file descriptor and assume exclusivity
   // For production use, consider using a library like 'proper-lockfile'
@@ -108,7 +108,7 @@ async function tryLockExclusive(fd: number): Promise<boolean> {
 /**
  * Release a lock on a file descriptor.
  */
-async function unlock(fd: number): Promise<void> {
+async function _unlock(_fd: number): Promise<void> {
   // Unlocking happens automatically when we close the file descriptor
   return;
 }

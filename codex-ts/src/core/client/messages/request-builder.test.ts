@@ -8,7 +8,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import type { Prompt, ResponseItem, ToolSpec } from "../client-common.js";
+import type { Prompt } from "../client-common.js";
 import { buildMessagesRequest } from "./request-builder.js";
 import type { AnthropicProviderConfig } from "./types.js";
 

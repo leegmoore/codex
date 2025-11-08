@@ -7,7 +7,6 @@
 
 import type {
   MaybeApplyPatch,
-  ApplyPatchArgs,
   ExtractHeredocError,
 } from "./types.js";
 import { APPLY_PATCH_COMMANDS } from "./types.js";

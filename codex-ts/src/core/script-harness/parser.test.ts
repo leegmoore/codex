@@ -9,7 +9,6 @@ import {
   parseScript,
   parseScripts,
   isValidScript,
-  type ParseResult,
 } from "./parser.js";
 import {
   BannedIdentifierError,

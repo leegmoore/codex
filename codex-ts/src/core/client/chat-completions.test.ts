@@ -14,8 +14,6 @@ import {
   type ChatMessage,
   type ChatCompletionRequest,
   type ChatCompletionChunk,
-  type ChatCompletionChoice,
-  type ChatCompletionDelta,
 } from "./chat-completions.js";
 import type { ResponseItem } from "../../protocol/models.js";
 import type { Prompt } from "./client-common.js";

@@ -203,8 +203,8 @@ export class PromiseTracker {
     }
 
     // Abort all pending promises (NOT detached)
-    const orphanedIds = Array.from(this.pending.keys());
-    for (const [id, entry] of this.pending) {
+    const _orphanedIds = Array.from(this.pending.keys());
+    for (const [_id, entry] of this.pending) {
       entry.abort.abort(
         new Error(`Script completed with pending promise: ${entry.toolName}`),
       );
@@ -358,7 +358,7 @@ export class PromiseTracker {
    * @param reason - Abort reason
    */
   abortAll(reason: string = "Script execution cancelled"): void {
-    for (const [id, entry] of this.pending) {
+    for (const [_id, entry] of this.pending) {
       entry.status = "aborted";
       entry.abort.abort(new Error(reason));
     }

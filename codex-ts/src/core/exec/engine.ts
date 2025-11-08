@@ -142,7 +142,7 @@ export async function processExecToolCall(
  */
 export async function executeExecEnv(
   env: ExecEnv,
-  sandboxPolicy: SandboxPolicy,
+  _sandboxPolicy: SandboxPolicy,
 ): Promise<ExecToolCallOutput> {
   const startTime = Date.now();
 
@@ -160,7 +160,7 @@ export async function executeExecEnv(
  * Execute a command using Node.js spawn
  */
 async function executeCommand(env: ExecEnv): Promise<RawExecOutput> {
-  const { command, cwd, env: envVars, timeoutMs, arg0 } = env;
+  const { command, cwd, env: envVars, timeoutMs, arg0: _arg0 } = env;
 
   if (command.length === 0) {
     throw new Error("command is empty");

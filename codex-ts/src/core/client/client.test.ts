@@ -12,7 +12,6 @@ import { describe, it, expect } from "vitest";
 import { ModelClient, type ResponsesApiOptions } from "./client.js";
 import { WireApi, type ModelProviderInfo } from "./model-provider-info.js";
 import { AuthMode, CodexAuth } from "../auth/stub-auth.js";
-import type { Prompt } from "./client-common.js";
 
 describe("client", () => {
   describe("ModelClient", () => {

@@ -2,12 +2,11 @@
  * Tests for QuickJS runtime adapter
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import {
   QuickJSRuntime,
-  type QuickJSRuntimeConfig,
 } from "./quickjs-runtime.js";
-import type { ScriptExecutionLimits, ScriptExecutionResult } from "./types.js";
+import type { ScriptExecutionLimits } from "./types.js";
 
 describe("quickjs-runtime.ts", () => {
   let runtime: QuickJSRuntime;

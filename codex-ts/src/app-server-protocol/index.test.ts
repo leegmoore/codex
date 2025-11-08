@@ -5,7 +5,6 @@ import {
   JSONRPCNotification,
   JSONRPCResponse,
   JSONRPCError,
-  JSONRPCErrorError,
   JSONRPCMessage,
   isJSONRPCRequest,
   isJSONRPCNotification,

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { promises as fs } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { viewImage, type ViewImageParams } from "./viewImage.js";
+import { viewImage } from "./viewImage.js";
 
 describe("viewImage", () => {
   let testDir: string;

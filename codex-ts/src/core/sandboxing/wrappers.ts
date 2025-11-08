@@ -19,8 +19,8 @@ import type { SandboxPolicy } from "../../protocol/protocol.js";
  */
 export function createSeatbeltCommandArgs(
   command: string[],
-  policy: SandboxPolicy,
-  policyBasePath: string,
+  _policy: SandboxPolicy,
+  _policyBasePath: string,
 ): string[] {
   // Stub implementation - returns basic sandbox-exec invocation
   // Full implementation would generate/use a .sb (seatbelt) profile
