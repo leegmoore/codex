@@ -1,4 +1,4 @@
-# Codex TypeScript: Product Vision & Innovations
+# Codex TypeScript: Product Vision & Development Plan
 
 **Version:** 1.0
 **Date:** November 7, 2025
@@ -6,803 +6,600 @@
 
 ---
 
-## Executive Summary
+## Project Summary
 
-The Codex TypeScript port transforms the Rust-based Codex agent into a pure TypeScript library (`@openai/codex-core`) while introducing groundbreaking innovations in memory management, tool orchestration, and multi-provider LLM integration. The result is an agent framework that enables models to perform 2-5x above their baseline capabilities through intelligent context management, cognitive scaffolding, and compositional tool execution.
+The Codex TypeScript port converts the Rust-based Codex agent into a pure TypeScript library (`@openai/codex-core`) while adding capabilities for memory management, tool composition, and multi-provider integration.
 
-**Key Differentiators:**
-- **Script-based tool calling:** Models write TypeScript to orchestrate tools (vs structured JSON)
-- **Compression gradient memory:** Infinite conversation history via multi-tier compression
-- **Multi-provider optimization:** Unified interface maximizing each API's native capabilities
-- **Intelligent context injection:** Dynamic memory retrieval with nano-agent filtering
+**Core Objectives:**
+- Port Codex functionality to TypeScript for broader platform support
+- Support multiple LLM providers (OpenAI, Anthropic) through unified interface
+- Enable compositional tool calling via sandboxed script execution
+- Implement multi-tier memory compression for extended conversation capacity
+- Provide intelligent context assembly with dynamic injection
 
-**Target Impact:**
-- Lower-tier models (Haiku, Flash, Nano): 3-5x performance boost
-- Mid-tier models (GPT-4o, Sonnet): 2-3x performance boost
-- Top-tier models (GPT-5, Opus): 1.5-2x performance boost
-
-**Market Position:** First agent framework with infinite memory via compression gradients and script-based tool composition.
+**Current Status:** Phase 4 (Client Integration & Tool System)
 
 ---
 
-## The Rust Port: Faithful Foundation with Strategic Innovations
+## The Rust Port: Foundation & Enhancement Strategy
 
-### Port Philosophy
+### Approach
 
-The TypeScript port maintains high fidelity to the Rust implementation's core architecture while introducing targeted innovations at integration points. We port modules faithfully, then enhance at boundaries where new capabilities can be added without disrupting the proven Rust patterns.
+Port modules faithfully from Rust while introducing enhancements at specific integration points. The Rust architecture provides the proven foundation, while targeted additions address capabilities not present in the original implementation.
 
-**Rust Codebase Structure:**
+**Rust Codebase:**
 - ~40 workspace modules
 - Protocol layer (types, events, operations)
-- Core engine (configuration, conversation management, persistence)
-- Execution layer (command running, file operations, sandboxing)
-- Client layer (multi-provider LLM communication)
+- Core engine (configuration, conversation, persistence)
+- Execution layer (commands, file operations, sandboxing)
+- Client layer (LLM communication)
 - Tool system (built-in tools + MCP integration)
 
-### Port Process
+### Port Phases
 
-**Phase-by-phase approach:**
+**Completed:**
+- Phase 1: Protocol types (283 tests)
+- Phase 2: Configuration & persistence (87 tests)
+- Phase 3: Execution & tools (163 tests)
+- Phase 4.0-4.3: Multi-provider client (OpenAI + Anthropic)
+- Phase 4.4: Script harness core (QuickJS sandbox)
+- Phase 4.5: Tool optimization & migration
+- Phase 4.6: Additional tools + tool packs
 
-**Phases 1-3: Faithful Port**
-- Protocol types (283 tests) - Direct Rust→TS translation
-- Configuration & persistence (87 tests) - Faithful to TOML/JSONL formats
-- Execution & tools (163 tests) - Core tool implementations
+**Planned:**
+- Phase 5: Authentication & remaining core modules
+- Phase 6: Core orchestration (conversation-manager, codex)
+- Phase 7+: Memory system enhancements
 
-**Phase 4: Multi-Provider Client Enhancement**
-- Port OpenAI Responses + Chat APIs (114 tests)
-- **INNOVATION:** Add Anthropic Messages API as third provider
-- Unified ResponseStream interface across all APIs
+### Enhancement Integration Points
 
-**Phases 4.4-4.7: Tool System Innovations**
-- **INNOVATION:** Script-based tool harness (QuickJS sandbox)
-- **INNOVATION:** Additional tools from previous port + new tools
-- **INNOVATION:** Tool pack system for configurable tool sets
-- **INNOVATION:** Web search, document caching, agent orchestration tools
-
-**Phase 5+: Core Integration with Memory Innovations**
-- Conversation management (faithful)
-- **INNOVATION:** Multi-strategy history system (regular, one-shot, gradient)
-- **INNOVATION:** Compression gradient memory
-- **INNOVATION:** Dynamic context injection
-
-### Innovation Integration Points
-
-**Where innovations attach:**
-
-1. **Client layer:** Messages API integrates via WireApi enum extension
-2. **Response processing:** Script detection before tool routing
-3. **History retrieval:** Strategy pattern allows swappable history modes
-4. **Context assembly:** Injection points for announcement board, reference layers
-5. **Tool execution:** Sandbox wraps existing tool implementations
-
-**Design principle:** Innovations are additive, not replacements. The Rust foundation remains intact.
+Enhancements integrate at boundaries without disrupting core architecture:
+- Client layer: Messages API via WireApi enum extension
+- Response processing: Script detection before tool routing
+- History system: Strategy pattern for swappable implementations
+- Context assembly: Injection points for dynamic content
+- Tool execution: Sandbox wraps existing implementations
 
 ---
 
-## Innovation 1: Multi-Provider Client with Messages API
+## Enhancement 1: Multi-Provider Client
 
-### Overview
+### Design
 
-Extend the Rust client's provider abstraction to support three LLM APIs with a unified streaming interface, while allowing each API to leverage its native capabilities.
+Extend provider abstraction to support three LLM APIs while preserving each API's native capabilities and normalizing to common event stream.
+
+### Supported APIs
+
+**OpenAI Responses API:**
+- Semantic streaming (structured events)
+- Native tool calling format
+- Reasoning controls (effort, summary)
+- Structured output support
+
+**OpenAI Chat Completions:**
+- Delta streaming (incremental tokens)
+- Function calling (wrapped format)
+- Aggregation adapter (deltas → complete messages)
+
+**Anthropic Messages API:**
+- Content block streaming
+- Tool use with unique IDs
+- Thinking blocks (extended reasoning)
+- Multi-modal content support
 
 ### Architecture
 
-**Provider Abstraction:**
 ```typescript
 enum WireApi {
-  Responses,  // OpenAI Responses API (semantic streaming)
-  Chat,       // OpenAI Chat Completions (delta streaming)
-  Messages,   // Anthropic Messages API (content blocks)
+  Responses,  // OpenAI semantic
+  Chat,       // OpenAI classic
+  Messages,   // Anthropic
 }
 ```
 
-**Each API:**
-- Uses native request format
-- Leverages provider-specific features
-- Normalizes to common ResponseEvent stream
-- Supports native tool calling formats
+Each API:
+- Builds requests in native format
+- Parses responses in native structure
+- Adapts to unified ResponseEvent stream
+- Converts tools to API-specific schema
 
-**Key Components:**
-- Streaming adapters (convert provider events → ResponseEvent)
-- Tool format converters (internal ToolSpec → API-specific schema)
-- Authentication abstraction (API keys, OAuth per provider)
+**Benefits:**
+- Single codebase supports multiple providers
+- Each API uses optimal request/response patterns
+- Models access provider-specific features
+- Consistent interface for application code
 
-**Impact:**
-- Users choose best model for task (GPT-5, Claude, o1)
-- Single codebase supports all providers
-- Each API performs optimally (no lowest-common-denominator)
-
-**Status:** Complete (Phase 4.1-4.3)
+**Status:** Complete (Phase 4.1-4.2)
 
 ---
 
-## Innovation 2: Script-Based Tool Calling
+## Enhancement 2: Script-Based Tool Execution
 
-### Overview
+### Motivation
 
-Instead of structured JSON tool calls, models write TypeScript code in `<tool-calls>` blocks that execute in a sandboxed QuickJS runtime. This enables unprecedented tool composition, conditional logic, and error handling.
-
-### The Problem with Structured Calls
-
-**Traditional approach:**
-```
-Turn 1: Model → "search for tests"
-Turn 2: Tool → [10 files]
-Turn 3: Model → "run test on file1"
-Turn 4: Tool → [output]
-Turn 5: Model → "apply patch"
-Turn 6: Tool → [done]
-```
-
-**Issues:**
-- 6 turns for simple workflow
-- Original context pushed down
-- Model loses coherence
-- Token waste on repetition
-
-### The Script Solution
-
-**New approach:**
-```xml
-<tool-calls>
-const tests = await tools.fileSearch({pattern: "*.test.ts"});
-const results = await Promise.all(
-  tests.map(t => tools.exec({command: ["npm", "test", t.path]}))
-);
-const failed = results.filter(r => r.exitCode !== 0);
-if (failed.length > 0) {
-  await tools.applyPatch({patch: generateFix(failed)});
-}
-return {fixed: failed.length};
-</tool-calls>
-```
-
-**Benefits:**
-- ✅ ONE turn for complex workflow
-- ✅ Parallel execution (Promise.all)
-- ✅ Conditional logic (if/then/else)
-- ✅ Error handling (try/catch)
-- ✅ Composition (use results from one tool in next)
-- ✅ Custom return shapes
+Traditional structured tool calls require one LLM round-trip per tool invocation. For multi-step workflows, this fragments context and increases latency. Script execution enables complex tool compositions in single turns.
 
 ### Architecture
 
-**Components:**
-- **Detector:** Scans ResponseItems for `<tool-calls>` blocks
-- **Parser:** Validates TypeScript, extracts code
-- **QuickJS Runtime:** Sandboxed execution (worker threads)
-- **Tool Facade:** Exposes tools to sandbox with validation
-- **Approval Bridge:** Pauses scripts for user approval (Asyncify)
-- **Promise Tracker:** Manages async lifecycle, cancels orphaned promises
+**Detection:** Scan assistant responses for `<tool-calls>` XML blocks
+**Extraction:** Parse and validate TypeScript code
+**Execution:** QuickJS WASM sandbox (worker threads)
+**Tool Access:** Frozen proxy exposing approved tools
+**Approval Integration:** Scripts pause for user approval (Asyncify)
+**Promise Management:** Track async calls, abort orphaned promises
 
-**Security:**
-- WASM sandbox isolation
-- Frozen intrinsics (Object, Function, Promise)
-- No Node.js API access
-- Resource limits (30s timeout, 96MB memory)
-- Tool-level approvals maintained
+### Security
 
-**Performance:**
-- Worker pool (reuse contexts)
-- Script caching (by hash)
-- Compilation caching (TS→JS)
-- <100ms overhead target
+**Isolation:**
+- QuickJS WASM runtime (no Node.js access)
+- Worker threads (killable, isolated)
+- Frozen intrinsics (Object, Function, Promise, etc.)
 
-**Tools Available:**
-- File operations (readFile, listDir, grepFiles, applyPatch)
-- Execution (exec with sandboxing)
-- Search (fileSearch, webSearch, fetchUrl)
-- Planning (updatePlan)
-- MCP integration (dynamic tools from servers)
-- Agent orchestration (llm.chat, launch.sync, launch.async)
+**Resource Limits:**
+- 30 second timeout
+- 96MB memory cap
+- 32 tool call limit per script
+- 20KB max script size
 
-**Impact:**
-- Models compose complex workflows in single turn
-- Tool calling errors reduced (TypeScript vs JSON)
-- Coherence maintained (context not fragmented)
-- Enables meta-orchestration (agents spawning agents)
+**Tool Access:**
+- Whitelist-based exposure
+- Argument validation via schemas
+- Approval flow preserved (existing system)
 
-**Status:** Complete (Phase 4.4-4.5)
+### Tool Capabilities
 
----
-
-## Innovation 3: Enhanced Tool Set
-
-### Overview
-
-Beyond the core Rust tools, we've added capabilities for web search, document management, and agent orchestration.
-
-### Additional Tools
-
-**From Previous Port:**
-- readFile (indentation-aware file reading)
+**File Operations:**
+- readFile (indentation-aware navigation)
 - listDir (recursive directory listing)
 - grepFiles (ripgrep content search)
-- applyPatch (full tree-sitter bash parsing - enhanced version)
+- applyPatch (unified diff with tree-sitter)
+- fileSearch (fuzzy filename matching)
 
-**New Web Tools:**
-- webSearch (Perplexity API - ranked SERP results)
-- fetchUrl (Firecrawl scraping with caching)
+**Execution:**
+- exec (sandboxed command execution)
 
-**Document Management (stub interfaces):**
-- saveToFC (File Cabinet - 30 day storage)
-- fetchFromFC (retrieve by fileKey)
-- writeFile (zero-token transfer via fileKey)
+**Planning:**
+- updatePlan (structured task management)
 
-**Prompt Tools (stub interfaces):**
-- prompts.save (cache prompt arrays, return keys)
-- prompts.get (retrieve by keys)
+**Images:**
+- viewImage (image injection into conversation)
 
-**Agent Orchestration (stub interfaces):**
-- agents.llm.chat (single-shot LLM calls with cached prompts)
-- agents.launch.sync (synchronous agent execution)
-- agents.launch.async (background agents, return fileKeys)
+**MCP:**
+- Dynamic tools from MCP servers
+- MCP resource access (list, read)
 
-**Tool Pack System:**
-- Named collections (core-codex, anthropic-standard, file-ops, research)
-- Easy configuration per provider/scenario
-- Extensible (custom packs supported)
+**Web & Orchestration (Phase 4.7):**
+- webSearch (Perplexity integration)
+- fetchUrl (Firecrawl scraping)
+- Document management stubs
+- Prompt caching stubs
+- Agent orchestration stubs
 
-**Total:** 20+ tools (11 full, 9 stubbed interfaces)
+**Total:** 20+ tools
 
-**Status:** Phase 4.5-4.7 (ongoing)
+### Tool Pack System
+
+Pre-configured tool collections for different scenarios:
+- `core-codex`: Essential editing and execution tools
+- `anthropic-standard`: Basic Claude tool set
+- `file-ops`: File system operations only
+- `research`: Search and information gathering
+- `all`: Complete tool set
+
+**Status:** Complete (Phase 4.4-4.7)
 
 ---
 
-## Innovation 4: Compression Gradient Memory System
+## Enhancement 3: Compression Gradient Memory
 
-### Overview
+### Motivation
 
-Multi-tier compression with intelligent gradient selection enables infinite conversation history within fixed token budgets. Models access millions of tokens of history through automatic fidelity management and on-demand detail retrieval.
+LLM context windows impose hard limits on conversation length. Traditional approaches truncate history when full, losing valuable context. Compression with intelligent fidelity selection enables extended conversations within fixed token budgets.
 
 ### Compression Tiers
 
-**For each turn, 4 versions created:**
+**Four versions created per turn:**
 
-**Raw (R):** Complete, unmodified
-- All messages as-is
-- Full tool calls with arguments and outputs
-- All reasoning and thinking blocks
-- ~100% of original tokens
+**Raw (R):** Original, unmodified content
+- Complete messages
+- Full tool calls (arguments, outputs)
+- All reasoning blocks
 
 **Smoothed (S):** Normalized, cleaned
-- Grammar/spelling corrected
-- Casing normalized
-- Whitespace cleaned
-- Noise removed (repetition, obvious filler)
-- Tool calls: Medium compression (params summarized)
-- ~60% of original tokens
+- Grammar and spelling corrected
+- Formatting standardized
+- Noise removed
+- Tool calls with summarized parameters
 
-**Compressed (C):** LLM-summarized
-- Key points preserved
-- Actions and results captured
-- Tool calls: "{tool X called, Y happened}"
-- ~30-40% of original tokens
+**Compressed (C):** Summarized by LLM
+- Key points and decisions
+- Actions taken and results
+- Tool calls: "{tool X called, result Y}"
 
 **Tiny (T):** Ultra-compressed
 - Single sentence summary
-- Tool calls: omitted or "{3 tools called}"
-- ~1-5% of original tokens
+- Tool calls omitted or aggregated
 
-### Gradient Bands
+**Token reduction:** R (100%) → S (60%) → C (30-40%) → T (1-5%)
 
-**Token budget allocation by recency:**
+### Gradient Selection
 
-**Example: 100k token budget, 200 turns of history**
+**Allocation by recency:**
+- Recent turns: Full detail (Raw)
+- Working memory: Clean version (Smoothed)
+- Background: Compressed summaries
+- Deep history: Tiny summaries
 
-| Turns | Fidelity | Tokens/Turn | Total Tokens | Band % |
-|-------|----------|-------------|--------------|--------|
-| 181-200 (recent 20) | Raw (R) | 2000 | 40k | 40% |
-| 161-180 (20 turns) | Smoothed (S) | 800 | 16k | 16% |
-| 101-160 (60 turns) | Compressed (C) | 500 | 30k | 30% |
-| 1-100 (100 turns) | Tiny (T) | 140 | 14k | 14% |
-| **Total** | **200 turns** | **Mixed** | **100k** | **100%** |
+**Example allocation (100k budget, 200 turns):**
+- Turns 181-200: Raw (40k tokens, 40%)
+- Turns 161-180: Smoothed (16k tokens, 16%)
+- Turns 101-160: Compressed (30k tokens, 30%)
+- Turns 1-100: Tiny (14k tokens, 14%)
 
-**With this gradient:**
-- Recent context: Full detail (last 20 turns)
-- Working context: Clean version (turns 21-40)
-- Background context: Compressed (turns 41-160)
-- Deep history: Tiny summaries (turns 1-100)
-
-**Actual history span:** Millions of raw tokens compressed into 100k budget.
+**Recalculation:** Every 10 turns to adjust band boundaries as history grows.
 
 ### Turn Tagging
 
-**Each turn wrapped in XML:**
+**XML element names encode turn ID and level:**
 ```xml
 <T-183-R>
-I analyzed the authentication module and found 3 security issues...
-[full content]
+[Full turn content]
 </T-183-R>
 ```
 
 **Compressed blocks:**
 ```xml
 <T-50-through-100-C>
-Turn 50: Implemented OAuth flow. Turn 51: Fixed validation bug...
+Turn 50: [summary]. Turn 51: [summary]...
 </T-50-through-100-C>
 ```
 
-**Tag encoding:**
-- `T-183` = Turn ID
-- `-R` = Raw level
-- `-S` = Smoothed
-- `-C` = Compressed
-- `-T` = Tiny
+**System prompt informs models:**
+- Turn ID format and meaning
+- Compression levels available
+- How to request higher fidelity
 
-**Model awareness:**
-- System prompt explains compression levels
-- Can reference turn IDs in tool calls
-- Understands fidelity trade-offs
+### Fidelity Retrieval
 
-### Fidelity Retrieval Tool
-
-**tools.history.getTurn(turnId, level)**
+**Tool for on-demand detail:**
 ```typescript
-// Model requests detail for old turn
-const detail = await tools.history.getTurn("T-50", "S");
-// Returns smoothed version of turn 50
-// Added to announcement board (5 turn TTL)
+tools.history.getTurn(turnId, level)
+// Returns specified version
+// Adds to announcement board (5 turn TTL)
 ```
 
-**Use cases:**
-- "That fix from turn 50 - what were the exact steps?" → retrieve R
-- "Earlier OAuth discussion - give me clean version" → retrieve S
-- Model sees compressed mention, wants detail
+**Use case:** Model sees compressed mention of relevant past discussion, requests full detail.
 
 ### Processing Pipeline
 
 **After each turn:**
-1. Store raw turn
-2. Async: Kick off compression jobs (parallel)
-   - Smooth version (algorithmic + small model)
-   - Compressed version (LLM summarization)
-   - Tiny version (ultra-compression LLM)
-3. Process completes in 1-2 seconds (or continues async)
-4. All versions stored
+1. Store raw version
+2. Async: Generate S/C/T versions (parallel LLM calls)
+3. Complete in 1-2 seconds or continue in background
+4. Failure detection and retry for incomplete processing
 
 **Every 10 turns:**
-- Recalculate gradient bands
-- Adjust % allocations if history grows
-- Minimize cache invalidation (only shift boundaries)
+- Recalculate gradient band boundaries
+- Update allocation percentages
+- Minimize cache invalidation
 
-**On retrieval:**
-- Select turns per current gradient
-- Wrap in appropriate tags
-- Assemble into cohesive history block
+### Capacity
 
-### Estimated Capacity
+**Estimated spans:**
+- 100k budget: ~200 turns
+- 200k budget: ~400-500 turns
+- Raw equivalent: Several million tokens compressed
 
-**100k token budget:**
-- ~200 turns with gradient selection
-- Representing ~400k raw tokens (4x compression)
+**Actual capacity depends on:**
+- Turn complexity
+- Tool call density
+- Compression effectiveness
 
-**200k token budget:**
-- ~400-500 turns
-- Representing ~1-2M raw tokens
-
-**With aggressive compression:**
-- Tens of millions of raw tokens accessible
-- Limited only by storage, not context window
-
-**Status:** Design complete, implementation planned for Phase 7
+**Status:** Design complete, implementation Phase 7
 
 ---
 
-## Innovation 5: Offline Memory Processing
+## Enhancement 4: Offline Memory Processing
 
-### Overview
+### Purpose
 
-Background batch agents with large context windows (1-2M tokens) process compressed conversation history to extract knowledge, identify patterns, and prepare reference materials. Running twice daily at half-price batch rates.
+Background agents with large context windows process conversation history to extract knowledge, identify patterns, and prepare reference materials for dynamic injection.
 
-### Offline Agent Responsibilities
+### Processing Model
 
-**Input:**
-- Compressed history (C/T levels for all turns)
-- Smoothed recent (last 10-20 turns)
-- Existing knowledge base
+**Execution:**
+- Frequency: 2x daily
+- Context: 1-2M tokens (C/T compressed history + S recent turns)
+- Pricing: Batch mode (reduced cost)
+- Models: Large context models (GPT-5, Gemini Pro)
 
-**Processing:**
-1. **Topic Extraction**
-   - Identify conversation themes
-   - Tag with keywords
-   - Assign topic weights (adjusted over time)
+### Extraction Tasks
 
-2. **Categorization**
-   - Group related discussions
-   - Identify project areas (auth, UI, API, etc.)
-   - Track evolution over time
+**1. Topic & Category Identification**
+- Identify conversation themes
+- Extract keywords
+- Assign topic weights
+- Track evolution over time
 
-3. **Wisdom Distillation**
-   - Extract lessons learned
-   - Identify patterns (what worked, what didn't)
-   - Document solutions to recurring problems
-   - Tag by topic and context
+**2. Knowledge Consolidation**
+- User preferences
+- Design patterns
+- Technology stack understanding
+- Project-specific conventions
 
-4. **Knowledge Consolidation**
-   - User preferences discovered
-   - Design patterns identified
-   - Project-specific conventions
-   - Technology stack understanding
+**3. Lesson Distillation**
+- What worked vs what didn't
+- Solutions to recurring problems
+- Patterns worth codifying
+- Mistakes to avoid
 
-5. **Reference Layer Recommendations**
-   - Identify needed documentation (500-5000 token chunks)
-   - Suggest technology references
-   - Recommend pattern libraries
-   - Flag gaps in knowledge base
+**4. Reference Layer Assembly**
+- Identify documentation needs (500-5000 tokens)
+- Prepare technology references
+- Compile pattern libraries
+- Flag knowledge gaps
 
-**Output:**
-- **Lessons Store:** Tagged, searchable distilled learnings
-- **Topic Weights:** Dynamic importance by conversation evolution
-- **Reference Layers:** Prepared documentation chunks
-- **Admin Notifications:** Recommendations for curation
+### Outputs
 
-### Lessons Store
-
-**Structure:**
+**Lessons Store:**
 ```typescript
 {
   lessonId: string;
-  topic: string[];           // ["authentication", "security"]
-  keywords: string[];        // ["OAuth", "token", "validation"]
-  content: string;           // 200-2000 tokens
-  sourceturns: string[];     // Where it came from
-  weight: number;            // Relevance score (0-1)
-  lastUpdated: timestamp;
+  topics: string[];
+  keywords: string[];
+  content: string;          // Distilled lesson
+  sourceTurns: string[];   // Origin
+  weight: number;          // Relevance (0-1)
 }
 ```
 
-**Retrieval:**
-- Keyword match
-- Topic filtering
-- Weight-based ranking
-- Injected into context when relevant
+**Reference Layers:**
+- Pre-compiled documentation chunks
+- Tagged by topic and technology
+- Sized for efficient injection (500-5000 tokens)
+- Curated by admin when needed
 
-### Reference Layers
+**Topic Weights:**
+- Dynamic importance scores
+- Adjusted based on conversation patterns
+- Guide retrieval prioritization
 
-**Pre-compiled knowledge chunks:**
-- Technology-specific (TypeScript patterns, React hooks, etc.)
-- Project-specific (architecture decisions, coding standards)
-- Domain-specific (auth patterns, API design)
+**Admin Recommendations:**
+- Suggested reference layers to create
+- Knowledge gaps identified
+- Index optimization suggestions
 
-**Size:** 500-5000 tokens per layer
+### Integration
 
-**Management:**
-- Offline agents identify needs
-- Offline agents assemble content
-- Admin approves/curates
-- Stored with topic tags and keywords
-- Injected dynamically per conversation context
+Offline processing outputs feed into runtime preprocessing for dynamic context injection.
 
-### Tuning & Maintenance
-
-**Offline agents also:**
-- Rebuild search indexes (keyword, vector)
-- Prune outdated knowledge
-- Merge similar lessons
-- Update topic weights based on project evolution
-- Optimize reference layer coverage
-
-**Frequency:** 2x daily (batch mode, half-price)
-
-**Status:** Design complete, implementation planned for Phase 8
+**Status:** Design complete, implementation Phase 8
 
 ---
 
-## Innovation 6: Runtime Turn Preprocessing
+## Enhancement 5: Runtime Turn Preprocessing
 
-### Overview
+### Purpose
 
-Before each turn executes, a parallel pipeline of searches and nano-agents gathers potentially relevant context, which a small judgment model filters and injects into the final prompt.
+Before each turn executes, gather potentially relevant context from past history and knowledge base, filter using small models, and inject into prompt.
 
-### Processing Pipeline (1 Second Budget)
-
-**Triggered:** New turn arrives from user
+### Pipeline (1 Second Budget)
 
 **Parallel Execution:**
 
-**1. Keyword Search (100ms)**
-- Search compressed history for term matches
+**Keyword Search (100ms):**
+- Search compressed history
 - Search lessons store
 - Search reference layers
 - Returns: 20-30 candidates
 
-**2. Vector Semantic Search (200ms)**
-- Embedding-based similarity search
-- Against compressed history
-- Against knowledge base
+**Vector Semantic Search (200ms):**
+- Embedding similarity against history
+- Knowledge base search
 - Returns: 20-30 candidates
 
-**3. Nano Agent Swarm (500ms)**
-- Launch N small agents (flash 2.0, haiku 4.5)
-- Each reviews a subset of candidates
-- Filter: Keep possibly relevant, discard obviously irrelevant
-- Returns: 10-20 filtered items (from ~50 candidates)
+**Nano Agent Filter (500ms):**
+- Small models (flash 2.0, haiku 4.5, gpt-5-nano)
+- Each reviews subset of candidates
+- Filter obvious non-relevance
+- Returns: 10-20 filtered items
 
-**4. Timeout at 1 Second**
-- Gather all results collected so far
-- Some searches may not complete (acceptable)
-- Move to judgment phase
+**Timeout at 1 Second:**
+- Collect completed results
+- Proceed with available data
 
-**5. Final Judgment Model (200ms)**
-- Small fast model (gpt-5-nano or flash 2.0)
-- Reviews: latest turn + compressed history + search results
-- Decides:
-  - Which reference layers to inject
-  - Which memory ticklers to add
-  - Which lessons to surface
-  - Format and placement
+### Final Judgment
 
-**Total: ~1.2 seconds** (overlaps with other turn processing)
+**Small fast model reviews:**
+- Latest user prompt
+- Compressed recent history
+- Filtered search results
 
-### Injection Strategy
+**Decides:**
+- Which reference layers to inject
+- Which memory ticklers to include
+- Which lessons to surface
+- Formatting and placement
+
+**Processing time:** ~200ms
+
+### Injection Format
 
 **Memory Ticklers:**
 ```
-💭 This reminds me of:
-- Turn 87 (3 weeks ago): Similar auth issue, resolved via X
-  Use: tools.history.getTurn("T-87", "S") to retrieve
+💭 Related Context:
+- Turn 87 (3 weeks ago): OAuth implementation approach
+  tools.history.getTurn("T-87", "S") for detail
 ```
 
 **Reference Layers:**
 ```
-📚 Relevant References:
-- OAuth Implementation Patterns (2.3k tokens)
-- TypeScript Error Handling Best Practices (1.8k tokens)
+📚 Relevant Documentation:
+- TypeScript Error Handling Patterns (1.8k tokens)
+- OAuth Best Practices (2.3k tokens)
 ```
 
 **Distilled Lessons:**
 ```
-💡 Learned Patterns:
-- Validation errors: Always check input sanitization first
-- Token refresh: Use exponential backoff (see Turn 45)
+💡 Project Patterns:
+- Token refresh: Use exponential backoff
+- Validation: Check input sanitization first
 ```
 
-### Injection Points
+### Context Assembly
 
-**Context assembly order:**
-```
+**Final prompt structure:**
 1. System prompt (base instructions)
-2. Memory Layer (ticklers + lessons + references)
-3. Announcement Board (recent fetches, file cabinet, turn awareness)
-4. Main History (gradient-selected, turn-tagged)
+2. Memory layer (ticklers, lessons, references)
+3. Announcement board (capabilities, recent items, turn awareness)
+4. Main history (gradient-selected, turn-tagged)
 5. User's current prompt
-```
 
-**Reasoning:**
-- System prompt: Foundation
-- Memory/Announcement: Dynamic, changes each turn (minimal cache impact)
-- History: Stable structure (cache-friendly)
-- User prompt: Fresh
+**Placement reasoning:**
+- Memory/Announcement vary per turn (dynamic content)
+- History structure stable (cache-friendly)
+- System + History cacheable
+- Dynamic injection has minimal cache impact
 
-**Cache Optimization:**
-- System prompt + History = cacheable
-- Memory + Announcement = variable (but small, <10k tokens)
-- Most tokens cached, dynamic injection cheap
-
-### Announcement Board Details
-
-**Location:** After user prompt, before history
-
-**Contains:**
-```
-📋 Announcement Board (5 turn TTL):
-
-🌐 Recent Web Fetches:
-- ABC123: "TypeScript async patterns" (Expires: 3 turns)
-  tools.fetchFromFC("ABC123") or tools.writeFile("ABC123", "path")
-
-📁 File Cabinet:
-- DEF456: "OAuth implementation notes" (Saved 2 days ago)
-
-🔧 Tool Capabilities Reminder:
-- Retrieve turn detail: tools.history.getTurn(id, level)
-- Levels: R (raw), S (smoothed), C (compressed), T (tiny)
-- Recent 20 turns: Full detail
-- Turns 21-100: Compressed in history below
-```
-
-**Updates each turn:**
-- Add new fetches
-- Remove expired items (TTL)
-- Show what's available without full content
-
-**Impact:**
-- Model sees capabilities
-- Contextual reminders reduce errors
-- Just-in-time learning
-
-**Status:** Design complete, implementation planned for Phase 7-8
+**Status:** Design complete, implementation Phase 7-8
 
 ---
 
-## System Integration
-
-### How Innovations Work Together
-
-**Turn Flow with All Innovations:**
-
-```
-User submits prompt
-  ↓
-Runtime Preprocessing (1s parallel)
-├─ Keyword search → candidates
-├─ Vector search → candidates
-├─ Nano swarm → filtered items
-└─ Judgment model → injection decisions
-  ↓
-Context Assembly
-├─ System prompt
-├─ Memory layer (lessons + references + ticklers)
-├─ Announcement board (capabilities + recent items)
-└─ History (compression gradient selected, turn-tagged)
-  ↓
-Model receives (100-200k tokens)
-  - Represents millions of raw tokens
-  - Dynamically curated
-  - Rich with relevant context
-  ↓
-Model writes response (possibly with <tool-calls>)
-  ↓
-Script Detection
-  ├─ No script: Standard response processing
-  └─ Script found: QuickJS execution
-      ├─ Tools called (with approvals)
-      ├─ Results returned
-      └─ Script output captured
-  ↓
-Response recorded in history
-  ↓
-Async: Compression processing
-  - Generate S/C/T versions (parallel LLM calls)
-  - Complete in 1-2s or continue background
-  ↓
-Every 10 turns: Recalculate gradient bands
-  ↓
-Cycle repeats
-```
-
-**Offline (2x daily):**
-```
-Batch agents process full history
-  ↓
-Extract lessons + topics + patterns
-  ↓
-Update knowledge base
-  ↓
-Prepare reference layers
-  ↓
-Admin notifications (if needed)
-```
-
-### Emergent Capabilities
-
-**With all systems together:**
-
-1. **Infinite Memory**
-   - Compression gradient = no context limit
-   - Models remember entire project history
-
-2. **Intelligent Retrieval**
-   - Automatic relevance (preprocessing)
-   - Manual detail (fidelity tools)
-   - Lessons surface automatically
-
-3. **Meta-Orchestration**
-   - Agents spawn agents
-   - Parallel execution
-   - Complex workflows in single turn
-
-4. **Knowledge Accumulation**
-   - Project understanding deepens over time
-   - Patterns emerge and are codified
-   - Lessons prevent repeated mistakes
-
-5. **Model Augmentation**
-   - Lower-tier models → competent (3-5x)
-   - Mid-tier → senior level (2-3x)
-   - Top-tier → principal level (1.5-2x)
-
----
-
-## Technical Foundations
+## Context Management Architecture
 
 ### Memory Hierarchy
 
-**L1 - Working Memory (Turn Context):**
-- Current turn messages
-- Active tool executions
+**Working Memory (Current Turn):**
+- Active messages
+- Tool executions in flight
 - Immediate results
 
-**L2 - Announcement Board (5 turn TTL):**
-- Recent fetches (fileKeys)
+**Announcement Board (5 Turn TTL):**
+- Recent web fetches (with fileKeys)
 - Retrieved turn detail
-- Temporary references
+- Temporary reference material
+- Capability reminders
 
-**L3 - Main History (Gradient-Selected):**
-- R/S/C/T mixed per band
+**Main History (Gradient-Selected):**
+- Mixed fidelity (R/S/C/T per band)
 - Fixed token budget (100-200k)
-- Spans hundreds/thousands of turns
+- Turn-tagged for reference
+- Spans hundreds of turns
 
-**L4 - Compressed Archive (All Turns):**
+**Compressed Archive (All Turns):**
 - All versions stored
 - Retrievable on demand
-- Infinite retention
+- Supports historical analysis
 
-**L5 - Knowledge Base (Distilled):**
+**Knowledge Base (Distilled):**
 - Lessons learned
 - Reference layers
 - Topic weights
 - User preferences
 
-### Storage Strategy
+### Storage Design
 
-**Turn Storage:**
+**Per-Turn Storage:**
 ```typescript
 {
-  turnId: "T-183",
-  timestamp: Date,
+  turnId: string;
   versions: {
-    raw: ResponseItem[],     // Full
-    smoothed: ResponseItem[], // 60%
-    compressed: string,       // 30-40%
-    tiny: string              // 1-5%
-  },
+    raw: ResponseItem[];
+    smoothed: ResponseItem[];
+    compressed: string;
+    tiny: string;
+  };
   metadata: {
-    tokensRaw: number,
-    tokensSmoothed: number,
-    tokensCompressed: number,
-    tokensTiny: number,
-    toolCallCount: number,
-    topics: string[]
-  }
+    tokens: {raw, smoothed, compressed, tiny};
+    toolCallCount: number;
+    topics: string[];
+  };
 }
 ```
 
-**Gradient State:**
+**Gradient Configuration:**
 ```typescript
 {
-  lastCalculated: timestamp,
-  turnCount: number,
   bands: [
-    {range: [181, 200], level: 'R', allocation: 0.40},
-    {range: [161, 180], level: 'S', allocation: 0.16},
-    {range: [101, 160], level: 'C', allocation: 0.30},
-    {range: [1, 100], level: 'T', allocation: 0.14}
-  ]
+    {range: [start, end], level: 'R'|'S'|'C'|'T', allocation: number}
+  ];
+  lastCalculated: timestamp;
 }
 ```
-
-**Recalculation trigger:** Every 10 turns or on-demand
 
 ---
 
 ## Development Roadmap
 
-**Current Status:** Phase 4 (Client + Tools + Script Harness)
+**Completed Phases:**
+- Phase 1: Protocol layer
+- Phase 2: Configuration & persistence
+- Phase 3: Execution & core tools
+- Phase 4.0-4.3: Multi-provider client
+- Phase 4.4: Script harness core
+- Phase 4.5: Tool migration & optimization
+- Phase 4.6: Additional tools & tool packs
 
-**Remaining Core (Phase 5-6):**
-- Phase 5.1: Conversation management (with strategy pattern)
-- Phase 6: Core integration (core/codex, orchestration)
+**In Progress:**
+- Phase 4.7: Web search & orchestration tools
 
-**Memory System (Phase 7-8):**
-- Phase 7: Compression gradient + fidelity tools
-- Phase 8: Offline processing + dynamic injection
+**Planned:**
+- Phase 5.1: Conversation & history management
+- Phase 6: Core integration
+- Phase 7: Compression gradient implementation
+- Phase 8: Offline processing & dynamic injection
 
-**Future Enhancements:**
-- Claude-specific optimizations
-- Additional providers (Gemini, Cohere)
-- Advanced reference layer management
-- Multi-agent conversations
+---
+
+## Technical Approach
+
+### Multi-Strategy History
+
+**Three conversation modes supported:**
+
+**1. Regular Mode:**
+- Standard conversation pattern
+- Full messages until context fills
+- Truncation when budget exceeded
+- (Rust's current implementation)
+
+**2. Continuous One-Shot:**
+- Epic/spec + task list + log file
+- Repeated single-turn executions
+- No conversation history accumulation
+- Agent processes until completion or user input needed
+
+**3. Gradient Mode:**
+- Compressed versions at multiple fidelity levels
+- Intelligent selection per token budget
+- On-demand detail retrieval
+- Infinite effective history
+
+**Implementation:** Strategy pattern allows mode selection per session.
+
+### Cache Optimization
+
+**Stable components (highly cacheable):**
+- System prompt
+- Main history structure (gradient bands stable across multiple turns)
+
+**Variable components (updated per turn):**
+- Memory layer (search results, lessons)
+- Announcement board (recent items, capabilities)
+- User prompt (fresh)
+
+**Cache strategy:** Most tokens cached, dynamic injection limited to <10k variable content.
 
 ---
 
 ## Conclusion
 
-This project combines faithful Rust porting with strategic innovations that address fundamental LLM limitations: context windows, tool orchestration complexity, and knowledge accumulation. By layering compression gradients, intelligent retrieval, script-based composition, and offline processing, we create an agent framework that enables models to perform far beyond their baseline capabilities on long-term, knowledge-intensive tasks.
+This project provides a TypeScript implementation of Codex with extensions for multi-provider support, compositional tool execution, and intelligent memory management. The system aims to address context window limitations, tool orchestration complexity, and knowledge retention across extended conversations.
 
-**The innovation is not in the models - it's in the cognitive scaffolding we provide them.**
+**Next Steps:**
+1. Complete tool system (Phase 4.7)
+2. Port conversation management (Phase 5.1)
+3. Integrate core orchestration (Phase 6)
+4. Implement compression system (Phase 7+)
 
-Just as the human subconscious augments the cerebral cortex through parallel processing, memory consolidation, and relevance filtering, this system augments LLMs through distributed caching, compression gradients, and intelligent context injection.
-
-**Result:** Lower-tier models become competent, mid-tier become senior-level, top-tier approach principal engineer capabilities - all through engineering, not model improvements.
+Each phase delivers functional value while preparing for subsequent enhancements.
