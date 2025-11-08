@@ -239,7 +239,7 @@ describe("Promise Tracker - Lifecycle Management", () => {
 
       tracker.register("orphaned", promise, controller);
 
-      const settlePromise = tracker.ensureAllSettled(100).catch((e) => e);
+      const _settlePromise = tracker.ensureAllSettled(100).catch((e) => e);
       await vi.advanceTimersByTimeAsync(100);
 
       expect(controller.signal.aborted).toBe(true);
@@ -331,12 +331,12 @@ describe("Promise Tracker - Lifecycle Management", () => {
     it("should collect completed results", async () => {
       const controller = new AbortController();
 
-      const id1 = tracker.register(
+      const _id1 = tracker.register(
         "tool1",
         Promise.resolve({ output: "result1" }),
         controller,
       );
-      const id2 = tracker.register(
+      const _id2 = tracker.register(
         "tool2",
         Promise.resolve({ output: "result2" }),
         controller,

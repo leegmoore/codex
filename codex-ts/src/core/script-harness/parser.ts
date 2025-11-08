@@ -8,16 +8,17 @@
  * Design reference: SCRIPT_HARNESS_DESIGN_FINAL.md Section 8.3
  */
 
-import {
-  scanForBannedIdentifiers,
-  BANNED_IDENTIFIERS,
-} from "./hardening.js";
+import { createHash } from "node:crypto";
+import { scanForBannedIdentifiers } from "./hardening.js";
 import {
   BannedIdentifierError,
   ScriptSyntaxError,
   ScriptTooLargeError,
 } from "./errors.js";
-import { DEFAULT_SCRIPT_LIMITS, type ScriptExecutionLimits } from "./runtime/types.js";
+import {
+  DEFAULT_SCRIPT_LIMITS,
+  type ScriptExecutionLimits,
+} from "./runtime/types.js";
 
 /**
  * Parsed script with metadata
@@ -302,7 +303,10 @@ function checkBracketBalance(code: string): { valid: boolean; error?: string } {
  * @param code - Code to check
  * @returns Check result
  */
-function checkUnclosedStrings(code: string): { valid: boolean; error?: string } {
+function checkUnclosedStrings(code: string): {
+  valid: boolean;
+  error?: string;
+} {
   let inString: string | null = null;
   let escaped = false;
 
@@ -341,7 +345,10 @@ function checkUnclosedStrings(code: string): { valid: boolean; error?: string } 
  * @param code - Code to check
  * @returns Check result
  */
-function checkUnclosedComments(code: string): { valid: boolean; error?: string } {
+function checkUnclosedComments(code: string): {
+  valid: boolean;
+  error?: string;
+} {
   let inComment = false;
 
   for (let i = 0; i < code.length - 1; i++) {
@@ -377,8 +384,7 @@ function checkUnclosedComments(code: string): { valid: boolean; error?: string }
  */
 function computeHash(code: string): string {
   // Use Node's crypto module for SHA-256
-  const crypto = require("crypto");
-  return crypto.createHash("sha256").update(code, "utf8").digest("hex");
+  return createHash("sha256").update(code, "utf8").digest("hex");
 }
 
 /**

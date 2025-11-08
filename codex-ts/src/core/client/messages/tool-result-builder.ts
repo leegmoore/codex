@@ -62,8 +62,7 @@ export function buildToolResult(
   // Enforce size limit
   let wasTruncated = false;
   if (content.length > MAX_TOOL_RESULT_SIZE) {
-    const truncateNotice =
-      "\n\n[... output truncated due to size limit ...]";
+    const truncateNotice = "\n\n[... output truncated due to size limit ...]";
     const availableSize = MAX_TOOL_RESULT_SIZE - truncateNotice.length;
     content = content.slice(0, availableSize) + truncateNotice;
     wasTruncated = true;
@@ -84,12 +83,12 @@ export function buildToolResult(
   if (mimeType) {
     // Note: Anthropic doesn't have a mime_type field in tool_result,
     // but we track it for potential future use
-    (toolResult as any).mime_type = mimeType;
+    (toolResult as Record<string, unknown>).mime_type = mimeType;
   }
 
   if (wasTruncated) {
     // Add metadata flag for tracking
-    (toolResult as any).was_truncated = true;
+    (toolResult as Record<string, unknown>).was_truncated = true;
   }
 
   return toolResult;
@@ -128,16 +127,15 @@ export function buildToolResultMessage(
  * @returns Updated prompt input array
  */
 export function appendToolResults(
-  promptInput: any[],
-  assistantMessage: any,
+  promptInput: AnthropicMessage[],
+  assistantMessage: AnthropicMessage | null,
   toolResults: ToolExecutionResult[],
-): any[] {
+): AnthropicMessage[] {
   const updated = [...promptInput];
 
   // Add assistant message if not already in history
   const hasAssistantMessage = updated.some(
     (item) =>
-      item.type === "message" &&
       item.role === "assistant" &&
       JSON.stringify(item.content).includes("custom_tool_call"),
   );
@@ -150,15 +148,23 @@ export function appendToolResults(
   const toolResultMessage = buildToolResultMessage(toolResults);
 
   // Convert to Codex ResponseItem format
-  const userMessage = {
-    type: "message" as const,
+  const contentBlocks = Array.isArray(toolResultMessage.content)
+    ? toolResultMessage.content
+    : [{ type: "text" as const, text: toolResultMessage.content }];
+
+  const userMessage: AnthropicMessage = {
     role: "user" as const,
-    content: toolResultMessage.content.map((block) => ({
-      type: "tool_result" as const,
-      tool_use_id: (block as any).tool_use_id,
-      content: (block as any).content,
-      is_error: (block as any).is_error,
-    })),
+    content: contentBlocks.map((block) => {
+      if (block.type === "tool_result") {
+        return {
+          type: "tool_result" as const,
+          tool_use_id: block.tool_use_id,
+          content: block.content,
+          is_error: block.is_error,
+        };
+      }
+      return block;
+    }),
   };
 
   updated.push(userMessage);

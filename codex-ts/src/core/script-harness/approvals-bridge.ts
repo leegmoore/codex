@@ -210,7 +210,12 @@ export class ApprovalBridge {
         this.pending.delete(requestId);
         this.stats.pending--;
         this.stats.timedOut++;
-        reject(new ApprovalTimeoutError(request.toolName));
+        reject(
+          new ApprovalTimeoutError(
+            request.toolName,
+            this.config.approvalTimeoutMs,
+          ),
+        );
       }, this.config.approvalTimeoutMs);
 
       // Store pending approval
@@ -233,11 +238,7 @@ export class ApprovalBridge {
    * @param approved - Whether user approved
    * @param reason - Optional reason for denial
    */
-  onUserResponse(
-    requestId: string,
-    approved: boolean,
-    reason?: string,
-  ): void {
+  onUserResponse(requestId: string, approved: boolean, reason?: string): void {
     const entry = this.pending.get(requestId);
     if (!entry) {
       // Request not found (already completed or timed out)
@@ -299,7 +300,7 @@ export class ApprovalBridge {
    * @param reason - Cancellation reason
    */
   cancelAll(reason = "Script execution cancelled"): void {
-    for (const [requestId, entry] of this.pending) {
+    for (const [_requestId, entry] of this.pending) {
       clearTimeout(entry.timer);
       entry.reject(new ApprovalDeniedError(entry.request.toolName, reason));
     }

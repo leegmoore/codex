@@ -12,9 +12,7 @@ import type { ToolSpec } from "../client-common.js";
 import {
   createToolsJsonForMessagesApi,
   validateToolName,
-  type AnthropicToolConversionError,
 } from "./tool-bridge.js";
-import type { AnthropicTool } from "./types.js";
 
 describe("Tool Bridge - Stage 2", () => {
   describe("Basic Tool Conversion", () => {

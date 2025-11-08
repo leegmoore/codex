@@ -84,12 +84,14 @@ export function createToolsJsonForMessagesApi(
             `Tool name: "${tool.name}"`,
         );
 
-      default:
+      default: {
         // TypeScript exhaustiveness check
         const _exhaustive: never = tool;
+        void _exhaustive;
         throw new AnthropicToolConversionError(
           `Unknown tool type: ${JSON.stringify(tool)}`,
         );
+      }
     }
 
     // Validate and deduplicate by name
@@ -163,10 +165,10 @@ function convertFunctionTool(
       key !== "properties" &&
       key !== "required" &&
       key !== "$defs" &&
-      !inputSchema.hasOwnProperty(key)
+      !Object.prototype.hasOwnProperty.call(inputSchema, key)
     ) {
-      // @ts-expect-error - Dynamic property assignment for schema extensions
-      inputSchema[key] = schema[key];
+      // Dynamic property assignment for schema extensions
+      (inputSchema as Record<string, unknown>)[key] = schema[key];
     }
   }
 
