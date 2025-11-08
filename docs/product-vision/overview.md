@@ -555,7 +555,7 @@ Before each turn executes, gather potentially relevant context from past history
 
 ### Multi-Strategy History
 
-**Three conversation modes supported:**
+**Four conversation modes supported:**
 
 **1. Regular Mode:**
 - Standard conversation pattern
@@ -575,7 +575,16 @@ Before each turn executes, gather potentially relevant context from past history
 - On-demand detail retrieval
 - Infinite effective history
 
-**Implementation:** Strategy pattern allows mode selection per session.
+**4. Curated Compression:**
+- Agent-driven adaptive compression
+- Learned heuristics from 5k guide
+- Surgical chunk removal decisions
+- Validated by human or quality model
+- Can be used standalone or as refinement layer on Gradient
+
+**Hybrid approach (recommended):** Gradient for baseline (fast, 80% coverage) + Curated for refinement (quality, critical decisions) + Human validation for high-uncertainty cases.
+
+**Implementation:** Strategy pattern allows mode selection per session. Proof-of-concept validated via manual compression (1M tokens → 880k with zero noticed gaps).
 
 ### Cache Optimization
 
