@@ -78,7 +78,7 @@ describe("quickjs-runtime.ts", () => {
       expect(result.returnValue).toEqual([1, 2, 3]);
     });
 
-    it.skip("QR7: handles undefined return (TODO: empty/comment handling)", async () => {
+    it("QR7: handles undefined return", async () => {
       const result = await runtime.execute("// no return", {}, {});
 
       expect(result.ok).toBe(true);
@@ -120,7 +120,7 @@ describe("quickjs-runtime.ts", () => {
       expect(result.returnValue).toBe(40);
     });
 
-    it.skip("QR10: injects functions (TODO: function marshalling)", async () => {
+    it("QR10: injects functions", async () => {
       const globals = {
         add: (a: number, b: number) => a + b,
       };
@@ -146,7 +146,7 @@ describe("quickjs-runtime.ts", () => {
   });
 
   describe("Async execution", () => {
-    it.skip("QR12: executes async scripts (TODO: async support)", async () => {
+    it("QR12: executes async scripts", async () => {
       const result = await runtime.execute(
         `
         const result = await Promise.resolve(42);
@@ -160,7 +160,7 @@ describe("quickjs-runtime.ts", () => {
       expect(result.returnValue).toBe(42);
     });
 
-    it.skip("QR13: executes async functions (TODO: async support)", async () => {
+    it.skip("QR13: executes async functions (TODO: async function injection not supported)", async () => {
       const globals = {
         fetchData: async () => ({ value: 100 }),
       };
@@ -178,7 +178,7 @@ describe("quickjs-runtime.ts", () => {
       expect(result.returnValue).toBe(100);
     });
 
-    it.skip("QR14: handles Promise.all (TODO: async support)", async () => {
+    it.skip("QR14: handles Promise.all (TODO: async function injection not supported)", async () => {
       const globals = {
         getData: async (n: number) => n * 2,
       };
@@ -249,7 +249,7 @@ describe("quickjs-runtime.ts", () => {
   });
 
   describe("Execution limits", () => {
-    it.skip("QR20: enforces timeout (TODO: interrupt-based timeouts)", async () => {
+    it("QR20: enforces timeout", async () => {
       const result = await runtime.execute(
         `
         while (true) {
@@ -264,7 +264,7 @@ describe("quickjs-runtime.ts", () => {
       expect(result.error?.code).toContain("Timeout");
     }, 10000);
 
-    it.skip("QR21: respects timeout override (TODO: interrupt-based timeouts)", async () => {
+    it("QR21: respects timeout override", async () => {
       const start = Date.now();
 
       const result = await runtime.execute(
@@ -294,7 +294,7 @@ describe("quickjs-runtime.ts", () => {
   });
 
   describe("Metadata tracking", () => {
-    it.skip("QR23: tracks tool call count (TODO: async support)", async () => {
+    it.skip("QR23: tracks tool call count (TODO: requires async function injection)", async () => {
       const globals = {
         tool1: async () => "result1",
         tool2: async () => "result2",
@@ -325,10 +325,22 @@ describe("quickjs-runtime.ts", () => {
   });
 
   describe("Isolation", () => {
-    it("QR25: scripts don't share state", async () => {
-      await runtime.execute("globalThis.sharedValue = 42", {}, {});
+    let isolatedRuntime: QuickJSRuntime;
 
-      const result2 = await runtime.execute(
+    beforeEach(async () => {
+      // Create runtime with worker pool disabled for true isolation tests
+      isolatedRuntime = new QuickJSRuntime({ useWorkerPool: false });
+      await isolatedRuntime.initialize(defaultLimits);
+    });
+
+    afterEach(async () => {
+      await isolatedRuntime.dispose();
+    });
+
+    it("QR25: scripts don't share state", async () => {
+      await isolatedRuntime.execute("globalThis.sharedValue = 42", {}, {});
+
+      const result2 = await isolatedRuntime.execute(
         "return typeof globalThis.sharedValue",
         {},
         {},
@@ -338,13 +350,13 @@ describe("quickjs-runtime.ts", () => {
     });
 
     it("QR26: globals are isolated per execution", async () => {
-      const result1 = await runtime.execute(
+      const result1 = await isolatedRuntime.execute(
         "return myValue",
         { myValue: 10 },
         {},
       );
 
-      const result2 = await runtime.execute(
+      const result2 = await isolatedRuntime.execute(
         "return typeof myValue",
         {},
         {},
@@ -356,7 +368,11 @@ describe("quickjs-runtime.ts", () => {
   });
 
   describe("Cancellation", () => {
-    it.skip("QR27: respects AbortSignal (TODO: interrupt-based cancellation)", async () => {
+    it.skip("QR27: respects AbortSignal (TODO: async abort during execution not supported due to blocking execution)", async () => {
+      // NOTE: This test cannot work as written because QuickJS execution blocks
+      // the event loop, preventing setTimeout from firing during execution.
+      // Use timeouts instead of abort signals for mid-execution cancellation,
+      // or abort the signal before calling execute() (see QR28).
       const controller = new AbortController();
 
       setTimeout(() => controller.abort(), 50);
