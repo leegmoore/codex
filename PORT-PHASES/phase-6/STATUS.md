@@ -29,7 +29,7 @@
 | Section | Lines | Status | Notes |
 |---------|-------|--------|-------|
 | 1. Core Types & Session | ~150 | ✅ DONE | Types, SessionState, TurnState, helpers |
-| 2. Event Loop | ~400 | ⏳ PENDING | submission_loop, Op handlers |
+| 2. Event Loop | ~400 | ✅ DONE | Codex, Session, submission_loop, Op handlers |
 | 3. Tool Integration | ~600 | ⏳ PENDING | ToolRouter, tool execution |
 | 4. Turn Processing | ~800 | ⏳ PENDING | spawn_task, response processing |
 | 5. MCP & Advanced | ~600 | ⏳ PENDING | MCP integration, web search |
@@ -108,3 +108,53 @@ None currently. Progress is steady and incremental.
 7. **Session 8:** Integration tests + final verification
 
 **Estimated:** 6-8 more sessions to complete Phase 6
+
+### Session 2 - 2025-11-08
+
+**Duration:** ~2 hours
+**Focus:** Section 2 (Event Loop & Session Orchestration)
+
+**Completed:**
+- ✅ Analyzed submission_loop and Op handlers in Rust
+- ✅ Created `src/core/codex/codex.ts` - Public Codex API class (~120 lines)
+- ✅ Created `src/core/codex/session.ts` - Session orchestration class (~137 lines)
+- ✅ Created `src/core/codex/submission-loop.ts` - Event loop (~120 lines)
+- ✅ Created `src/core/codex/handlers.ts` - Op handlers (~115 lines)
+- ✅ Fixed all Op type casing (snake_case not PascalCase)
+- ✅ Fixed ReviewDecision comparison ('abort' not 'Abort')
+- ✅ Fixed EventMsg type ('shutdown_complete' not 'ShutdownComplete')
+- ✅ Fixed RolloutItem structure
+- ✅ All compilation errors resolved
+- ✅ All tests passing (1876/1876)
+
+**Files Created:**
+- `src/core/codex/codex.ts` (120 lines)
+- `src/core/codex/session.ts` (137 lines)
+- `src/core/codex/submission-loop.ts` (120 lines)
+- `src/core/codex/handlers.ts` (115 lines)
+
+**Total:** ~492 lines (Section 2 complete)
+
+**Quality Status:**
+- TypeScript: 0 errors
+- ESLint: 34 warnings (pre-existing non-null assertions)
+- Tests: 1876/1876 passing
+- Format: All files formatted
+
+**What Works:**
+- Codex class can receive submissions and emit events
+- Session class can send events and persist to rollout
+- submission_loop routes operations to handlers
+- Shutdown, interrupt, approval handlers have stubs
+
+**Next Session:**
+- Port Section 3: Tool Integration (~600 lines)
+  - Tool execution framework
+  - Tool call processing
+  - Tool result handling
+
+**Notes:**
+- Section 2 establishes the foundational event loop
+- All handlers are stubs (implementations in Sections 3-5)
+- EventEmitter used for TypeScript channel pattern
+- Maintaining zero-error baseline successfully

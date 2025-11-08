@@ -3,7 +3,7 @@
  * Port of codex-rs/core/src/codex.rs and state module types.
  */
 
-import type { ResponseInputItem, ResponseItem } from "../../protocol/models.js";
+import type { ResponseInputItem } from "../../protocol/models.js";
 import type {
   AskForApproval,
   SandboxPolicy,
@@ -13,10 +13,7 @@ import type {
   ReasoningEffort,
   ReasoningSummary,
 } from "../../protocol/config-types.js";
-import type {
-  TokenUsageInfo,
-  RateLimitSnapshot,
-} from "../../protocol/protocol.js";
+import type { RateLimitSnapshot } from "../../protocol/protocol.js";
 import type { ModelClient } from "../client/client.js";
 import type { ModelProviderInfo } from "../client/model-provider-info.js";
 import type { ConversationHistory } from "../conversation-history/index.js";
