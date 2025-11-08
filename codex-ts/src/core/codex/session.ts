@@ -4,7 +4,7 @@
  */
 
 import { EventEmitter } from "events";
-import type { ConversationId } from "../../protocol/conversation-id/index.js";
+import { ConversationId } from "../../protocol/conversation-id/index.js";
 import type {
   Event,
   EventMsg,
@@ -24,6 +24,7 @@ import type {
   SessionTaskContext,
   RunningTask,
 } from "./types.js";
+import type { AuthManager } from "../auth/index.js";
 import * as SessionStateHelpers from "./session-state.js";
 import * as TurnStateHelpers from "./turn-state.js";
 
@@ -564,8 +565,55 @@ export class Session {
     await this.sendEvent(task.turnContext.subId, event);
   }
 
+  /**
+   * Create a new Session instance.
+   * Port of Session::new
+   *
+   * NOTE: Simplified version - full async initialization deferred to future phases.
+   * Full implementation would include:
+   * - RolloutRecorder initialization
+   * - MCP connection manager setup
+   * - Shell discovery
+   * - History metadata loading
+   * - OTel event manager setup
+   */
+  static async create(
+    sessionConfiguration: SessionConfiguration,
+    _config: unknown, // Config type - TODO: Use for full initialization
+    authManager: AuthManager,
+    txEvent: EventEmitter,
+    _sessionSource: unknown, // SessionSource - TODO: Use for initialization
+  ): Promise<Session> {
+    // Generate conversation ID
+    // TODO: Handle resumed conversations
+    const conversationId = ConversationId.new();
+
+    console.info(
+      `Configuring session: model=${sessionConfiguration.model}; provider=${sessionConfiguration.provider.name}`,
+    );
+
+    // Validate cwd is absolute
+    // TODO: Add path validation when we have proper path handling
+
+    // Create services
+    // TODO: Initialize these properly in future phases
+    const services: SessionServices = {
+      mcpConnectionManager: {} as any, // TODO
+      unifiedExecManager: {} as any, // TODO
+      notifier: {} as any, // TODO
+      rollout: { value: null }, // TODO: Initialize RolloutRecorder
+      userShell: {} as any, // TODO
+      showRawAgentReasoning: false,
+      authManager,
+      otelEventManager: {} as any, // TODO
+      toolApprovals: {} as any, // TODO
+    };
+
+    // Create session instance
+    return new Session(conversationId, sessionConfiguration, services, txEvent);
+  }
+
   // TODO: Port remaining Session methods in future sections:
-  // - run_turn, try_run_turn, process_items (Section 4 or 5)
-  // - MCP and advanced features (Section 5)
-  // - spawn, new, and initialization (Section 6)
+  // - run_turn, try_run_turn, process_items (future phases)
+  // - Full initialization with RolloutRecorder, MCP, etc. (future phases)
 }

@@ -6,7 +6,12 @@
 import { EventEmitter } from "events";
 import type { ConversationId } from "../../protocol/conversation-id/index.js";
 import type { Event, Op, Submission } from "../../protocol/protocol.js";
+import type { Config } from "../config.js";
+import type { AuthManager } from "../auth/index.js";
+import type { SessionConfiguration } from "./types.js";
 import { SUBMISSION_CHANNEL_CAPACITY } from "./types.js";
+import { Session } from "./session.js";
+import { submissionLoop } from "./submission-loop.js";
 
 /**
  * Error thrown when the Codex agent dies unexpectedly.
@@ -114,6 +119,83 @@ export class Codex {
     this.rxEvent.removeAllListeners();
     this.eventWaiters = [];
     this.eventBuffer.length = 0;
+  }
+
+  /**
+   * Spawn a new Codex instance and initialize the session.
+   * Port of Codex::spawn
+   *
+   * NOTE: Simplified version - full initialization deferred to future phases.
+   */
+  static async spawn(
+    config: Config,
+    authManager: AuthManager,
+    _conversationHistory: unknown, // TODO: Port InitialHistory
+    sessionSource: unknown, // TODO: Port SessionSource type
+  ): Promise<CodexSpawnOk> {
+    // Create communication channels
+    const txSub = new EventEmitter();
+    const rxEvent = new EventEmitter();
+    const txEvent = new EventEmitter();
+
+    // Build session configuration
+    // TODO: Get user instructions from config
+    const userInstructions = null;
+
+    // TODO: Create proper ModelProviderInfo from config
+    const provider = {
+      name: config.modelProviderId,
+      // TODO: Add other provider fields
+    } as any;
+
+    // TODO: Create proper Features from config
+    const features = {} as any;
+
+    const sessionConfiguration: SessionConfiguration = {
+      provider,
+      model: config.model,
+      modelReasoningEffort: config.modelReasoningEffort ?? null,
+      modelReasoningSummary: config.modelReasoningSummary,
+      developerInstructions: config.developerInstructions ?? null,
+      userInstructions,
+      baseInstructions: config.baseInstructions ?? null,
+      compactPrompt: config.compactPrompt ?? null,
+      approvalPolicy: config.approvalPolicy,
+      sandboxPolicy: config.sandboxPolicy,
+      cwd: config.cwd,
+      features,
+      originalConfigDoNotUse: config,
+      sessionSource: sessionSource as any, // TODO: Proper type
+    };
+
+    // Create session
+    const session = await Session.create(
+      sessionConfiguration,
+      config,
+      authManager,
+      txEvent,
+      sessionSource,
+    );
+
+    const conversationId = session.conversationId;
+
+    // Spawn submission loop in background
+    submissionLoop(session, config, txSub).catch((err) => {
+      console.error("Submission loop error:", err);
+    });
+
+    // Create Codex instance
+    const codex = new Codex(txSub, rxEvent);
+
+    // Wire up event forwarding
+    txEvent.on("event", (event: Event) => {
+      rxEvent.emit("event", event);
+    });
+
+    return {
+      codex,
+      conversationId,
+    };
   }
 }
 
