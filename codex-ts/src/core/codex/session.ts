@@ -27,6 +27,9 @@ import type {
 import type { AuthManager } from "../auth/index.js";
 import * as SessionStateHelpers from "./session-state.js";
 import * as TurnStateHelpers from "./turn-state.js";
+import { Features } from "../features/index.js";
+import { McpConnectionManager } from "../mcp/index.js";
+import type { BashShell } from "../shell/index.js";
 
 /**
  * Internal session state and orchestration.
@@ -184,7 +187,7 @@ export class Session {
     // TODO: Port make_turn_context - for now return minimal stub
     const turnContext: TurnContext = {
       subId,
-      client: {} as unknown as any, // TODO: Create ModelClient
+      client: null as unknown as ModelClient, // TODO: Create ModelClient
       cwd: sessionConfiguration.cwd,
       developerInstructions: sessionConfiguration.developerInstructions,
       baseInstructions: sessionConfiguration.baseInstructions,
@@ -192,11 +195,14 @@ export class Session {
       userInstructions: sessionConfiguration.userInstructions,
       approvalPolicy: sessionConfiguration.approvalPolicy,
       sandboxPolicy: sessionConfiguration.sandboxPolicy,
-      shellEnvironmentPolicy: {} as any, // TODO
-      toolsConfig: {} as any, // TODO
+      shellEnvironmentPolicy: { mode: "default" }, // TODO: Proper policy
+      toolsConfig: {
+        modelFamily: "unknown",
+        features: Features.withDefaults(),
+      },
       finalOutputJsonSchema: updates.finalOutputJsonSchema ?? null,
       codexLinuxSandboxExe: null,
-      toolCallGate: {} as any, // TODO
+      toolCallGate: null as unknown, // TODO: Port ReadinessFlag
     };
 
     return turnContext;
@@ -598,15 +604,19 @@ export class Session {
     // Create services
     // TODO: Initialize these properly in future phases
     const services: SessionServices = {
-      mcpConnectionManager: {} as any, // TODO
-      unifiedExecManager: {} as any, // TODO
-      notifier: {} as any, // TODO
+      mcpConnectionManager: new McpConnectionManager(),
+      unifiedExecManager: null as unknown,
+      notifier: null as unknown,
       rollout: { value: null }, // TODO: Initialize RolloutRecorder
-      userShell: {} as any, // TODO
+      userShell: {
+        type: "bash",
+        shellPath: "/bin/bash",
+        bashrcPath: "~/.bashrc",
+      } as BashShell,
       showRawAgentReasoning: false,
       authManager,
-      otelEventManager: {} as any, // TODO
-      toolApprovals: {} as any, // TODO
+      otelEventManager: null as unknown,
+      toolApprovals: null as unknown,
     };
 
     // Create session instance
