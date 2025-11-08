@@ -87,6 +87,7 @@ export function createToolsJsonForMessagesApi(
       default: {
         // TypeScript exhaustiveness check
         const _exhaustive: never = tool;
+        void _exhaustive;
         throw new AnthropicToolConversionError(
           `Unknown tool type: ${JSON.stringify(tool)}`,
         );

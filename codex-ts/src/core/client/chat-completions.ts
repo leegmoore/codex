@@ -274,7 +274,7 @@ export function buildChatMessages(
           content: null,
           tool_calls: [
             {
-              id: item.id,
+              id: item.id ?? "",
               type: "custom",
               custom: {
                 name: item.name,

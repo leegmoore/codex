@@ -245,7 +245,7 @@ export class ToolRegistry {
    * Register a tool
    */
   register<TParams, TResult>(tool: RegisteredTool<TParams, TResult>): void {
-    this.tools.set(tool.metadata.name, tool);
+    this.tools.set(tool.metadata.name, tool as RegisteredTool<unknown, unknown>);
   }
 
   /**

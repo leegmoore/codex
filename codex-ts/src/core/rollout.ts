@@ -126,11 +126,12 @@ export interface ConversationsPage {
  */
 export class RolloutRecorder {
   private readonly rolloutPath: string;
-  private meta?: SessionMeta;
+  // @ts-expect-error - Session metadata for future use
+  private _meta?: SessionMeta;
 
-  private constructor(rolloutPath: string, meta?: SessionMeta) {
+  private constructor(rolloutPath: string, _meta?: SessionMeta) {
     this.rolloutPath = rolloutPath;
-    this.meta = meta;
+    this._meta = _meta;
   }
 
   /**

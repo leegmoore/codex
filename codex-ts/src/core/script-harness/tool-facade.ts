@@ -258,7 +258,7 @@ export function createToolsProxy(
     : undefined;
 
   const proxy = new Proxy(target, {
-    get(target, prop: string | symbol) {
+    get(_target, prop: string | symbol) {
       // Only handle string properties (tool names)
       if (typeof prop !== "string") {
         return undefined;
@@ -315,7 +315,7 @@ export function createToolsProxy(
         if (stats.totalCalls >= config.maxToolInvocations) {
           throw new ToolBudgetExceededError(
             config.maxToolInvocations,
-            toolName,
+            stats.totalCalls + 1,
           );
         }
 
@@ -323,7 +323,7 @@ export function createToolsProxy(
         if (stats.activeCalls >= config.maxConcurrentToolCalls) {
           throw new ConcurrencyLimitError(
             config.maxConcurrentToolCalls,
-            toolName,
+            stats.activeCalls + 1,
           );
         }
 
@@ -380,7 +380,7 @@ export function createToolsProxy(
         })();
 
         // Register promise with tracker
-        const _promiseId = tracker.register(toolName, toolPromise, abort);
+        tracker.register(toolName, toolPromise, abort);
 
         // Return the promise
         return toolPromise;

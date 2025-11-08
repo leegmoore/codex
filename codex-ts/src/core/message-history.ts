@@ -103,6 +103,7 @@ async function tryLockExclusive(_fd: number): Promise<boolean> {
 /**
  * Release a lock on a file descriptor.
  */
+// @ts-expect-error - Lock release function for future use
 async function _unlock(_fd: number): Promise<void> {
   // Unlocking happens automatically when we close the file descriptor
   return;

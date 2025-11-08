@@ -125,8 +125,10 @@ async function handleErrorResponse(response: Response): Promise<never> {
     );
   }
 
-  const errorType = errorData?.error?.type || "unknown_error";
-  const errorMessage = errorData?.error?.message || `HTTP ${statusCode}`;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const errorType = (errorData as any)?.error?.type || "unknown_error";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const errorMessage = (errorData as any)?.error?.message || `HTTP ${statusCode}`;
   const requestId = response.headers.get("request-id") || undefined;
 
   // Map error types to user-friendly messages

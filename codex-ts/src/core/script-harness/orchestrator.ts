@@ -203,13 +203,19 @@ export class Orchestrator {
         // 2. Parse and validate script
         const parseResult = parseScript(block.code);
         if (!parseResult.success || !parseResult.script) {
+          const errorMessage = typeof parseResult.error === "string"
+            ? parseResult.error
+            : parseResult.error instanceof Error
+            ? parseResult.error.message
+            : "Invalid script syntax";
+
           const error = {
             ok: false as const,
             sourceCode: block.code,
             index: i,
             error: {
               code: "ScriptSyntaxError",
-              message: parseResult.error || "Invalid script syntax",
+              message: errorMessage,
               phase: "parsing" as const,
             },
             metadata: {
@@ -226,7 +232,7 @@ export class Orchestrator {
               scripts: results,
               error: {
                 code: "ScriptSyntaxError",
-                message: parseResult.error || "Invalid script syntax",
+                message: errorMessage,
                 phase: "parsing",
                 scriptIndex: i,
               },
@@ -262,10 +268,10 @@ export class Orchestrator {
           scriptId: `script-${i}`,
           remainingToolBudget: this.config.limits.maxToolInvocations,
           limits: this.config.limits,
-          emitProgress: (msg) => {
-            // Progress emitter (can wire to event emitter later)
-            console.debug("[script-progress]", msg);
-          },
+          // emitProgress: (msg: string) => {
+          //   // Progress emitter (can wire to event emitter later)
+          //   console.debug("[script-progress]", msg);
+          // },
         });
 
         // 4. Create tools proxy
@@ -319,13 +325,16 @@ export class Orchestrator {
           };
         }
       } catch (error: unknown) {
+        const errorName = error instanceof Error ? error.name : "Error";
+        const errorMessage = error instanceof Error ? error.message : String(error);
+
         const scriptError: ScriptResult = {
           ok: false,
           sourceCode: block.code,
           index: i,
           error: {
-            code: error.name || "Error",
-            message: error.message || String(error),
+            code: errorName,
+            message: errorMessage,
             phase: "executing",
           },
           metadata: {
@@ -341,8 +350,8 @@ export class Orchestrator {
             ok: false,
             scripts: results,
             error: {
-              code: error.name || "Error",
-              message: error.message || String(error),
+              code: errorName,
+              message: errorMessage,
               phase: "executing",
               scriptIndex: i,
             },

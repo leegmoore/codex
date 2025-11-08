@@ -203,7 +203,6 @@ export class PromiseTracker {
     }
 
     // Abort all pending promises (NOT detached)
-    const _orphanedIds = Array.from(this.pending.keys());
     for (const [_id, entry] of this.pending) {
       entry.abort.abort(
         new Error(`Script completed with pending promise: ${entry.toolName}`),

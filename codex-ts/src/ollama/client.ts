@@ -101,7 +101,8 @@ export class OllamaClient {
       }
 
       const data = await resp.json();
-      const models = data?.models;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const models = (data as any)?.models;
 
       if (!Array.isArray(models)) {
         return [];

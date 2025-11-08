@@ -209,18 +209,10 @@ function* processEvent(
         state.hasEmittedCompleted = true;
 
         const tokenUsage: TokenUsage = {
-          total_token_usage: {
-            input_tokens: state.usage.inputTokens,
-            cached_input_tokens: 0,
-            output_tokens: state.usage.outputTokens,
-            reasoning_tokens: state.usage.reasoningTokens,
-          },
-          last_token_usage: {
-            input_tokens: state.usage.inputTokens,
-            cached_input_tokens: 0,
-            output_tokens: state.usage.outputTokens,
-            reasoning_tokens: state.usage.reasoningTokens,
-          },
+          input_tokens: state.usage.inputTokens,
+          cached_input_tokens: 0,
+          output_tokens: state.usage.outputTokens,
+          reasoning_tokens: state.usage.reasoningTokens,
         };
 
         yield {

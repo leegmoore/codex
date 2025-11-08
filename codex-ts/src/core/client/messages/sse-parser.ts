@@ -99,34 +99,42 @@ function parseSseEvent(eventText: string): AnthropicSseEvent | null {
     case "message_start":
       return {
         type: "message_start",
-        message: parsedData,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        message: parsedData as any,
       };
 
     case "content_block_start":
       return {
         type: "content_block_start",
-        index: parsedData.index,
-        content_block: parsedData.content_block,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        index: (parsedData as any).index,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        content_block: (parsedData as any).content_block,
       };
 
     case "content_block_delta":
       return {
         type: "content_block_delta",
-        index: parsedData.index,
-        delta: parsedData.delta,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        index: (parsedData as any).index,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        delta: (parsedData as any).delta,
       };
 
     case "content_block_stop":
       return {
         type: "content_block_stop",
-        index: parsedData.index,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        index: (parsedData as any).index,
       };
 
     case "message_delta":
       return {
         type: "message_delta",
-        delta: parsedData.delta,
-        usage: parsedData.usage,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        delta: (parsedData as any).delta,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        usage: (parsedData as any).usage,
       };
 
     case "message_stop":
@@ -142,7 +150,8 @@ function parseSseEvent(eventText: string): AnthropicSseEvent | null {
     case "error":
       return {
         type: "error",
-        error: parsedData.error,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        error: (parsedData as any).error,
       };
 
     default:

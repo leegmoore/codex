@@ -136,7 +136,6 @@ export function appendToolResults(
   // Add assistant message if not already in history
   const hasAssistantMessage = updated.some(
     (item) =>
-      item.type === "message" &&
       item.role === "assistant" &&
       JSON.stringify(item.content).includes("custom_tool_call"),
   );

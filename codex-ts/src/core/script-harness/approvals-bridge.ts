@@ -182,7 +182,7 @@ export class ApprovalBridge {
    */
   async requestApproval(request: ApprovalRequest): Promise<boolean> {
     // Generate unique request ID
-    const _requestId = `req_${Date.now()}_${++this.requestCounter}`;
+    const requestId = `req_${Date.now()}_${++this.requestCounter}`;
 
     // Update stats
     this.stats.total++;
@@ -210,7 +210,7 @@ export class ApprovalBridge {
         this.pending.delete(requestId);
         this.stats.pending--;
         this.stats.timedOut++;
-        reject(new ApprovalTimeoutError(request.toolName));
+        reject(new ApprovalTimeoutError(request.toolName, this.config.approvalTimeoutMs));
       }, this.config.approvalTimeoutMs);
 
       // Store pending approval

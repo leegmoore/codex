@@ -476,9 +476,10 @@ export function maybeParseApplyPatchVerified(
         try {
           content = fs.readFileSync(hunkPath, "utf-8");
         } catch (err) {
+          const ioError = new IoError(`Failed to read ${hunkPath}`, err as Error);
           return {
             type: "CorrectnessError",
-            error: new IoError(`Failed to read ${hunkPath}`, err as Error),
+            error: new ApplyPatchError(ioError.message, ioError),
           };
         }
         changes.set(hunkPath, {

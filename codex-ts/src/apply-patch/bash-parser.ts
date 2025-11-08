@@ -25,7 +25,8 @@ export function maybeParseApplyPatch(argv: string[]): MaybeApplyPatch {
       const parsed = parsePatch(argv[1]);
       return { type: "Body", value: parsed };
     } catch (err) {
-      return { type: "PatchParseError", error: err instanceof Error ? err : new Error(String(err)) };
+      const message = err instanceof Error ? err.message : String(err);
+      return { type: "PatchParseError", error: { type: "InvalidPatchError", message } };
     }
   }
 
@@ -45,7 +46,8 @@ export function maybeParseApplyPatch(argv: string[]): MaybeApplyPatch {
         }
         return { type: "Body", value: parsed };
       } catch (err) {
-        return { type: "PatchParseError", error: err instanceof Error ? err : new Error(String(err)) };
+        const message = err instanceof Error ? err.message : String(err);
+        return { type: "PatchParseError", error: { type: "InvalidPatchError", message } };
       }
     } catch (err) {
       if (isExtractHeredocError(err)) {

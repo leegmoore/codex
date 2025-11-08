@@ -176,7 +176,8 @@ export class CodexAuth {
     public readonly mode: AuthMode,
     private apiKey: string | undefined,
     private authDotJson: AuthDotJson | undefined,
-    private storage: AuthStorageBackend,
+    // @ts-expect-error - Storage backend for future use
+    private _storage: AuthStorageBackend,
   ) {}
 
   /**

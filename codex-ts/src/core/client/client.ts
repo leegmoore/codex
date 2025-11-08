@@ -22,10 +22,8 @@
 import type { ModelProviderInfo, WireApi } from "./model-provider-info.js";
 import { WireApi as WireApiEnum } from "./model-provider-info.js";
 import type { CodexAuth } from "../auth/stub-auth.js";
-import type {
-  ReasoningEffort,
-  ReasoningSummary,
-} from "../../protocol/config-types.js";
+import type { ReasoningEffort } from "../../protocol/config-types.js";
+import { ReasoningSummary } from "../../protocol/config-types.js";
 import type { Prompt, ResponseEvent } from "./client-common.js";
 import { streamMessages as streamAnthropicMessages } from "./messages/index.js";
 
@@ -76,7 +74,7 @@ export class ModelClient {
     this.modelSlug = options.modelSlug;
     this.auth = options.auth;
     this.reasoningEffort = options.reasoningEffort;
-    this.reasoningSummary = options.reasoningSummary ?? "auto";
+    this.reasoningSummary = options.reasoningSummary ?? ReasoningSummary.Auto;
   }
 
   /**
@@ -189,19 +187,19 @@ export class ModelClient {
     const config = {
       apiKey,
       baseUrl: this.provider.baseUrl,
-      anthropicVersion: providerExtras.anthropicVersion,
-      beta: providerExtras.beta,
+      anthropicVersion: providerExtras.anthropicVersion as string | undefined,
+      beta: providerExtras.beta as string[] | undefined,
     };
 
     // Build options from prompt metadata
     const promptExtras = prompt as unknown as Record<string, unknown>;
     const options = {
-      temperature: promptExtras.temperature,
-      topP: promptExtras.topP,
-      topK: promptExtras.topK,
-      stopSequences: promptExtras.stopSequences,
-      traceId: promptExtras.traceId,
-      toolChoice: promptExtras.toolChoice,
+      temperature: promptExtras.temperature as number | undefined,
+      topP: promptExtras.topP as number | undefined,
+      topK: promptExtras.topK as number | undefined,
+      stopSequences: promptExtras.stopSequences as string[] | undefined,
+      traceId: promptExtras.traceId as string | undefined,
+      toolChoice: promptExtras.toolChoice as "auto" | "none" | "any" | undefined,
     };
 
     // Return async generator as ResponseStream

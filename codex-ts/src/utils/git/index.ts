@@ -172,7 +172,8 @@ export async function ensureGitRepository(path: string): Promise<void> {
       error instanceof GitToolingError &&
       error.code === "GIT_COMMAND_FAILED"
     ) {
-      if (error.details?.exitCode === 128) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ((error.details as any)?.exitCode === 128) {
         throw GitToolingError.notAGitRepository(path);
       }
     }
@@ -187,7 +188,8 @@ export async function resolveHead(path: string): Promise<string | undefined> {
   try {
     return await runGitForStdout(path, ["rev-parse", "--verify", "HEAD"]);
   } catch (error: unknown) {
-    if (error instanceof GitToolingError && error.details?.exitCode === 128) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (error instanceof GitToolingError && (error.details as any)?.exitCode === 128) {
       return undefined;
     }
     throw error;
