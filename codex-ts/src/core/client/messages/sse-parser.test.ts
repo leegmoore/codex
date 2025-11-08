@@ -6,8 +6,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { parseSseStream, createSseStream } from "./sse-parser.js";
-import type { AnthropicSseEvent } from "./types.js";
+import { parseSseStream } from "./sse-parser.js";
 
 // Import test fixtures
 import textOnlyFixture from "./fixtures/text-only.json";
@@ -321,7 +320,9 @@ describe("SSE Parser - Stage 4", () => {
 /**
  * Helper to create a mock SSE stream from fixture events
  */
-function createMockSseStream(events: any[]): ReadableStream<Uint8Array> {
+function createMockSseStream(
+  events: Array<{ event: string; data: unknown }>,
+): ReadableStream<Uint8Array> {
   const encoder = new TextEncoder();
   let index = 0;
 

@@ -15,7 +15,6 @@ import type {
   AnthropicToolChoice,
   AnthropicProviderConfig,
   UsageInfo,
-  ThinkingConfig,
 } from "./types.js";
 import { ANTHROPIC_DEFAULTS, ANTHROPIC_RATE_LIMIT_HEADERS } from "./types.js";
 

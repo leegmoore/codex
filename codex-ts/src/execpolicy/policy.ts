@@ -8,9 +8,8 @@ import type {
   ExecCall,
   CheckResult,
   ForbiddenProgramRegex,
-} from './types.js';
-import { NoSpecForProgramError } from './types.js';
-import { checkProgramSpec } from './checker.js';
+} from "./types.js";
+import { checkProgramSpec } from "./checker.js";
 
 /**
  * Execution policy
@@ -36,8 +35,8 @@ export class Policy {
     // Build regex for forbidden substrings
     if (this.forbiddenSubstrings.length > 0) {
       const escaped = this.forbiddenSubstrings
-        .map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-        .join('|');
+        .map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+        .join("|");
       this.forbiddenSubstringsRegex = new RegExp(`(${escaped})`);
     }
   }
@@ -53,9 +52,9 @@ export class Policy {
       const regex = new RegExp(pattern);
       if (regex.test(program)) {
         return {
-          result: 'forbidden',
+          result: "forbidden",
           reason,
-          cause: { type: 'Program', program, execCall },
+          cause: { type: "Program", program, execCall },
         };
       }
     }
@@ -65,9 +64,9 @@ export class Policy {
       for (const arg of args) {
         if (this.forbiddenSubstringsRegex.test(arg)) {
           return {
-            result: 'forbidden',
+            result: "forbidden",
             reason: `arg '${arg}' contains forbidden substring`,
-            cause: { type: 'Arg', arg, execCall },
+            cause: { type: "Arg", arg, execCall },
           };
         }
       }
@@ -77,7 +76,7 @@ export class Policy {
     const specs = this.programsByName.get(program);
     if (!specs) {
       return {
-        result: 'unverified',
+        result: "unverified",
         error: `No specification found for program: ${program}`,
       };
     }
@@ -86,14 +85,14 @@ export class Policy {
     let lastError: string | undefined;
     for (const spec of specs) {
       const result = checkProgramSpec(spec, execCall);
-      if (result.result !== 'unverified') {
+      if (result.result !== "unverified") {
         return result;
       }
       lastError = result.error;
     }
 
     return {
-      result: 'unverified',
+      result: "unverified",
       error: lastError || `No matching specification for ${program}`,
     };
   }
@@ -101,8 +100,13 @@ export class Policy {
   /**
    * Verify that all positive examples match their specs
    */
-  checkPositiveExamples(): Array<{ program: string; args: string[]; error: string }> {
-    const failures: Array<{ program: string; args: string[]; error: string }> = [];
+  checkPositiveExamples(): Array<{
+    program: string;
+    args: string[];
+    error: string;
+  }> {
+    const failures: Array<{ program: string; args: string[]; error: string }> =
+      [];
 
     for (const specs of this.programsByName.values()) {
       for (const spec of specs) {
@@ -117,11 +121,12 @@ export class Policy {
             args,
           });
 
-          if (result.result === 'unverified' || result.result === 'forbidden') {
+          if (result.result === "unverified" || result.result === "forbidden") {
             failures.push({
               program: spec.program,
               args,
-              error: result.result === 'unverified' ? result.error : result.reason,
+              error:
+                result.result === "unverified" ? result.error : result.reason,
             });
           }
         }
@@ -148,7 +153,7 @@ export class Policy {
           });
 
           // Should NOT match successfully
-          if (result.result === 'safe' || result.result === 'match') {
+          if (result.result === "safe" || result.result === "match") {
             failures.push({
               program: spec.program,
               args,

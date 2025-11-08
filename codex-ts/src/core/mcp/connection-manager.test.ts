@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { McpConnectionManager, ConnectionState } from "./connection-manager";
+import { McpConnectionManager } from "./connection-manager";
 import type { McpServerConfig } from "../../mcp-server";
 
 describe("McpConnectionManager (stub)", () => {

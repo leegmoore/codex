@@ -6,10 +6,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import {
-  createAnthropicTransport,
-  type TransportOptions,
-} from "./transport.js";
+import { createAnthropicTransport } from "./transport.js";
 import type { MessagesApiRequest } from "./types.js";
 
 describe("Transport Layer - Stage 7", () => {
@@ -30,7 +27,7 @@ describe("Transport Layer - Stage 7", () => {
       global.fetch = vi.fn(async (url, init) => {
         capturedHeaders = new Headers(init?.headers);
         return new Response('{"type":"message"}', { status: 200 });
-      }) as any;
+      }) as unknown as typeof global.fetch;
 
       const transport = createAnthropicTransport({
         apiKey: "sk-ant-test123",
@@ -53,7 +50,7 @@ describe("Transport Layer - Stage 7", () => {
       global.fetch = vi.fn(async (url, init) => {
         capturedHeaders = new Headers(init?.headers);
         return new Response('{"type":"message"}', { status: 200 });
-      }) as any;
+      }) as unknown as typeof global.fetch;
 
       const transport = createAnthropicTransport({
         apiKey: "sk-ant-test",
@@ -77,7 +74,7 @@ describe("Transport Layer - Stage 7", () => {
       global.fetch = vi.fn(async (url, init) => {
         capturedHeaders = new Headers(init?.headers);
         return new Response('{"type":"message"}', { status: 200 });
-      }) as any;
+      }) as unknown as typeof global.fetch;
 
       const transport = createAnthropicTransport({ apiKey: "test" });
 
@@ -96,7 +93,7 @@ describe("Transport Layer - Stage 7", () => {
       global.fetch = vi.fn(async (url, init) => {
         capturedHeaders = new Headers(init?.headers);
         return new Response('{"type":"message"}', { status: 200 });
-      }) as any;
+      }) as unknown as typeof global.fetch;
 
       const transport = createAnthropicTransport({
         apiKey: "test",
@@ -122,7 +119,7 @@ describe("Transport Layer - Stage 7", () => {
       global.fetch = vi.fn(async (url) => {
         capturedUrl = url.toString();
         return new Response('{"type":"message"}', { status: 200 });
-      }) as any;
+      }) as unknown as typeof global.fetch;
 
       const transport = createAnthropicTransport({
         apiKey: "test",
@@ -139,12 +136,12 @@ describe("Transport Layer - Stage 7", () => {
     });
 
     it("should send request body as JSON", async () => {
-      let capturedBody: any;
+      let capturedBody: unknown;
 
       global.fetch = vi.fn(async (url, init) => {
         capturedBody = JSON.parse(init?.body as string);
         return new Response('{"type":"message"}', { status: 200 });
-      }) as any;
+      }) as unknown as typeof global.fetch;
 
       const transport = createAnthropicTransport({ apiKey: "test" });
 
@@ -176,7 +173,7 @@ describe("Transport Layer - Stage 7", () => {
           }),
           { status: 401 },
         );
-      }) as any;
+      }) as unknown as typeof global.fetch;
 
       const transport = createAnthropicTransport({ apiKey: "bad-key" });
 
@@ -207,7 +204,7 @@ describe("Transport Layer - Stage 7", () => {
             },
           },
         );
-      }) as any;
+      }) as unknown as typeof global.fetch;
 
       const transport = createAnthropicTransport({ apiKey: "test" });
 
@@ -232,7 +229,7 @@ describe("Transport Layer - Stage 7", () => {
           }),
           { status: 500 },
         );
-      }) as any;
+      }) as unknown as typeof global.fetch;
 
       const transport = createAnthropicTransport({ apiKey: "test" });
 
@@ -248,7 +245,7 @@ describe("Transport Layer - Stage 7", () => {
     it("should handle network errors gracefully", async () => {
       global.fetch = vi.fn(async () => {
         throw new Error("Network failure");
-      }) as any;
+      }) as unknown as typeof global.fetch;
 
       const transport = createAnthropicTransport({ apiKey: "test" });
 
@@ -276,7 +273,7 @@ describe("Transport Layer - Stage 7", () => {
           status: 200,
           headers: { "content-type": "text/event-stream" },
         });
-      }) as any;
+      }) as unknown as typeof global.fetch;
 
       const transport = createAnthropicTransport({ apiKey: "test" });
 
@@ -298,7 +295,7 @@ describe("Transport Layer - Stage 7", () => {
       global.fetch = vi.fn(async (url) => {
         capturedUrl = url.toString();
         return new Response("{}", { status: 200 });
-      }) as any;
+      }) as unknown as typeof global.fetch;
 
       const transport = createAnthropicTransport({ apiKey: "test" });
 

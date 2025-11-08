@@ -114,7 +114,7 @@ export function createAnthropicTransport(
  */
 async function handleErrorResponse(response: Response): Promise<never> {
   const statusCode = response.status;
-  let errorData: any;
+  let errorData: unknown;
 
   try {
     errorData = await response.json();
@@ -125,8 +125,12 @@ async function handleErrorResponse(response: Response): Promise<never> {
     );
   }
 
-  const errorType = errorData?.error?.type || "unknown_error";
-  const errorMessage = errorData?.error?.message || `HTTP ${statusCode}`;
+  const errorType =
+    (errorData as Record<string, { type?: string; message?: string }>)?.error
+      ?.type || "unknown_error";
+  const errorMessage =
+    (errorData as Record<string, { type?: string; message?: string }>)?.error
+      ?.message || `HTTP ${statusCode}`;
   const requestId = response.headers.get("request-id") || undefined;
 
   // Map error types to user-friendly messages
@@ -135,13 +139,14 @@ async function handleErrorResponse(response: Response): Promise<never> {
     case "authentication_error":
       message = `Authentication failed: ${errorMessage}`;
       break;
-    case "rate_limit_error":
+    case "rate_limit_error": {
       const retryAfter = response.headers.get("retry-after");
       message = `Rate limit exceeded: ${errorMessage}`;
       if (retryAfter) {
         message += ` (retry after ${retryAfter}s)`;
       }
       break;
+    }
     case "api_error":
       message = `Anthropic API error: ${errorMessage}`;
       break;

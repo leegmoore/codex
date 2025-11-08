@@ -3,11 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import {
-  Orchestrator,
-  type OrchestratorConfig,
-  type ExecutionResult,
-} from "./orchestrator.js";
+import { Orchestrator, type OrchestratorConfig } from "./orchestrator.js";
 import { QuickJSRuntime } from "./runtime/quickjs-runtime.js";
 import type { ToolRegistry, ApprovalBridge } from "./tool-facade.js";
 import { DEFAULT_SCRIPT_LIMITS } from "./runtime/types.js";

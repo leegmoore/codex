@@ -13,9 +13,9 @@
  * - Failed workers are replaced automatically
  */
 
-import os from 'node:os';
-import { getQuickJS, type QuickJSContext } from 'quickjs-emscripten';
-import { HarnessInternalError } from '../errors.js';
+import os from "node:os";
+import { getQuickJS, type QuickJSContext } from "quickjs-emscripten";
+import { HarnessInternalError } from "../errors.js";
 
 /**
  * Worker state
@@ -113,7 +113,7 @@ export class WorkerPool {
    */
   private async createWorker(): Promise<Worker> {
     if (!this.quickJS) {
-      throw new HarnessInternalError('Worker pool not initialized');
+      throw new HarnessInternalError("Worker pool not initialized");
     }
 
     const id = `worker_${this.nextWorkerId++}`;
@@ -140,7 +140,9 @@ export class WorkerPool {
    */
   async borrow(timeoutMs = 5000): Promise<Worker> {
     if (!this.initialized) {
-      throw new HarnessInternalError('Worker pool not initialized - call initialize() first');
+      throw new HarnessInternalError(
+        "Worker pool not initialized - call initialize() first",
+      );
     }
 
     // If reuse disabled, create fresh worker
@@ -150,7 +152,8 @@ export class WorkerPool {
 
     const startTime = Date.now();
 
-    // Wait for available worker
+    // Wait for available worker (poll with timeout)
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       // Find available worker
       const available = this.workers.find((w) => !w.inUse && w.healthy);
@@ -173,7 +176,9 @@ export class WorkerPool {
 
       // Check timeout
       if (Date.now() - startTime > timeoutMs) {
-        throw new HarnessInternalError(`Worker pool exhausted - no workers available after ${timeoutMs}ms`);
+        throw new HarnessInternalError(
+          `Worker pool exhausted - no workers available after ${timeoutMs}ms`,
+        );
       }
 
       // Wait a bit before checking again
@@ -192,6 +197,16 @@ export class WorkerPool {
       worker.context.dispose();
       return;
     }
+
+    // Dispose the old context and create a fresh one to ensure isolation
+    // This prevents globals from one execution leaking into the next
+    worker.context.dispose();
+
+    if (!this.quickJS) {
+      throw new HarnessInternalError("Worker pool not initialized");
+    }
+
+    worker.context = this.quickJS.newContext();
 
     // Increment execution count
     worker.executionCount++;
@@ -217,7 +232,10 @@ export class WorkerPool {
         }
       })
       .catch((error) => {
-        console.error(`Failed to replace unhealthy worker ${worker.id}:`, error);
+        console.error(
+          `Failed to replace unhealthy worker ${worker.id}:`,
+          error,
+        );
       });
   }
 
@@ -234,7 +252,10 @@ export class WorkerPool {
     const available = this.workers.filter((w) => !w.inUse && w.healthy).length;
     const busy = this.workers.filter((w) => w.inUse).length;
     const healthy = this.workers.filter((w) => w.healthy).length;
-    const totalExecutions = this.workers.reduce((sum, w) => sum + w.executionCount, 0);
+    const totalExecutions = this.workers.reduce(
+      (sum, w) => sum + w.executionCount,
+      0,
+    );
 
     return {
       size: this.workers.length,

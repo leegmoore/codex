@@ -51,7 +51,9 @@ describe("Tool Result Builder - Stage 9", () => {
       const parsed = JSON.parse(toolResult.content as string);
       expect(parsed.status).toBe("success");
       expect(parsed.data.temperature).toBe(72);
-      expect((toolResult as any).mime_type).toBe("application/json");
+      expect((toolResult as { mime_type?: string }).mime_type).toBe(
+        "application/json",
+      );
     });
 
     // TC-15: Tool result marshaler flags error status
@@ -81,7 +83,9 @@ describe("Tool Result Builder - Stage 9", () => {
 
       expect(toolResult.type).toBe("tool_result");
       expect(toolResult.content).toBe("iVBORw=="); // Base64 of PNG header
-      expect((toolResult as any).mime_type).toBe("application/octet-stream");
+      expect((toolResult as unknown as { mime_type: string }).mime_type).toBe(
+        "application/octet-stream",
+      );
     });
   });
 
@@ -155,10 +159,19 @@ describe("Tool Result Builder - Stage 9", () => {
       const message = buildToolResultMessage(results);
 
       expect(message.role).toBe("user");
-      expect(message.content).toHaveLength(3);
-      expect((message.content[0] as any).tool_use_id).toBe("toolu_1");
-      expect((message.content[1] as any).tool_use_id).toBe("toolu_2");
-      expect((message.content[2] as any).tool_use_id).toBe("toolu_3");
+      expect(Array.isArray(message.content)).toBe(true);
+      if (Array.isArray(message.content)) {
+        expect(message.content).toHaveLength(3);
+        expect(
+          (message.content[0] as { tool_use_id: string }).tool_use_id,
+        ).toBe("toolu_1");
+        expect(
+          (message.content[1] as { tool_use_id: string }).tool_use_id,
+        ).toBe("toolu_2");
+        expect(
+          (message.content[2] as { tool_use_id: string }).tool_use_id,
+        ).toBe("toolu_3");
+      }
     });
   });
 
@@ -179,7 +192,9 @@ describe("Tool Result Builder - Stage 9", () => {
       expect(toolResult.content).toContain(
         "[... output truncated due to size limit ...]",
       );
-      expect((toolResult as any).was_truncated).toBe(true);
+      expect(
+        (toolResult as unknown as { was_truncated: boolean }).was_truncated,
+      ).toBe(true);
     });
 
     // TC-23: Tool result error surfaces
@@ -212,7 +227,7 @@ describe("Tool Result Builder - Stage 9", () => {
     it("should handle numeric output by converting to string", () => {
       const result: ToolExecutionResult = {
         toolUseId: "toolu_num",
-        output: 42 as any,
+        output: 42 as unknown as string,
       };
 
       const toolResult = buildToolResult(result);
@@ -250,8 +265,12 @@ describe("Tool Result Builder - Stage 9", () => {
       const message = buildToolResultMessage(results);
 
       expect(message.role).toBe("user");
-      expect(message.content).toHaveLength(1);
-      expect((message.content[0] as any).type).toBe("tool_result");
+      if (Array.isArray(message.content)) {
+        expect(message.content).toHaveLength(1);
+        expect((message.content[0] as { type: string }).type).toBe(
+          "tool_result",
+        );
+      }
     });
 
     it("should build user message with multiple tool results", () => {
@@ -264,14 +283,19 @@ describe("Tool Result Builder - Stage 9", () => {
       const message = buildToolResultMessage(results);
 
       expect(message.role).toBe("user");
-      expect(message.content).toHaveLength(3);
+      if (Array.isArray(message.content)) {
+        expect(message.content).toHaveLength(3);
 
-      // Check each result
-      const blocks = message.content as any[];
-      expect(blocks[0].tool_use_id).toBe("toolu_a");
-      expect(blocks[1].tool_use_id).toBe("toolu_b");
-      expect(blocks[2].tool_use_id).toBe("toolu_c");
-      expect(blocks[2].is_error).toBe(true);
+        // Check each result
+        const blocks = message.content as Array<{
+          tool_use_id: string;
+          is_error?: boolean;
+        }>;
+        expect(blocks[0].tool_use_id).toBe("toolu_a");
+        expect(blocks[1].tool_use_id).toBe("toolu_b");
+        expect(blocks[2].tool_use_id).toBe("toolu_c");
+        expect(blocks[2].is_error).toBe(true);
+      }
     });
 
     it("should handle mix of successful and failed tool results", () => {
@@ -283,11 +307,13 @@ describe("Tool Result Builder - Stage 9", () => {
 
       const message = buildToolResultMessage(results);
 
-      expect(message.content).toHaveLength(3);
-      const blocks = message.content as any[];
-      expect(blocks[0].is_error).toBeUndefined();
-      expect(blocks[1].is_error).toBe(true);
-      expect(blocks[2].is_error).toBeUndefined();
+      if (Array.isArray(message.content)) {
+        expect(message.content).toHaveLength(3);
+        const blocks = message.content as Array<{ is_error?: boolean }>;
+        expect(blocks[0].is_error).toBeUndefined();
+        expect(blocks[1].is_error).toBe(true);
+        expect(blocks[2].is_error).toBeUndefined();
+      }
     });
   });
 });
