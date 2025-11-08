@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdtemp, rm, writeFile, mkdir } from "node:fs/promises";
+import { mkdtemp, rm, writeFile, mkdir, readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execSync } from "node:child_process";
@@ -244,10 +245,7 @@ index abc123..def456 100644
       });
 
       // File should not be modified
-      const content = await require("fs/promises").readFile(
-        join(tempRepo, "test.txt"),
-        "utf-8",
-      );
+      const content = await readFile(join(tempRepo, "test.txt"), "utf-8");
       expect(content).toBe("line 1\nline 2\nline 3\n");
     });
   });
@@ -268,10 +266,7 @@ index abc123..def456 100644
       // Restore to first commit
       await restoreToCommit(tempRepo, commit1!);
 
-      const content = await require("fs/promises").readFile(
-        join(tempRepo, "file.txt"),
-        "utf-8",
-      );
+      const content = await readFile(join(tempRepo, "file.txt"), "utf-8");
       expect(content).toBe("version 1");
     });
   });
@@ -300,10 +295,8 @@ index abc123..def456 100644
       await restoreGhostCommit(tempRepo, ghostCommit);
 
       // Check that we have the ghost commit state
-      const modifiedExists = require("fs").existsSync(
-        join(tempRepo, "modified.txt"),
-      );
-      const newExists = require("fs").existsSync(join(tempRepo, "new.txt"));
+      const modifiedExists = existsSync(join(tempRepo, "modified.txt"));
+      const newExists = existsSync(join(tempRepo, "new.txt"));
 
       expect(modifiedExists).toBe(true);
       expect(newExists).toBe(true);

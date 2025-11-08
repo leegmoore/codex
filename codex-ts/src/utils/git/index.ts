@@ -12,7 +12,7 @@ import { spawn } from "node:child_process";
 import { writeFile, mkdir, mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, relative, normalize, isAbsolute, sep } from "node:path";
-import { symlinkSync, existsSync } from "node:fs";
+import { symlinkSync, existsSync, statSync } from "node:fs";
 import { platform } from "node:os";
 
 /**
@@ -456,7 +456,7 @@ export function createSymlink(
   if (isWindows) {
     // Check if source is a directory
     const isDir =
-      existsSync(source) && require("fs").statSync(source).isDirectory();
+      existsSync(source) && statSync(source).isDirectory();
     if (isDir) {
       symlinkSync(linkTarget, destination, "dir");
     } else {
