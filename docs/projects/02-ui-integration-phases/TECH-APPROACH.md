@@ -1238,7 +1238,23 @@ User runs: cody list
 - ConversationManager.resumeConversation() → reads JSONL via recorder → reconstructs state
 - Resume creates Conversation with pre-loaded history
 
-**Estimated new code:** ~250 lines (CLI commands ~80, resume logic ~70, mocked-service tests ~100)
+**New code (compression - from Rust compact.rs):**
+- src/core/codex/compact.ts: History compression module (port from compact.rs, ~450 lines)
+- Detects when history exceeds token threshold
+- Sends compression prompt to LLM (summarize old conversation)
+- Builds compacted history (initial context + selected recent user messages + summary + GhostSnapshots)
+- Handles retry with backoff if compression insufficient
+- Truncates middle of long messages (head + tail preserved)
+
+**Wiring points (compression):**
+- Session checks history size after each turn
+- If exceeds threshold (e.g., 80% of model context) → trigger compact
+- Compact calls LLM with summarization prompt
+- Receives summary, rebuilds history (keep recent + summary)
+- Replaces session history with compacted version
+- Persists CompactedItem to rollout
+
+**Estimated new code:** ~700 lines (CLI commands ~80, resume logic ~70, compact module ~450, mocked-service tests ~100)
 
 ### Persistence Cycle (Critical Path)
 
@@ -1707,6 +1723,104 @@ Phase 7 is the cleanup and refinement phase discovered during Phases 1-6. Bug fi
 - Final comprehensive review of entire codebase
 - Verify all quality standards maintained across project
 - Integration cohesive and complete
+
+---
+
+## 9. Phase 3.5: Gemini Integration (OPTIONAL)
+
+**Status:** Optional phase, execute only if Gemini 3.0 releases during Project 02 timeline. If not released, defer to Project 03 (Scripting Tools) as primary validation test for scripted framework.
+
+### Integration Approach
+
+Phase 3.5 adds Google Gemini support using the `@google/genai` SDK. Gemini uses `streamGenerateContent` API with Content/Parts format (similar to Anthropic Messages). We create a Gemini adapter following the same pattern as Phase 4.2 (Messages API)—parse streaming chunks, normalize to ResponseItems, handle thinking mode, map tool calls. The adapter integrates into our provider abstraction (WireApi enum), making Gemini available via provider switching alongside OpenAI and Anthropic.
+
+Gemini 2.5 Pro is currently weak at structured tool calling (high failure rate), making it a poor coder despite being an intelligent model. If Gemini 3.0 improves tool calling, this phase validates multi-provider support works. If tool calling remains weak, this phase becomes critical test for Project 03 (Scripted Tools)—does scripting framework unlock Gemini's intelligence for coding? If yes, proves framework value. Test with Gemini 2.5 Pro (terrible structured tools, smart model) becomes litmus test: can we make it excellent via TypeScript tool composition?
+
+### Why This Phase is Optional
+
+**If Gemini 3.0 releases soon:**
+- Add during Project 02 (provider parity validation)
+- Test with 3.0 if available, 2.5 Pro otherwise
+- Completes multi-provider story (OpenAI, Anthropic, Google)
+
+**If Gemini 3.0 not released:**
+- Defer to Project 03 (Scripting Tools)
+- Use Gemini 2.5 Pro as test case (smart model, poor tool calls)
+- Primary validation: Does scripted framework fix tool calling weakness?
+- Benchmark: Gemini 2.5 Pro coding scores with structured vs scripted tools
+- Blog post material if dramatic improvement shown
+
+**Additional test candidates for Project 03:**
+- DeepSeek R1/V3 (cheap, thinking-capable, coding ability unclear)
+- Other smart models with poor coding scores (if tool calling is blocker)
+- Prove: Harness matters more than model for coding tasks
+
+### Technical Approach
+
+**Gemini API format:**
+```
+Request: {contents: [{role, parts: [{text}]}]}
+Response: Candidate.Content.Parts (streaming)
+Tool calls: FunctionCall format (similar to OpenAI)
+```
+
+**Adapter pattern (same as Messages API):**
+- Parse Gemini streaming chunks → ResponseItems
+- Handle thinking mode (supported on 2.5+ models)
+- Map FunctionCall → our tool format
+- Normalize Content.Parts → ResponseItems.content
+
+**Integration points:**
+- Add to WireApi enum: `Gemini`
+- Create GeminiClient adapter (Phase 4 pattern)
+- Wire into ConversationManager factory (Phase 3 pattern)
+- CLI: `cody set-provider google` → uses Gemini client
+
+**OAuth:**
+- Likely similar to ChatGPT/Claude pattern (read from keyring)
+- Google account auth (if Gemini CLI uses this pattern)
+- Or API key only (simpler, start here)
+
+**Testing:**
+- Mocked-service: Mock Gemini API responses
+- Model integration: Real Gemini 2.5 Pro or 3.0
+- Verify thinking mode works
+- If 2.5 Pro: Document tool calling failures (sets baseline for Project 03 comparison)
+
+**Estimated code:** ~400 lines (Gemini adapter ~250, CLI commands ~50, tests ~100)
+
+### Gemini 3.0 Performance Context
+
+**Rumored capabilities (unconfirmed):**
+- Release: Late 2025 (possibly November 2025)
+- Leaked benchmarks: 32.4% vs GPT-5's 26.5% on some tests
+- Strong at coding (particularly SVG, frontend, visual reasoning)
+- MoE architecture, 1M+ context, thinking mode
+- Potential names: "lithiumflow", "orionmist" (LMArena leaderboard)
+
+**If true:** Major model release, multi-provider support becomes high priority.
+
+**Current reality (Gemini 2.5 Pro):**
+- Very intelligent model
+- Terrible at structured tool calls (high failure rate)
+- Poor coding performance due to tool calling weakness
+- Perfect test case for scripted tools framework
+
+### Verification Focus
+
+**If added in Project 02:**
+- Verify Gemini works alongside OpenAI/Anthropic
+- Test thinking mode, temperature, config parameters
+- Provider parity (same conversation, all providers)
+
+**If deferred to Project 03:**
+- Benchmark Gemini 2.5 Pro coding (structured vs scripted tools)
+- Measure improvement (target: 40% → 85%+ on coding benchmarks)
+- Document tool calling error patterns vs scripted success
+- Blog post + reproducible benchmarks
+- Proof: Framework unlocks intelligence that structured calls can't access
+
+**This phase validates either multi-provider completeness (Project 02) or scripted framework value (Project 03). High-signal test regardless of timing.**
 
 ---
 
