@@ -1,0 +1,6 @@
+# Environment variables with API keys
+.env
+
+# Conversation logs and data
+logs/
+llm-convo/
