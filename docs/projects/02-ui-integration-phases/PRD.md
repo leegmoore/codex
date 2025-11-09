@@ -11,7 +11,7 @@
 
 **What We're Building**
 
-Project 02 integrates all ported Codex modules (Phases 1-6) into a working command-line interface and defines the library API surface for @openai/codex-core. This project validates the Rust → TypeScript port by wiring protocol, configuration, persistence, execution, client, tools, and orchestration layers into complete conversation flows.
+Project 02 integrates all ported Codex modules (Phases 1-6) into a working command-line interface called **Cody** and defines the library API surface for @openai/codex-core. This project validates the Rust → TypeScript port by wiring protocol, configuration, persistence, execution, client, tools, and orchestration layers into complete conversation flows.
 
 **Why It Matters**
 

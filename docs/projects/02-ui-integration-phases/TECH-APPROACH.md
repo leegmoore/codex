@@ -10,7 +10,7 @@
 
 ### System Summary
 
-The Codex TypeScript system consists of three layers: a protocol/data layer defining types and serialization, a core orchestration layer managing conversations and tool execution, and a presentation layer (CLI) providing user interaction. All components from the Rust port (Phases 1-6) are integrated through the ConversationManager, which serves as the primary library entry point. The CLI is a thin wrapper around this core library, handling I/O and display while business logic remains in core modules.
+The Codex TypeScript system consists of three layers: a protocol/data layer defining types and serialization, a core orchestration layer managing conversations and tool execution, and a presentation layer called **Cody** (our CLI) providing user interaction. All components from the Rust port (Phases 1-6) are integrated through the ConversationManager, which serves as the primary library entry point. The CLI is a thin wrapper around this core library, handling I/O and display while business logic remains in core modules.
 
 **Key characteristics:**
 - **Provider-agnostic:** Same code works with OpenAI (Responses, Chat) and Anthropic (Messages) APIs
