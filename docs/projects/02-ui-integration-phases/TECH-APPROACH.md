@@ -1402,4 +1402,313 @@ describe('Phase 5: Persistence & Resume', () => {
 
 ---
 
-## [Remaining sections TBD]
+## 7. Phase 6: Library API & REST API
+
+### Integration Approach
+
+Phase 6 completes the integration project by documenting the library API surface and implementing a REST API wrapper. The library API defines what external developers can import from @openai/codex-core (ConversationManager, Conversation, types, utilities). The REST API provides HTTP endpoints for the same capabilities, enabling web/mobile clients and service-to-service communication. Both APIs expose the same underlying functionality—library via TypeScript imports, REST via HTTP.
+
+The REST API uses Fastify (fast, minimal overhead) running on Bun (faster runtime than Node). Each endpoint maps to library methods—POST /conversations calls ConversationManager.createConversation(), POST /conversations/{id}/messages calls conversation.sendMessage(), etc. The API layer is thin—validation, error handling, HTTP formatting, but business logic stays in library. This proves the library is well-designed (if API can consume it cleanly, so can other applications).
+
+Testing uses Playwright for REST API (not vitest—this is HTTP-level testing). Two test modes: mocked (models and external APIs stubbed, tests many scenarios and permutations) and non-mocked (real models and APIs, key scenarios only to verify actual functionality without burning time/cost). Mocked tests run in CI, non-mocked tests run manually before release.
+
+### Phase 6 Target State
+
+```
+External Developers
+        ↓
+   ┌────┴────┐
+   ▼         ▼
+Library    REST API
+Import     HTTP
+           ↓
+    ┌──────────────────────┐
+    │  Fastify + Bun       │
+    │  ┌────────────────┐  │
+    │  │  POST /convs   │  │
+    │  │  POST /message │  │
+    │  │  GET  /convs   │  │
+    │  └────────┬───────┘  │
+    └───────────┼──────────┘
+                ▼
+    ┌──────────────────────┐
+    │  @openai/codex-core  │
+    │  ┌────────────────┐  │
+    │  │ Conversation   │  │
+    │  │   Manager      │  │
+    │  └────────────────┘  │
+    └──────────────────────┘
+            ↓
+    [Library layer from Phases 1-5]
+
+Testing:
+├── Playwright (REST API)
+│   ├── Mocked (models + APIs stubbed)
+│   └── Non-mocked (real LLMs, key scenarios)
+└── Mocked-service (Library, from Phases 1-5)
+```
+
+**Highlighted:** Library exports documented (public API surface), REST API implementation (Fastify + Bun), Playwright test suite (two modes).
+
+### Technical Deltas
+
+**New code (library API):**
+- src/index.ts: Main library export (ConversationManager, types, utilities)
+- docs/api/library-api.md: Complete API documentation (signatures, examples, contracts)
+
+**New code (REST API):**
+- src/api/server.ts: Fastify server setup (Bun runtime)
+- src/api/routes/conversations.ts: Conversation endpoints (create, list, get, delete)
+- src/api/routes/messages.ts: Message endpoints (send, stream, get history)
+- src/api/routes/auth.ts: Auth endpoints (login status, set method)
+- src/api/middleware/auth.ts: Request authentication
+- src/api/middleware/error.ts: Error handling and formatting
+- docs/api/rest-api.md: Complete REST API spec (endpoints, formats, auth)
+
+**New code (testing):**
+- tests/playwright/api/conversations.spec.ts: Conversation CRUD tests
+- tests/playwright/api/messages.spec.ts: Message sending, tool execution
+- tests/playwright/api/providers.spec.ts: Multi-provider tests
+- tests/playwright/mocks/model-server.ts: Mock LLM API server
+- tests/playwright/mocks/search-server.ts: Mock Perplexity/Firecrawl
+- tests/playwright/config/: Test configs (mocked vs non-mocked modes)
+
+**Estimated new code:** ~800 lines (library exports ~50, REST API ~400, Playwright tests ~350)
+
+### REST API Design
+
+**Endpoints:**
+
+```
+POST   /api/v1/conversations          Create conversation
+GET    /api/v1/conversations          List conversations
+GET    /api/v1/conversations/:id      Get conversation
+DELETE /api/v1/conversations/:id      Delete conversation
+
+POST   /api/v1/conversations/:id/messages    Send message
+GET    /api/v1/conversations/:id/messages    Get message history
+POST   /api/v1/conversations/:id/resume      Resume from JSONL
+
+POST   /api/v1/config/provider        Set provider
+POST   /api/v1/config/auth            Set auth method
+GET    /api/v1/config                 Get current config
+```
+
+**Request/Response formats:**
+
+```typescript
+// POST /api/v1/conversations
+Request: {
+  provider: 'openai' | 'anthropic',
+  api: 'responses' | 'chat' | 'messages',
+  model: string,
+  auth: {method: string, ...}
+}
+Response: {
+  conversationId: string,
+  created: timestamp
+}
+
+// POST /api/v1/conversations/:id/messages
+Request: {
+  message: string,
+  stream?: boolean
+}
+Response: {
+  items: ResponseItem[],
+  usage: {tokens: number}
+}
+
+// Error response format
+Error: {
+  error: {
+    code: string,
+    message: string,
+    details?: object
+  },
+  status: number
+}
+```
+
+**Authentication:**
+- API key in Authorization header (for the REST API itself)
+- Model provider auth configured per conversation (OpenAI/Anthropic keys)
+- Two-layer auth: API access + model provider
+
+### Component Structure
+
+REST API routes are thin handlers. Validate request, call library, format response. Middleware handles auth and errors. Fastify provides routing and HTTP handling. Library does all business logic.
+
+```mermaid
+classDiagram
+    class FastifyApp {
+        +register(routes)
+        +addHook(middleware)
+        +listen(port)
+    }
+
+    class ConversationRoutes {
+        +POST create(req, res)
+        +GET list(req, res)
+        +GET get(req, res)
+        +DELETE delete(req, res)
+    }
+
+    class MessageRoutes {
+        +POST send(req, res)
+        +GET history(req, res)
+    }
+
+    class AuthMiddleware {
+        +validateApiKey(req)
+        +extractToken(headers)
+    }
+
+    class ErrorMiddleware {
+        +handleError(error, req, res)
+        +formatErrorResponse(error)
+    }
+
+    class ConversationManager {
+        +createConversation(config)
+        +getConversation(id)
+        +listConversations()
+    }
+
+    FastifyApp --> ConversationRoutes: registers
+    FastifyApp --> MessageRoutes: registers
+    FastifyApp --> AuthMiddleware: uses
+    FastifyApp --> ErrorMiddleware: uses
+    ConversationRoutes --> ConversationManager: calls
+    MessageRoutes --> ConversationManager: calls
+```
+
+### Playwright Testing Modes
+
+**Mocked Mode (CI/Development):**
+
+Environment: `TEST_MODE=mocked`
+
+Mock servers started before tests:
+- Mock model API server (returns preset responses for OpenAI/Anthropic/OpenRouter)
+- Mock search API server (Perplexity/Firecrawl endpoints stubbed)
+- Mock runs on localhost:3001-3003
+
+Tests run full scenario matrix:
+- All providers (Responses, Chat, Messages, OpenRouter)
+- All auth methods (API keys, OAuth tokens)
+- All workflows (create, chat, tools, persist, resume)
+- Error cases (auth fail, network timeout, malformed requests)
+- Edge cases (empty messages, large responses, concurrent requests)
+
+**Benefits:** Fast (~2 min), deterministic, extensive coverage, no API costs, runnable offline.
+
+**Non-Mocked Mode (Validation):**
+
+Environment: `TEST_MODE=integration`
+
+Real API calls:
+- OpenAI Responses API (gpt-4o-mini, actual network)
+- Anthropic Messages API (haiku-4.5, actual network)
+- OpenRouter (gemini-2.0-flash-001, actual network)
+- Real search APIs if needed
+
+Tests run key scenarios only:
+- Happy path per provider (create → chat → basic tool → persist)
+- Thinking parameter test (Responses + Messages with thinking enabled)
+- Temperature test (variation across calls)
+- ~6-8 core scenarios
+
+**Benefits:** Validates real behavior, catches provider quirks, proves actual functionality.
+**Cost:** ~5 minutes, pennies in API costs.
+
+**Test organization:**
+```
+tests/playwright/
+├── api/
+│   ├── conversations.spec.ts    (15 tests, all modes)
+│   ├── messages.spec.ts         (20 tests, tool execution)
+│   ├── providers.spec.ts        (12 tests, parity)
+│   └── auth.spec.ts             (8 tests, all methods)
+├── mocks/
+│   ├── model-server.ts          (Mock OpenAI/Anthropic/OpenRouter)
+│   ├── search-server.ts         (Mock Perplexity/Firecrawl)
+│   └── start-mocks.ts           (Launch all mocks)
+├── config/
+│   ├── mocked.config.ts         (Mocked mode settings)
+│   └── integration.config.ts    (Non-mocked mode settings)
+└── fixtures/
+    └── responses.ts             (Preset API responses)
+```
+
+### Verification Approach
+
+**Library API verification:**
+1. docs/api/library-api.md documents all public exports
+2. Usage examples cover common patterns (create, send, resume)
+3. Mocked-service tests from Phases 1-5 now test library imports (repointed from internal modules)
+4. Minimal example app can import and use library
+
+**REST API verification:**
+1. Playwright mocked tests: All pass (full scenario matrix)
+2. Playwright non-mocked tests: Key scenarios pass with real models
+3. docs/api/rest-api.md documents all endpoints
+4. curl/Postman manual smoke tests work
+
+**Quality gates:**
+- Playwright (mocked): All passing (~55 tests)
+- Playwright (non-mocked): Key scenarios passing (~8 tests, manual run)
+- Mocked-service: All passing (repointed to library exports)
+- TypeScript: 0 errors
+- ESLint: 0 errors
+- Combined: All checks pass
+
+**Code review:**
+- Stage 1: API design (RESTful, error handling, security)
+- Stage 2: Library exports clean, REST maps correctly
+
+---
+
+## 8. Phase 7: Integration Polish
+
+### Integration Approach
+
+Phase 7 is the cleanup and refinement phase discovered during Phases 1-6. Bug fixes from integration testing, edge case handling that emerged, UX improvements identified during manual testing. This phase spawns sub-phases (7.1, 7.2, etc.) as needed based on findings. No predetermined scope—driven by what integration revealed.
+
+### Likely Areas
+
+**From experience, integration polish typically includes:**
+- Error message improvements (make failures clear and actionable)
+- Edge case handling (what happens when config missing, tokens expired, network fails)
+- UX refinements (better tool approval prompts, clearer status messages)
+- Performance tweaks (if responsiveness issues found)
+- Documentation gaps (missing examples, unclear instructions)
+
+**Sub-phases created as needed:**
+- 7.1: Error handling improvements (if many error cases found)
+- 7.2: UX polish (if CLI feels clunky)
+- 7.3: Documentation completion (if gaps identified)
+
+### Verification Approach
+
+**Functional verification:**
+- Smoke test all workflows (create, chat, tools, persist, resume, providers, auth)
+- Everything feels smooth and professional
+- Error cases handled gracefully
+- User can accomplish all success criteria from PRD without confusion
+
+**Quality gates:**
+- Zero regressions (all previous tests still pass)
+- New edge cases have tests
+- Documentation complete
+- PRD success criteria all verified
+
+**Code review:**
+- Final comprehensive review of entire codebase
+- Verify all quality standards maintained across project
+- Integration cohesive and complete
+
+---
+
+**END OF TECH-APPROACH.MD**
+
