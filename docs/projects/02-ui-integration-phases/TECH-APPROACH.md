@@ -1110,10 +1110,14 @@ classDiagram
 
 **Functional verification (manual CLI testing):**
 
-1. API key auth: Verify conversations work with configured API keys
-2. ChatGPT OAuth: `codex set-auth oauth-chatgpt` → verify uses token from ~/.codex
-3. Claude OAuth: `codex set-auth oauth-claude` → verify uses token from ~/.claude
-4. Switch between methods: Verify each works, can toggle freely
+1. OpenAI API key + Responses API: Verify conversation works with API key auth
+2. OpenAI API key + Chat API: Verify conversation works with API key auth
+3. Anthropic API key + Messages API: Verify conversation works with API key auth
+4. ChatGPT OAuth + Responses API: `codex set-auth oauth-chatgpt` → verify uses token from ~/.codex, conversation works with OpenAI Responses
+5. Claude OAuth + Messages API: `codex set-auth oauth-claude` → verify uses token from ~/.claude, conversation works with Anthropic Messages
+6. Auth method switching: Toggle between methods, verify each works
+
+**Note:** OAuth methods tested only with their respective providers (ChatGPT OAuth with OpenAI, Claude OAuth with Anthropic). API keys tested with all three APIs (Responses, Chat, Messages).
 
 **Mocked-service testing:**
 
