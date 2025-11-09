@@ -1002,4 +1002,400 @@ Run via `npm run test:integration` or `node scripts/integration-tests/phase-3/ru
 
 ---
 
+## 5. Phase 4: Authentication Expansion
+
+### Integration Approach
+
+Phase 4 adds Claude OAuth token retrieval alongside the existing ChatGPT OAuth from Phase 5 port. We're not implementing OAuth flows—just reading tokens from ~/.claude keyring where Claude Code stores them after user authenticates. This extends the AuthManager to support four auth methods total: OpenAI API key, Anthropic API key, ChatGPT OAuth, Claude OAuth. CLI adds commands for auth method selection and login status display.
+
+The integration is primarily configuration and token retrieval. AuthManager already has keyring integration from Phase 5 (for ChatGPT). We're adding a second keyring path for Claude tokens, reading from ~/.claude config/keyring (exact path discovered during implementation). Token refresh still manual (user re-authenticates in Claude Code when expired). No complex OAuth flow logic—just file/keyring reads.
+
+Testing mocks keyring/filesystem reads. No real token files needed. Mock returns valid tokens for each auth method, verify AuthManager retrieves correctly, constructs proper auth headers for each provider. Test all auth × provider combinations (4 auth methods × 3 providers = 12 combinations, though not all are valid—ChatGPT OAuth only works with OpenAI).
+
+### Phase 4 Target State
+
+```
+User runs: codex login        (shows current auth)
+           codex set-auth oauth-claude
+
+┌──────────────────────────────────┐
+│  CLI (Phase 1-3 + NEW)           │
+│  ┌────────┐  ┌──────────────┐   │
+│  │ login │  │  set-auth    │   │
+│  │ (NEW) │  │    (NEW)     │   │
+│  └───┬────┘  └──────┬───────┘   │
+│      │              │            │
+│      └──────────────┘            │
+│             ▼                    │
+│     Auth Config Update           │
+└─────────────┬────────────────────┘
+              ▼
+┌──────────────────────────────────┐
+│  AuthManager (Phase 5 + NEW)     │
+│  ┌────────────────────────────┐  │
+│  │  Token Retrieval (expanded)│  │
+│  │  - API keys (EXISTS)       │  │
+│  │  - ChatGPT OAuth (EXISTS)  │  │
+│  │  - Claude OAuth (NEW)      │  │
+│  └────────────────────────────┘  │
+└──────────────┬───────────────────┘
+               ▼
+        ┌──────┴──────┐
+        ▼             ▼
+   ┌─────────┐  ┌──────────┐
+   │ Keyring │  │  Config  │
+   │  ~/.    │  │  .toml   │
+   │ claude  │  │   file   │
+   │ (NEW)   │  │(EXISTS)  │
+   └─────────┘  └──────────┘
+```
+
+**Highlighted:** login and set-auth commands (NEW), Claude OAuth retrieval (NEW), dual keyring sources (ChatGPT from Phase 5, Claude added).
+
+### Technical Deltas
+
+**New code (CLI layer):**
+- src/cli/commands/login.ts: Display current auth status and available methods
+- src/cli/commands/set-auth.ts: Switch auth method (api-key, oauth-chatgpt, oauth-claude)
+
+**New code (auth layer):**
+- src/core/auth/claude-oauth.ts: Read Claude tokens from ~/.claude keyring
+- src/core/auth/auth-manager.ts: Extend to support Claude OAuth method
+
+**New code (testing):**
+- tests/mocked-service/phase-4-auth-methods.test.ts: All auth × provider combinations
+- tests/mocks/keyring.ts: Mock keyring reads for both ChatGPT and Claude paths
+
+**Wiring points:**
+- CLI set-auth → updates config.auth.method
+- AuthManager checks method → routes to appropriate token source
+- Claude OAuth → reads ~/.claude keyring → extracts token
+- Token passed to ModelClient → used in auth headers
+
+**Estimated new code:** ~200 lines (CLI commands ~50, Claude OAuth retrieval ~50, mocked-service tests ~100)
+
+### Component Structure
+
+AuthManager routes to four token sources based on config. API keys read from config.toml. ChatGPT OAuth reads from ~/.codex keyring. Claude OAuth reads from ~/.claude keyring. All methods return token string. ModelClient receives token, doesn't know source.
+
+```mermaid
+classDiagram
+    class CLI {
+        +setAuth(method: string)
+        +displayLoginStatus()
+    }
+
+    class AuthManager {
+        -config: AuthConfig
+        +getToken(method: AuthMethod) Promise~string~
+        -getApiKey(provider)
+        -getChatGPTToken()
+        -getClaudeToken()
+    }
+
+    class KeyringStore {
+        +readToken(path: string) Promise~string~
+    }
+
+    class ConfigLoader {
+        +readConfig() Config
+    }
+
+    CLI --> AuthManager: set method, get status
+    AuthManager --> KeyringStore: ChatGPT + Claude tokens
+    AuthManager --> ConfigLoader: API keys
+```
+
+### Verification Approach
+
+**Functional verification (manual CLI testing):**
+
+1. API key auth: Verify conversations work with configured API keys
+2. ChatGPT OAuth: `codex set-auth oauth-chatgpt` → verify uses token from ~/.codex
+3. Claude OAuth: `codex set-auth oauth-claude` → verify uses token from ~/.claude
+4. Switch between methods: Verify each works, can toggle freely
+
+**Mocked-service testing:**
+
+Tests in `tests/mocked-service/phase-4-auth-methods.test.ts` using vitest.
+
+```typescript
+describe('Phase 4: Authentication Methods', () => {
+  it('retrieves OpenAI API key from config', async () => {
+    const mockConfig = {auth: {method: 'api-key', openai_key: 'test-key'}};
+    const auth = new AuthManager(mockConfig);
+    const token = await auth.getToken('openai');
+    expect(token).toBe('test-key');
+  });
+
+  it('retrieves ChatGPT OAuth token from keyring', async () => {
+    const mockKeyring = createMockKeyring({'~/.codex/auth': 'chatgpt-token-123'});
+    const auth = new AuthManager({auth: {method: 'oauth-chatgpt'}}, mockKeyring);
+    const token = await auth.getToken('openai');
+    expect(token).toBe('chatgpt-token-123');
+  });
+
+  it('retrieves Claude OAuth token from keyring', async () => {
+    const mockKeyring = createMockKeyring({'~/.claude/token': 'claude-token-456'});
+    const auth = new AuthManager({auth: {method: 'oauth-claude'}}, mockKeyring);
+    const token = await auth.getToken('anthropic');
+    expect(token).toBe('claude-token-456');
+  });
+});
+```
+
+**Quality gates:**
+- Mocked-service tests: All auth methods tested, passing
+- TypeScript: 0 errors
+- ESLint: 0 errors
+- Combined: All checks pass
+
+**Code review:**
+- Stage 1: Token security, keyring access safety, error handling
+- Stage 2: Auth patterns match Phase 5 approach, keyring integration correct
+
+---
+
+## 6. Phase 5: Persistence & Resume
+
+### Integration Approach
+
+Phase 5 wires the RolloutRecorder from Phase 2 port into the conversation flow. Conversations now save to JSONL files in ~/.codex/conversations/ as they progress. Each turn appends to the rollout file. CLI adds commands for listing saved conversations and resuming from JSONL. Resume reconstructs conversation state from rollout, loads into ConversationManager, user continues where they left off.
+
+The integration has two parts: recording (save as conversation progresses) and resuming (load from JSONL). Recording happens automatically during conversation—after each turn, Codex flushes state to RolloutRecorder, recorder appends to JSONL. Resuming requires reading JSONL, parsing rollout items, reconstructing conversation history, initializing Session with that history, creating Conversation wrapper. ConversationManager.resumeConversation() handles this orchestration.
+
+Testing mocks filesystem for JSONL reads/writes. In-memory buffer simulates file. Test conversation creates some turns, recorder "writes" to buffer, resume reads from buffer, verify conversation continues correctly. Also test edge cases: corrupted JSONL, missing files, partial rollouts.
+
+### Phase 5 Target State
+
+```
+User runs: codex list
+           codex resume conv_abc123
+
+┌──────────────────────────────────┐
+│  CLI (Phase 1-4 + NEW)           │
+│  ┌──────┐  ┌────────────┐       │
+│  │ list │  │  resume    │       │
+│  │(NEW) │  │ <conv-id>  │ (NEW) │
+│  └──┬───┘  └─────┬──────┘       │
+│     │            │               │
+│     └────────────┘               │
+│           ▼                      │
+│    List/Resume Handler           │
+└───────────┬──────────────────────┘
+            ▼
+┌──────────────────────────────────┐
+│  ConversationManager             │
+│  ┌────────────────────────────┐  │
+│  │ resumeConversation() (NEW) │  │
+│  │  - Read JSONL              │  │
+│  │  - Reconstruct history     │  │
+│  │  - Initialize Session      │  │
+│  └────────────────────────────┘  │
+└──────────┬───────────────────────┘
+           ▼
+┌──────────────────────────────────┐
+│  RolloutRecorder (ACTIVATED)     │
+│  ┌────────────────────────────┐  │
+│  │  First real use            │  │
+│  │  - Append to JSONL         │  │
+│  │  - Parse rollout items     │  │
+│  └────────────────────────────┘  │
+└──────────┬───────────────────────┘
+           ▼
+    ~/.codex/conversations/
+    conv_abc123.jsonl
+       (MOCKED in tests)
+```
+
+**Highlighted:** list and resume commands (NEW), resumeConversation() method (NEW), RolloutRecorder (ACTIVATED from port), JSONL persistence.
+
+### Technical Deltas
+
+**New code (CLI layer):**
+- src/cli/commands/list.ts: List saved conversations (read ~/.codex/conversations/, show IDs and metadata)
+- src/cli/commands/resume.ts: Resume conversation by ID (load JSONL, initialize conversation)
+
+**New code (integration):**
+- src/core/conversation-manager.ts: resumeConversation(id) method
+- Reads JSONL via RolloutRecorder, reconstructs history, creates Conversation with loaded state
+
+**New code (persistence):**
+- src/core/codex/session.ts: Auto-flush to RolloutRecorder after each turn
+- Minimal wiring - recorder exists from port, just needs to be called
+
+**New code (testing):**
+- tests/mocked-service/phase-5-persistence.test.ts: Save and resume flows
+- tests/mocks/rollout-recorder.ts: In-memory JSONL (no filesystem)
+
+**Wiring points:**
+- Session after turn complete → calls recorder.appendTurn(items)
+- RolloutRecorder → writes JSONL line (mocked in tests, real file in CLI)
+- ConversationManager.resumeConversation() → reads JSONL via recorder → reconstructs state
+- Resume creates Conversation with pre-loaded history
+
+**Estimated new code:** ~250 lines (CLI commands ~80, resume logic ~70, mocked-service tests ~100)
+
+### Persistence Cycle (Critical Path)
+
+**The save and resume flow:**
+
+During active conversation, after each model response (including tool calls and results), Session calls RolloutRecorder.appendTurn() with complete turn data. Recorder serializes to JSONL format (one line per turn), appends to ~/.codex/conversations/{conversationId}.jsonl. File grows as conversation progresses. No explicit "save" command—persistence is automatic.
+
+To resume, user runs `codex resume {conversationId}`. CLI calls ConversationManager.resumeConversation(id). Manager constructs JSONL file path, calls RolloutRecorder.readRollout(path). Recorder reads file line-by-line, parses JSON, reconstructs array of rollout items. Manager converts rollout items to conversation history (ResponseItems), initializes Session with pre-loaded history, creates Conversation wrapper, returns to CLI. User continues conversation from where they left off—model has full context from loaded history.
+
+**Persistence cycle steps:**
+1. Turn completes → Session has ResponseItems for this turn
+2. Session → RolloutRecorder.appendTurn(items)
+3. Recorder serializes items → JSONL line
+4. Append to file (or buffer in tests)
+
+**Resume cycle steps:**
+1. User: `codex resume conv_id`
+2. Manager reads JSONL via RolloutRecorder
+3. Parse lines → array of rollout items
+4. Convert to conversation history
+5. Initialize Session with history
+6. Create Conversation wrapper
+7. Return to CLI → user can continue
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant CLI
+    participant Manager as ConversationManager
+    participant Recorder as RolloutRecorder
+    participant FS as Filesystem
+
+    Note over User,FS: SAVE FLOW (automatic after each turn)
+
+    User->>CLI: codex chat "message"
+    CLI->>Manager: sendMessage()
+    Note over Manager: Turn completes, ResponseItems ready
+    Manager->>Recorder: appendTurn(items)
+    Recorder->>Recorder: Serialize to JSONL
+    Recorder->>FS: Append line to .jsonl file
+
+    Note over User,FS: RESUME FLOW (explicit command)
+
+    User->>CLI: codex resume conv_abc123
+    CLI->>Manager: resumeConversation("conv_abc123")
+    Manager->>Recorder: readRollout(path)
+    Recorder->>FS: Read .jsonl file
+    FS-->>Recorder: File contents (lines)
+    Recorder->>Recorder: Parse each line → rollout items
+    Recorder-->>Manager: Array of rollout items
+    Manager->>Manager: Convert to conversation history
+    Manager->>Manager: Initialize Session with history
+    Manager-->>CLI: Conversation (with loaded state)
+    CLI->>User: "Resumed conversation conv_abc123"
+    User->>CLI: codex chat "continue from where we left off"
+    Note over Manager: Model has full history from JSONL
+```
+
+### Component Structure
+
+Persistence uses RolloutRecorder to serialize/deserialize conversation state. AuthManager extends to support Claude OAuth alongside existing methods. CLI commands provide user interface for listing and resuming.
+
+```mermaid
+classDiagram
+    class CLI {
+        +listConversations()
+        +resumeConversation(id: string)
+        +setAuth(method: string)
+    }
+
+    class ConversationManager {
+        +resumeConversation(id: string) Promise~Conversation~
+        -loadFromRollout(path: string)
+    }
+
+    class RolloutRecorder {
+        +appendTurn(items: ResponseItems[])
+        +readRollout(path: string) Promise~RolloutItem[]~
+        -serializeToJSONL(items)
+        -parseJSONL(lines)
+    }
+
+    class AuthManager {
+        +getToken(provider: string) Promise~string~
+        -getClaudeOAuthToken() Promise~string~
+        -getChatGPTOAuthToken() Promise~string~
+        -getApiKey(provider: string) string
+    }
+
+    CLI --> ConversationManager: resume
+    ConversationManager --> RolloutRecorder: read/write
+    ConversationManager --> AuthManager: get tokens
+    RolloutRecorder --> Filesystem: read/write JSONL
+    AuthManager --> Keyring: read OAuth tokens
+```
+
+### Verification Approach
+
+**Functional verification (manual CLI testing):**
+
+1. Create conversation: `codex new` → `codex chat "Hello"` → `codex chat "Goodbye"`
+2. Exit CLI
+3. List conversations: `codex list` → verify conversation appears
+4. Resume: `codex resume {id}` → `codex chat "Do you remember what I said?"` → model has context from previous session
+5. Verify: History loaded correctly, conversation continues seamlessly
+
+**Mocked-service testing:**
+
+Tests in `tests/mocked-service/phase-5-persistence.test.ts` using vitest.
+
+```typescript
+describe('Phase 5: Persistence & Resume', () => {
+  let mockRecorder: MockRolloutRecorder;
+  let manager: ConversationManager;
+
+  beforeEach(() => {
+    mockRecorder = createMockRecorder(); // In-memory buffer
+    manager = new ConversationManager({recorder: mockRecorder});
+  });
+
+  it('saves conversation to JSONL', async () => {
+    const conv = await manager.createConversation(config);
+    await conv.sendMessage("First");
+    await conv.sendMessage("Second");
+
+    const saved = mockRecorder.getBuffer(); // Get in-memory JSONL
+    expect(saved.split('\n').length).toBeGreaterThan(0);
+  });
+
+  it('resumes conversation from JSONL', async () => {
+    // Setup: Create and save conversation
+    const conv1 = await manager.createConversation(config);
+    await conv1.sendMessage("First message");
+    const rollout = mockRecorder.getBuffer();
+
+    // Resume
+    mockRecorder.setBuffer(rollout); // Simulate file read
+    const conv2 = await manager.resumeConversation(conv1.id);
+
+    expect(conv2.id).toBe(conv1.id);
+    expect(conv2.history.length).toBeGreaterThan(0);
+  });
+
+  it('handles corrupted JSONL gracefully', async () => {
+    mockRecorder.setBuffer('invalid json\n{broken');
+    await expect(manager.resumeConversation('test')).rejects.toThrow();
+  });
+});
+```
+
+**Quality gates:**
+- Mocked-service tests: phase-5-persistence.test.ts all passing
+- JSONL format compatible with Rust Codex (verify with sample file)
+- TypeScript: 0 errors
+- ESLint: 0 errors
+- Combined: All checks pass
+
+**Code review:**
+- Stage 1: JSONL parsing robustness, error handling, file path security
+- Stage 2: Rollout format matches Rust, resume logic preserves conversation state correctly
+
+---
+
 ## [Remaining sections TBD]
