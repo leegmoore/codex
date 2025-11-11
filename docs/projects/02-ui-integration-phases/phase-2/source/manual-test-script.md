@@ -8,16 +8,6 @@
 
 ## Setup
 
-**One-time setup (if not done yet):**
-```bash
-cd /Users/leemoore/code/codex-port-02/codex-ts
-./scripts/setup-cody-alias.sh
-```
-
-This builds the CLI and creates a global `cody` command.
-
-**Per-test setup:**
-
 1. Create test file:
    ```bash
    echo "test content" > /tmp/test-file.txt
