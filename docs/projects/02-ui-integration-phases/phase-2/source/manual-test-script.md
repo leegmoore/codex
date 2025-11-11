@@ -8,19 +8,27 @@
 
 ## Setup
 
-1. Ensure Phase 1 works (can create conversation and chat)
+**One-time setup (if not done yet):**
+```bash
+cd /Users/leemoore/code/codex-port-02/codex-ts
+./scripts/setup-cody-alias.sh
+```
 
-2. Have test file ready:
+This builds the CLI and creates a global `cody` command.
+
+**Per-test setup:**
+
+1. Create test file:
    ```bash
    echo "test content" > /tmp/test-file.txt
    ```
 
-3. CLI built and available:
+2. Create a new conversation for testing:
    ```bash
-   cd codex-ts
-   npm run build
-   cody new  # Create conversation for testing
+   cody new
    ```
+
+3. Ready to test tool execution
 
 ---
 
