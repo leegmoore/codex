@@ -37,6 +37,11 @@ import type { Prompt } from "../client/client-common.js";
 import { userInputToResponseInputItem } from "../../protocol/models.js";
 import { parseTurnItem } from "../event-mapping/parse-turn-item.js";
 import type { ResponseItem } from "../../protocol/models.js";
+import type { ToolApprovalCallback } from "../../tools/types.js";
+import { toolRegistry } from "../../tools/registry.js";
+import { ToolRouter } from "../tools/tool-router.js";
+
+const MAX_TOOL_ITERATIONS = 6;
 
 /**
  * Internal session state and orchestration.
@@ -49,6 +54,7 @@ export class Session {
   private readonly txEvent: EventEmitter;
   private readonly services: SessionServices;
   private readonly modelClient: ModelClient;
+  private readonly toolRouter: ToolRouter;
   private _nextInternalSubId = 0;
 
   // Private state
@@ -61,12 +67,17 @@ export class Session {
     services: SessionServices,
     txEvent: EventEmitter,
     modelClient: ModelClient,
+    approvalCallback?: ToolApprovalCallback,
   ) {
     this.conversationId = conversationId;
     this.txEvent = txEvent;
     this._state = SessionStateHelpers.createSessionState(sessionConfiguration);
     this.services = services;
     this.modelClient = modelClient;
+    this.toolRouter = new ToolRouter({
+      registry: toolRegistry,
+      approvalCallback,
+    });
   }
 
   async emitSessionConfiguredEvent(rolloutPath: string): Promise<void> {
@@ -253,18 +264,15 @@ export class Session {
     };
     SessionStateHelpers.recordItems(this._state, [userRecord]);
 
-    const prompt: Prompt = {
-      input: this._state.history.getHistoryForPrompt(),
-      tools: [],
-      parallelToolCalls: false,
-    };
-
     let responseItems: ResponseItem[] = [];
     try {
-      responseItems = await this.modelClient.sendMessage(prompt);
+      responseItems = await this.modelClient.sendMessage(this.buildPrompt());
+      console.debug(`[DEBUG] Model returned ${responseItems.length} items`);
+      console.debug(`[DEBUG] Response items:`, JSON.stringify(responseItems, null, 2));
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Unknown model error";
+      console.error(`[DEBUG] Model error:`, error);
       await this.sendEvent(subId, { type: "error", message });
       await this.sendEvent(subId, { type: "task_complete" });
       return;
@@ -272,18 +280,109 @@ export class Session {
 
     if (responseItems.length > 0) {
       SessionStateHelpers.recordItems(this._state, responseItems);
+    } else {
+      console.warn(`[DEBUG] No response items returned from model`);
     }
 
-    let lastAgentMessage: string | undefined;
+    let lastAgentMessage = await this.emitResponseItems(
+      subId,
+      responseItems,
+      undefined,
+    );
 
-    for (const item of responseItems) {
+    let iteration = 0;
+    while (this.hasFunctionCalls(responseItems)) {
+      if (iteration++ >= MAX_TOOL_ITERATIONS) {
+        await this.sendEvent(subId, {
+          type: "error",
+          message: "Too many tool call iterations",
+        });
+        break;
+      }
+
+      const toolOutputs = await this.executeFunctionCalls(responseItems);
+      if (toolOutputs.length === 0) {
+        break;
+      }
+
+      SessionStateHelpers.recordItems(this._state, toolOutputs);
+      lastAgentMessage = await this.emitResponseItems(
+        subId,
+        toolOutputs,
+        lastAgentMessage,
+      );
+
+      try {
+        responseItems = await this.modelClient.sendMessage(this.buildPrompt());
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Unknown model error";
+        await this.sendEvent(subId, { type: "error", message });
+        await this.sendEvent(subId, {
+          type: "task_complete",
+          last_agent_message: lastAgentMessage ?? undefined,
+        });
+        return;
+      }
+
+      if (responseItems.length === 0) {
+        break;
+      }
+
+      SessionStateHelpers.recordItems(this._state, responseItems);
+      lastAgentMessage = await this.emitResponseItems(
+        subId,
+        responseItems,
+        lastAgentMessage,
+      );
+    }
+
+    await this.sendEvent(subId, {
+      type: "task_complete",
+      last_agent_message: lastAgentMessage ?? undefined,
+    });
+  }
+
+  private buildPrompt(): Prompt {
+    return {
+      input: this._state.history.getHistoryForPrompt(),
+      tools: toolRegistry.getToolSpecs(),
+      parallelToolCalls: false,
+    };
+  }
+
+  private hasFunctionCalls(items: ResponseItem[]): boolean {
+    return items.some((item) => item.type === "function_call");
+  }
+
+  private async emitResponseItems(
+    subId: string,
+    items: ResponseItem[],
+    lastAgentMessage: string | undefined,
+  ): Promise<string | undefined> {
+    console.debug(`[DEBUG] emitResponseItems: Processing ${items.length} items`);
+
+    for (const item of items) {
+      console.debug(`[DEBUG] Processing item:`, JSON.stringify(item, null, 2));
+
+      if (
+        item.type === "function_call" ||
+        item.type === "function_call_output"
+      ) {
+        await this.sendEvent(subId, { type: "raw_response_item", item });
+      }
+
       const turnItem = parseTurnItem(item);
       if (!turnItem) {
+        console.warn(`[DEBUG] parseTurnItem returned undefined for item:`, item);
         continue;
       }
 
+      console.debug(`[DEBUG] turnItem type:`, turnItem.type);
+
       if (turnItem.type === "agent_message") {
         const text = turnItem.item.content.map((c) => c.text).join("");
+        console.debug(`[DEBUG] Emitting agent_message with text length:`, text.length);
         lastAgentMessage = text;
         await this.sendEvent(subId, {
           type: "agent_message",
@@ -292,10 +391,13 @@ export class Session {
       }
     }
 
-    await this.sendEvent(subId, {
-      type: "task_complete",
-      last_agent_message: lastAgentMessage ?? undefined,
-    });
+    return lastAgentMessage;
+  }
+
+  private async executeFunctionCalls(
+    responseItems: ResponseItem[],
+  ): Promise<ResponseItem[]> {
+    return this.toolRouter.executeFunctionCalls(responseItems);
   }
 
   /**
@@ -680,6 +782,7 @@ export class Session {
     txEvent: EventEmitter,
     _sessionSource: SessionSource | null,
     modelClient: ModelClient,
+    approvalCallback?: ToolApprovalCallback,
   ): Promise<Session> {
     // Generate conversation ID
     // TODO: Handle resumed conversations
@@ -717,6 +820,7 @@ export class Session {
       services,
       txEvent,
       modelClient,
+      approvalCallback,
     );
   }
 
