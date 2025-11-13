@@ -79,7 +79,7 @@ export function createAuthManagerFromCliConfig(
   const apiKey = cliConfig.auth.openai_key;
   if (!apiKey) {
     throw new ConfigurationError(
-      "OpenAI API key is required. Set auth.openai_key in ~/.codex/config.toml",
+      "OpenAI API key is required. Set auth.openai_key in ~/.cody/config.toml",
     );
   }
 
@@ -88,7 +88,7 @@ export function createAuthManagerFromCliConfig(
 }
 
 function defaultCodexHome(): string {
-  return process.env.CODEX_HOME ?? join(os.homedir(), ".codex");
+  return process.env.CODY_HOME ?? join(os.homedir(), ".cody");
 }
 
 async function readConfig(
@@ -108,7 +108,7 @@ async function readConfig(
       (error as NodeJS.ErrnoException).code === "ENOENT"
     ) {
       throw new ConfigurationError(
-        `Config file not found at ${configPath}. Create ~/.codex/config.toml first.`,
+        `Config file not found at ${configPath}. Create ~/.cody/config.toml first.`,
       );
     }
     if (error instanceof ConfigurationError) {
