@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 import { config as loadEnv } from "dotenv";
 import { Command, CommanderError } from "commander";
-import { pathToFileURL } from "url";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+import { realpathSync } from "node:fs";
 import { registerNewCommand } from "./commands/new.js";
 import { registerChatCommand } from "./commands/chat.js";
 import { registerReplCommand } from "./commands/repl.js";
@@ -11,6 +13,13 @@ import {
   NoActiveConversationError,
   ValidationError,
 } from "../core/errors.js";
+
+// Load .env from the CLI installation directory, not cwd
+// This ensures we get the correct API keys even when running from other directories
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const envPath = join(__dirname, "../..", ".env");
+loadEnv({ path: envPath, override: true });
 
 export async function runCli(argv = process.argv): Promise<void> {
   const runtime = createRuntime();
@@ -65,10 +74,18 @@ export function safeFormatKey(key: string): string {
 }
 
 const entryPoint = process.argv[1];
-if (entryPoint) {
-  const entryUrl = pathToFileURL(entryPoint).href;
-  if (import.meta.url === entryUrl) {
+const currentPath = fileURLToPath(import.meta.url);
+if (!entryPoint) {
+  runCli();
+} else {
+  let entryPath: string;
+  try {
+    entryPath = realpathSync(entryPoint);
+  } catch {
+    entryPath = entryPoint;
+  }
+
+  if (entryPath === currentPath) {
     runCli();
   }
 }
-loadEnv({ override: true });
