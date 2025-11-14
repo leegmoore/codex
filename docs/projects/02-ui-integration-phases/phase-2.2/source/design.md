@@ -64,14 +64,12 @@
 
 ### Lower Priority Issues
 
-**Issue 9: Firecrawl Dependency in fetchUrl**
-- **Problem:** `fetchUrl` tool requires `FIRECRAWL_API_KEY` env var, fails without it
-- **Impact:** Tool unusable in development without API key
-- **Options:**
-  - Mock implementation for development
-  - Make API key required and document setup
-  - Switch to free alternative
-- **Location:** `codex-ts/src/tools/web/fetch.ts` lines 90-142
+**Issue 9: fetchUrl Error Logging Inadequate**
+- **Problem:** When Firecrawl returns `success: false`, error details are not logged
+- **Impact:** Can't diagnose why fetches fail (could be rate limits, URL validation, API changes, etc.)
+- **Fix:** Log full Firecrawl response object when success is false
+- **Location:** `codex-ts/src/tools/web/fetch.ts` line 110-112
+- **Priority:** Low (fetchUrl works, just needs better diagnostics)
 
 **Issue 10: readMcpResource Stubbed**
 - **Problem:** Throws "not yet implemented" error
@@ -283,32 +281,28 @@ const rl = readline.createInterface({
 
 Or use raw mode to prevent echo.
 
-### Fix 8: Firecrawl Dependency (Decision Needed)
+### Fix 8: Improve fetchUrl Error Logging (Optional)
 
-**Options:**
+**Problem:** Line 110-112 throws generic error without Firecrawl's actual error details
 
-**A. Mock for Development:**
+**Current code:**
 ```typescript
-if (!apiKey && process.env.NODE_ENV === 'development') {
-  // Return mock HTML content
-  return {
-    url,
-    html: '<html><body>Mock content</body></html>',
-    markdown: 'Mock content',
-    title: 'Mock Page'
-  };
+if (!result.success) {
+  throw new Error(`Firecrawl scrape failed for ${url}`);
 }
 ```
 
-**B. Document Required Setup:**
-- Add to README/docs that `FIRECRAWL_API_KEY` is required
-- Provide setup instructions
+**Improved code:**
+```typescript
+if (!result.success) {
+  const errorDetails = JSON.stringify(result, null, 2);
+  throw new Error(`Firecrawl scrape failed for ${url}. Response: ${errorDetails}`);
+}
+```
 
-**C. Switch to Free Alternative:**
-- Use `node-fetch` + Readability.js for basic scraping
-- No API key required
+**Benefit:** Diagnose actual failure reasons (rate limits, URL validation, API version mismatches, etc.)
 
-**Recommendation:** Option C (free alternative) for better developer experience
+**Priority:** Low - fetchUrl works when API key is valid, this just improves debugging
 
 ### Fix 9: Stub readMcpResource (Defer to Phase 5)
 
@@ -451,8 +445,7 @@ cody chat "read /tmp/test.txt"
 
 ### Optional Fixes
 
-- [ ] Decide on Firecrawl approach (mock/document/replace)
-- [ ] Implement chosen approach for fetchUrl
+- [ ] Improve fetchUrl error logging (show full Firecrawl error details)
 - [ ] Decide on readMcpResource (stub or defer)
 - [ ] Implement chosen approach
 
@@ -478,4 +471,4 @@ cody chat "read /tmp/test.txt"
 - [ ] Update decisions.md with all changes
 - [ ] Document approval policy behavior
 - [ ] Document tool renaming
-- [ ] Note any deferred items (MCP, Firecrawl)
+- [ ] Note any deferred items (MCP, fetchUrl logging)

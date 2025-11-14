@@ -68,12 +68,10 @@
 - [ ] Or try raw mode to prevent echo
 - [ ] Test: Single 'y' input doesn't echo twice
 
-## Issue 9: Firecrawl Dependency (Optional)
-- [ ] Decide approach: mock / document / replace with free alternative
-- [ ] If mock: Add development mode check and mock return
-- [ ] If document: Add FIRECRAWL_API_KEY setup to docs
-- [ ] If replace: Implement node-fetch + Readability.js alternative
-- [ ] Test fetchUrl tool works with chosen approach
+## Issue 9: fetchUrl Error Logging (Optional - Low Priority)
+- [ ] Improve error logging in tools/web/fetch.ts line 110-112
+- [ ] Include full Firecrawl response object in error message
+- [ ] Test that errors show detailed diagnostics
 
 ## Issue 10: readMcpResource Stub (Optional - Defer to Phase 5)
 - [ ] Decide: stub with mock data OR leave as-is for Phase 5
