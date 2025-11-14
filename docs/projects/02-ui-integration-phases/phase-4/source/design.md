@@ -108,10 +108,10 @@ class KeyringStore {
 
 | Auth Method | Provider | Token Source | Path |
 |------------|----------|--------------|------|
-| openai-api-key | openai | Config file | config.auth.openai_api_key |
-| anthropic-api-key | anthropic | Config file | config.auth.anthropic_api_key |
-| oauth-chatgpt | openai | Keyring | ~/.cody/oauth/chatgpt.json |
-| oauth-claude | anthropic | Keyring | ~/.claude/credentials.json |
+| openai-api-key | openai | Config file | ~/.cody/config.toml (config.auth.openai_api_key) |
+| anthropic-api-key | anthropic | Config file | ~/.cody/config.toml (config.auth.anthropic_api_key) |
+| oauth-chatgpt | openai | ChatGPT CLI | ~/.codex/auth.json (where ChatGPT Pro CLI stores tokens) |
+| oauth-claude | anthropic | Claude Code | ~/.claude/credentials.json (where Claude Code stores tokens) |
 
 **Path discovery:** Exact Claude keyring path may vary. Check during implementation:
 - ~/.claude/credentials.json
@@ -197,7 +197,7 @@ private async getApiKey(provider: string): Promise<string> {
 }
 
 private async getChatGPTOAuthToken(): Promise<string> {
-  const path = '~/.cody/oauth/chatgpt.json';
+  const path = '~/.codex/auth.json';
   const token = await this.keyring.readToken(path);
   if (!token) {
     throw new AuthError(
@@ -412,9 +412,9 @@ method = "openai-api-key"           # Current auth method
 openai_api_key = "sk-..."           # OpenAI API key
 anthropic_api_key = "sk-ant-..."    # Anthropic API key
 
-# OAuth tokens read from keyring (not in config file)
-# ChatGPT: ~/.cody/oauth/chatgpt.json
-# Claude: ~/.claude/credentials.json
+# OAuth tokens read from external CLI keyrings (not in Cody's config file)
+# ChatGPT: ~/.codex/auth.json (where ChatGPT Pro CLI stores tokens)
+# Claude: ~/.claude/credentials.json (where Claude Code stores tokens)
 ```
 
 **Config loader changes:**
@@ -491,7 +491,7 @@ User runs `cody set-auth oauth-claude`. Command validates method name (must be o
 
 **ChatGPT OAuth retrieval:**
 
-AuthManager calls keyring.readToken('~/.cody/oauth/chatgpt.json'). KeyringStore reads file, parses JSON, extracts access_token field. Returns token string or null if file missing. AuthManager throws AuthError with helpful message if null.
+AuthManager calls keyring.readToken('~/.codex/auth.json'). KeyringStore reads file, parses JSON, extracts access_token field from the tokens object. Returns token string or null if file missing. AuthManager throws AuthError with helpful message if null.
 
 **Claude OAuth retrieval:**
 
@@ -527,7 +527,7 @@ throw new AuthError(
 
 // Missing ChatGPT OAuth token
 throw new AuthError(
-  'ChatGPT OAuth token not found at ~/.cody/oauth/chatgpt.json. ' +
+  'ChatGPT OAuth token not found at ~/.codex/auth.json. ' +
   'Log in via ChatGPT Pro CLI to refresh token. ' +
   'Or switch to API key: cody set-auth openai-api-key'
 );
@@ -584,7 +584,7 @@ export function createMockKeyring(tokens: Record<string, string | null>) {
 
 // Usage in tests
 const mockKeyring = createMockKeyring({
-  '/home/test/.cody/oauth/chatgpt.json': 'chatgpt-token-123',
+  '/home/test/.codex/auth.json': 'chatgpt-token-123',
   '/home/test/.claude/credentials.json': 'claude-token-456'
 });
 
@@ -686,13 +686,13 @@ describe('Phase 4: Authentication Methods', () => {
 
     it('retrieves ChatGPT OAuth token from keyring', async () => {
       const mockKeyring = createMockKeyring({
-        '~/.cody/oauth/chatgpt.json': 'chatgpt-oauth-token'
+        '~/.codex/auth.json': 'chatgpt-oauth-token'
       });
       const config = createTestConfig('oauth-chatgpt');
       const auth = new AuthManager(config, mockKeyring);
-      
+
       const token = await auth.getToken('openai');
-      
+
       expect(token).toBe('chatgpt-oauth-token');
     });
 
@@ -727,11 +727,11 @@ describe('Phase 4: Authentication Methods', () => {
 
     it('throws when provider mismatch (ChatGPT OAuth + Anthropic)', async () => {
       const mockKeyring = createMockKeyring({
-        '~/.cody/oauth/chatgpt.json': 'chatgpt-token'
+        '~/.codex/auth.json': 'chatgpt-token'
       });
       const config = createTestConfig('oauth-chatgpt');
       const auth = new AuthManager(config, mockKeyring);
-      
+
       await expect(auth.getToken('anthropic')).rejects.toThrow(
         'ChatGPT OAuth can only be used with OpenAI providers'
       );
@@ -785,14 +785,14 @@ describe('Phase 4: Authentication Methods', () => {
   describe('OAuth × API Validation', () => {
     it('ChatGPT OAuth works with Responses API', async () => {
       const mockKeyring = createMockKeyring({
-        '~/.cody/oauth/chatgpt.json': 'valid-token'
+        '~/.codex/auth.json': 'valid-token'
       });
       const config = {
         auth: {method: 'oauth-chatgpt'},
         provider: {name: 'openai', api: 'responses', model: 'gpt-4'}
       };
       const auth = new AuthManager(config, mockKeyring);
-      
+
       const token = await auth.getToken('openai');
       expect(token).toBe('valid-token');
       // This combination is valid
