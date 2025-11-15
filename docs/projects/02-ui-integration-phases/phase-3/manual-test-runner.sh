@@ -92,7 +92,7 @@ cody chat "Summarize what Cody CLI does in one sentence"
 
 echo ""
 echo -e "${GREEN}✓ Test 1 Complete${NC}"
-echo -e "${YELLOW}Verify: Response from GPT-4o-mini received and coherent${NC}"
+echo -e "${YELLOW}Verify: Response received${NC}"
 pause
 
 # =============================================================================
