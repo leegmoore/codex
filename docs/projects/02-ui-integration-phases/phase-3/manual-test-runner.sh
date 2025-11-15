@@ -48,7 +48,7 @@ echo -e "${GREEN}✓ Build complete${NC}"
 echo ""
 echo "Creating clean test config..."
 cat > ~/.cody/config.toml << 'EOF'
-model = "gpt-4o-mini"
+model = "gpt-5.1-codex-mini"
 model_reasoning_effort = "low"
 approval_policy = "never"
 EOF
@@ -77,7 +77,7 @@ echo ""
 run_test "1" "OpenAI Responses API"
 
 echo "Setting provider to OpenAI Responses..."
-cody set-provider openai --api responses --model gpt-4o-mini
+cody set-provider openai --api responses --model gpt-5.1-codex-mini
 
 echo ""
 echo "Verifying provider selection..."
@@ -117,7 +117,7 @@ cody chat "What is 2+2?"
 
 echo ""
 echo -e "${GREEN}✓ Test 2 Complete${NC}"
-echo -e "${YELLOW}Verify: Response from Chat API (gpt-4o-mini) received${NC}"
+echo -e "${YELLOW}Verify: Response from Chat API received${NC}"
 pause
 
 # =============================================================================
@@ -127,7 +127,7 @@ pause
 run_test "3" "Anthropic Messages API"
 
 echo "Switching to Anthropic Messages..."
-cody set-provider anthropic --api messages --model claude-3-5-haiku-20241022
+cody set-provider anthropic --api messages --model claude-sonnet-4-5
 
 echo ""
 echo "Verifying switch..."
@@ -189,7 +189,7 @@ echo -e "${BLUE}Testing same question on all 3 providers...${NC}"
 echo ""
 
 echo -e "${YELLOW}OpenAI Responses:${NC}"
-cody set-provider openai --api responses --model gpt-4o-mini > /dev/null
+cody set-provider openai --api responses --model gpt-5.1-codex-mini > /dev/null
 cody chat "Calculate: 5 * 7"
 
 echo ""
@@ -199,7 +199,7 @@ cody chat "Calculate: 5 * 7"
 
 echo ""
 echo -e "${YELLOW}Anthropic Messages:${NC}"
-cody set-provider anthropic --api messages --model claude-3-5-haiku-20241022 > /dev/null
+cody set-provider anthropic --api messages --model claude-sonnet-4-5 > /dev/null
 cody chat "Calculate: 5 * 7"
 
 echo ""
@@ -220,20 +220,15 @@ echo ""
 echo -e "${BLUE}Testing tool execution with different providers...${NC}"
 echo ""
 
-# Auto-approve mode
-cat > ~/.cody/config.toml << 'EOF'
-model = "gpt-4o-mini"
-model_reasoning_effort = "low"
-approval_policy = "never"
-EOF
+# Auto-approve mode (already set from startup)
 
 echo -e "${YELLOW}OpenAI Responses with tools:${NC}"
-cody set-provider openai --api responses --model gpt-4o-mini > /dev/null
+cody set-provider openai --api responses --model gpt-5.1-codex-mini > /dev/null
 cody chat "read /tmp/phase3-test.txt"
 
 echo ""
 echo -e "${YELLOW}Anthropic Messages with tools:${NC}"
-cody set-provider anthropic --api messages --model claude-3-5-haiku-20241022 > /dev/null
+cody set-provider anthropic --api messages --model claude-sonnet-4-5 > /dev/null
 cody chat "read /tmp/phase3-test.txt"
 
 echo ""
