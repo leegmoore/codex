@@ -62,9 +62,9 @@ export interface AnthropicMessage {
  * Tool choice configuration for Anthropic.
  */
 export type AnthropicToolChoice =
-  | "auto"
-  | "any"
-  | "none"
+  | { type: "auto" }
+  | { type: "any" }
+  | { type: "none" }
   | { type: "tool"; name: string };
 
 /**
@@ -101,7 +101,7 @@ export interface MessagesApiRequest {
   /** Array of messages in the conversation */
   messages: AnthropicMessage[];
   /** Maximum tokens to generate */
-  max_output_tokens?: number;
+  max_tokens: number;
   /** Optional system prompt */
   system?: string | AnthropicContentBlock[];
   /** Optional metadata for tracking */

@@ -19,6 +19,12 @@ import {
   Verbosity,
   ForcedLoginMethod,
 } from "../protocol/config-types.js";
+import type { ModelProviderApi } from "./model-provider-types.js";
+
+function normalizedEnv(value: string | undefined): string | undefined {
+  const trimmed = value?.trim();
+  return trimmed && trimmed.length > 0 ? trimmed : undefined;
+}
 
 /**
  * Maximum number of bytes of the documentation that will be embedded.
@@ -29,9 +35,14 @@ export const PROJECT_DOC_MAX_BYTES = 32 * 1024; // 32 KiB
 /**
  * Default model for OpenAI (platform-dependent in Rust, but we'll use a single default)
  */
-export const OPENAI_DEFAULT_MODEL = "gpt-5-codex";
-export const OPENAI_DEFAULT_REVIEW_MODEL = "gpt-5-codex";
-export const GPT_5_CODEX_MEDIUM_MODEL = "gpt-5-codex";
+const DEFAULT_OPENAI_MODEL = "gpt-5-codex";
+export const OPENAI_DEFAULT_MODEL =
+  normalizedEnv(process.env.OPENAI_DEFAULT_MODEL) ?? DEFAULT_OPENAI_MODEL;
+export const OPENAI_DEFAULT_REVIEW_MODEL =
+  normalizedEnv(process.env.OPENAI_DEFAULT_REVIEW_MODEL) ??
+  OPENAI_DEFAULT_MODEL;
+export const GPT_5_CODEX_MEDIUM_MODEL =
+  normalizedEnv(process.env.GPT_5_CODEX_MEDIUM_MODEL) ?? OPENAI_DEFAULT_MODEL;
 
 /**
  * Configuration TOML filename
@@ -49,7 +60,7 @@ export enum HistoryPersistence {
 }
 
 /**
- * Settings that govern if and what will be written to ~/.codex/history.jsonl
+ * Settings that govern if and what will be written to ~/.cody/history.jsonl
  */
 export interface History {
   /** If None, history entries will not be written to disk */
@@ -133,6 +144,9 @@ export interface Config {
   /** Key into the model_providers map that specifies which provider to use */
   modelProviderId: string;
 
+  /** Wire API to use for the configured provider */
+  modelProviderApi: ModelProviderApi;
+
   /** Approval policy for executing commands */
   approvalPolicy: AskForApproval;
 
@@ -175,10 +189,10 @@ export interface Config {
   /** Additional filenames to try when looking for project-level docs */
   projectDocFallbackFilenames: string[];
 
-  /** Directory containing all Codex state (defaults to ~/.codex) */
+  /** Directory containing all Codex state (defaults to ~/.cody) */
   codexHome: string;
 
-  /** Settings that govern if and what will be written to ~/.codex/history.jsonl */
+  /** Settings that govern if and what will be written to ~/.cody/history.jsonl */
   history: History;
 
   /** Optional URI-based file opener */
@@ -189,6 +203,9 @@ export interface Config {
 
   /** If not "none", the value to use for reasoning.summary when making a request */
   modelReasoningSummary: ReasoningSummary;
+
+  /** Optional sampling temperature (0-2) */
+  modelTemperature?: number;
 
   /** Optional verbosity control for GPT-5 models */
   modelVerbosity?: Verbosity;
@@ -229,6 +246,7 @@ export function createDefaultConfig(codexHome: string, cwd: string): Config {
   config.model = OPENAI_DEFAULT_MODEL;
   config.reviewModel = OPENAI_DEFAULT_REVIEW_MODEL;
   config.modelProviderId = "openai";
+  config.modelProviderApi = "responses";
   config.approvalPolicy = "on-failure"; // AskForApproval
   config.sandboxPolicy = createReadOnlyPolicy();
   config.didUserSetCustomApprovalPolicyOrSandboxMode = false;
@@ -242,6 +260,7 @@ export function createDefaultConfig(codexHome: string, cwd: string): Config {
   config.history = defaultHistory();
   config.fileOpener = UriBasedFileOpener.None;
   config.modelReasoningSummary = ReasoningSummary.Auto;
+  config.modelTemperature = undefined;
   config.chatgptBaseUrl = "https://chatgpt.com/backend-api/";
   config.includeApplyPatchTool = false;
   config.toolsWebSearchRequest = false;

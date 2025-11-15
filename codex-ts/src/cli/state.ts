@@ -5,11 +5,13 @@ import { SessionSource } from "../core/rollout.js";
 import type { ConversationId } from "../protocol/conversation-id/index.js";
 import type { Conversation } from "../core/conversation.js";
 import { NoActiveConversationError } from "../core/errors.js";
+import type { ToolApprovalCallback } from "../tools/types.js";
 
 interface ManagerDeps {
   authManager: AuthManager;
   modelClientFactory: ModelClientFactory;
   sessionSource?: SessionSource;
+  approvalCallback?: ToolApprovalCallback;
 }
 
 let manager: ConversationManager | null = null;
@@ -24,6 +26,7 @@ export function getOrCreateManager(deps: ManagerDeps): ConversationManager {
       deps.authManager,
       deps.sessionSource ?? SessionSource.CLI,
       deps.modelClientFactory,
+      { approvalCallback: deps.approvalCallback },
     );
   }
   return manager;

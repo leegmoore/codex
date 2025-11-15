@@ -1,5 +1,12 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdtemp, rm, writeFile, mkdir, readFile } from "node:fs/promises";
+import {
+  mkdtemp,
+  rm,
+  writeFile,
+  mkdir,
+  readFile,
+  realpath,
+} from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -84,6 +91,7 @@ describe("Git Operations", () => {
   beforeEach(async () => {
     // Create a temporary git repository
     tempRepo = await mkdtemp(join(tmpdir(), "codex-git-test-"));
+    tempRepo = await realpath(tempRepo);
     execSync("git init", { cwd: tempRepo });
     execSync('git config user.email "test@example.com"', { cwd: tempRepo });
     execSync('git config user.name "Test User"', { cwd: tempRepo });

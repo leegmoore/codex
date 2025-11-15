@@ -15,7 +15,10 @@ import type {
   TurnAttemptsSiblingTurnsResponse,
 } from "./types.js";
 import type { CodexAuth } from "../core/auth/stub-auth.js";
-import type { RateLimitSnapshot, RateLimitWindow } from "../protocol/protocol.js";
+import type {
+  RateLimitSnapshot,
+  RateLimitWindow,
+} from "../protocol/protocol.js";
 import { getCodexUserAgent } from "./user-agent.js";
 
 /**

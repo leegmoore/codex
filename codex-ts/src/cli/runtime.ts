@@ -4,6 +4,7 @@ import { loadCliConfig, createAuthManagerFromCliConfig } from "./config.js";
 import type { LoadedCliConfig } from "./config.js";
 import { createCliModelClientFactory } from "./client-factory.js";
 import { getOrCreateManager } from "./state.js";
+import { promptApproval } from "./approval.js";
 
 export interface CliRuntime {
   loadConfig(): Promise<LoadedCliConfig>;
@@ -32,6 +33,7 @@ export function createRuntime(): CliRuntime {
         authManager,
         modelClientFactory,
         sessionSource: SessionSource.CLI,
+        approvalCallback: promptApproval,
       });
       return manager;
     },

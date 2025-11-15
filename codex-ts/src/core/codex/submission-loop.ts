@@ -24,7 +24,9 @@ export async function submissionLoop(
 
   // Listen for submissions
   const handleSubmission = async (sub: Submission) => {
-    console.debug("Submission:", sub);
+    if (process.env.CODY_DEBUG) {
+      console.debug("Submission:", sub);
+    }
 
     try {
       switch (sub.op.type) {
@@ -118,5 +120,7 @@ export async function submissionLoop(
 
   rxSub.on("submission", handleSubmission);
 
-  console.debug("Submission loop started");
+  if (process.env.CODY_DEBUG) {
+    console.debug("Submission loop started");
+  }
 }

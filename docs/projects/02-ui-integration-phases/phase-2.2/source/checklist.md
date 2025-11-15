@@ -1,58 +1,58 @@
 # Phase 2.2 Checklist
 
 ## Setup
-- [ ] Read phase-2.2/source/design.md
-- [ ] Read tool test report (context provided)
-- [ ] Understand current config loading (cli/config.ts)
-- [ ] Understand approval flow (session.ts, approval.ts)
+- [x] Read phase-2.2/source/design.md
+- [x] Read tool test report (context provided)
+- [x] Understand current config loading (cli/config.ts)
+- [x] Understand approval flow (session.ts, approval.ts)
 
 ## Issue 1: Config Loading (Prerequisite for Approval Fix)
-- [ ] Create normalizeApprovalPolicy() function in cli/config.ts
-- [ ] Create normalizeSandboxPolicy() function in cli/config.ts
-- [ ] Create normalizeReasoningEffort() function in cli/config.ts
-- [ ] Update loadCliConfig() to parse approval_policy from TOML
-- [ ] Update loadCliConfig() to parse sandbox_policy from TOML
-- [ ] Update loadCliConfig() to parse model_reasoning_effort from TOML
-- [ ] Update loadCliConfig() to parse model_reasoning_summary from TOML
-- [ ] Write unit test: approval_policy="never" loads correctly
-- [ ] Write unit test: approval_policy="on-request" loads correctly
-- [ ] Write unit test: invalid approval_policy throws error
-- [ ] Write unit test: sandbox_policy loads correctly
-- [ ] All config loading tests pass
+- [x] Create normalizeApprovalPolicy() function in cli/config.ts
+- [x] Create normalizeSandboxPolicy() function in cli/config.ts
+- [x] Create normalizeReasoningEffort() function in cli/config.ts
+- [x] Update loadCliConfig() to parse approval_policy from TOML
+- [x] Update loadCliConfig() to parse sandbox_policy from TOML
+- [x] Update loadCliConfig() to parse model_reasoning_effort from TOML
+- [x] Update loadCliConfig() to parse model_reasoning_summary from TOML
+- [x] Write unit test: approval_policy="never" loads correctly
+- [x] Write unit test: approval_policy="on-request" loads correctly
+- [x] Write unit test: invalid approval_policy throws error
+- [x] Write unit test: sandbox_policy loads correctly
+- [x] All config loading tests pass
 
 ## Issue 2: Approval Policy Enforcement (Critical - Unblocks applyPatch & exec)
-- [ ] Read current executeFunctionCalls() implementation in session.ts
-- [ ] Add policy check before tool execution
-- [ ] Implement auto-approve logic for policy === 'never'
-- [ ] Implement auto-approve with error escalation for policy === 'on-failure'
-- [ ] Keep existing prompt behavior for policy === 'on-request'
+- [x] Read current executeFunctionCalls() implementation in session.ts
+- [x] Add policy check before tool execution
+- [x] Implement auto-approve logic for policy === 'never'
+- [x] Implement auto-approve with error escalation for policy === 'on-failure'
+- [x] Keep existing prompt behavior for policy === 'on-request'
 - [ ] Handle policy === 'untrusted' (auto-approve safe operations only)
-- [ ] Write test: approval_policy="never" executes tools without prompt
-- [ ] Write test: approval_policy="on-request" prompts for approval
-- [ ] Write test: applyPatch works with auto-approve
-- [ ] Write test: exec works with auto-approve
-- [ ] All approval policy tests pass
+- [x] Write test: approval_policy="never" executes tools without prompt
+- [x] Write test: approval_policy="on-request" prompts for approval
+- [x] Write test: applyPatch works with auto-approve
+- [x] Write test: exec works with auto-approve
+- [x] All approval policy tests pass
 
 ## Issue 3: Tool Iteration Limit
-- [ ] Change MAX_TOOL_ITERATIONS from 6 to 100 in session.ts line 44
+- [x] Change MAX_TOOL_ITERATIONS from 6 to 100 in session.ts line 44
 - [ ] Test with complex multi-tool task (verify >6 tools can execute)
 - [ ] Verify error message still appears if 100 iterations exceeded
 
 ## Issue 4 & 5: Perplexity Tool Renaming
-- [ ] Rename webSearch() → perplexitySearch() in tools/web/search.ts
-- [ ] Update model: llama-3.1-sonar-small-128k-online → sonar-reasoning-pro
-- [ ] Update function description to clarify it's reasoning-based search
-- [ ] Update tool registration in tools/registry.ts (name: "perplexitySearch")
-- [ ] Update tool description in registry
+- [x] Rename webSearch() → perplexitySearch() in tools/web/search.ts
+- [x] Update model: llama-3.1-sonar-small-128k-online → sonar-reasoning-pro
+- [x] Update function description to clarify it's reasoning-based search
+- [x] Update tool registration in tools/registry.ts (name: "perplexitySearch")
+- [x] Update tool description in registry
 - [ ] Test perplexitySearch tool with valid model (no 400 error)
 
 ## Issue 6: New webSearch Tool
-- [ ] Create tools/web/web-search.ts
-- [ ] Implement webSearch() using Perplexity Search API endpoint
-- [ ] Use sonar or sonar-pro model (not chat/completions endpoint)
-- [ ] Return search results with URLs, titles, snippets
-- [ ] Define tool schema (query, maxResults parameters)
-- [ ] Register new webSearch tool in tools/registry.ts
+- [x] Create tools/web/web-search.ts
+- [x] Implement webSearch() using Perplexity Search API endpoint
+- [x] Use sonar or sonar-pro model (not chat/completions endpoint)
+- [x] Return search results with URLs, titles, snippets
+- [x] Define tool schema (query, maxResults parameters)
+- [x] Register new webSearch tool in tools/registry.ts
 - [ ] Test new webSearch returns actual search results
 
 ## Issue 7: Duplicate Tool Display
@@ -69,15 +69,10 @@
 - [ ] Test: Single 'y' input doesn't echo twice
 
 ## Issue 9: fetchUrl Error Logging (Optional - Low Priority)
-- [ ] Improve error logging in tools/web/fetch.ts line 110-112
-- [ ] Include full Firecrawl response object in error message
-- [ ] Test that errors show detailed diagnostics
+- [x] Deferred - see decisions.md
 
 ## Issue 10: readMcpResource Stub (Optional - Defer to Phase 5)
-- [ ] Decide: stub with mock data OR leave as-is for Phase 5
-- [ ] If stub: Replace throw with mock ReadResourceResult
-- [ ] If defer: Document in decisions.md for Phase 5
-- [ ] Test readMcpResource doesn't crash CLI
+- [x] Deferred to Phase 5 - see decisions.md
 
 ## Quality Verification
 - [ ] npm run format (clean)
@@ -100,8 +95,8 @@
 - [ ] Test: Typing 'y' doesn't echo as 'yy'
 
 ## Documentation
-- [ ] Update decisions.md with changes
-- [ ] Document approval policy implementation
-- [ ] Document tool renaming (webSearch → perplexitySearch)
-- [ ] Document new webSearch tool
-- [ ] Note deferred items (Firecrawl, MCP)
+- [x] Update decisions.md with changes
+- [x] Document approval policy implementation
+- [x] Document tool renaming (webSearch → perplexitySearch)
+- [x] Document new webSearch tool
+- [x] Note deferred items (Firecrawl, MCP, untrusted policy)

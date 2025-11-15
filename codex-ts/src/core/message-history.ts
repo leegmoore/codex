@@ -1,7 +1,7 @@
 /**
  * Persistence layer for the global, append-only message history file.
  *
- * The history is stored at `~/.codex/history.jsonl` with **one JSON object per
+ * The history is stored at `~/.cody/history.jsonl` with **one JSON object per
  * line** so that it can be efficiently appended to and parsed with standard
  * JSON-Lines tooling. Each record has the following schema:
  *
@@ -23,7 +23,7 @@ import type { Config } from "./config.js";
 import { HistoryPersistence } from "./config.js";
 import type { ConversationId } from "../protocol/conversation-id/index.js";
 
-/** Filename that stores the message history inside `~/.codex`. */
+/** Filename that stores the message history inside `~/.cody`. */
 const HISTORY_FILENAME = "history.jsonl";
 
 /** Maximum number of retry attempts for file locking */
@@ -130,7 +130,7 @@ export async function appendEntry(
 
   // TODO: check `text` for sensitive patterns
 
-  // Resolve ~/.codex/history.jsonl and ensure the parent directory exists
+  // Resolve ~/.cody/history.jsonl and ensure the parent directory exists
   const filepath = historyFilepath(config);
   const parentDir = path.dirname(filepath);
 

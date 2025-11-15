@@ -93,8 +93,8 @@ function* processEvent(
       // Initialize new message
       state.reset();
       state.responseId = event.message.id;
-      state.usage.inputTokens = event.message.usage.input_tokens;
-      state.usage.outputTokens = event.message.usage.output_tokens;
+      state.usage.inputTokens = event.message.usage?.input_tokens ?? 0;
+      state.usage.outputTokens = event.message.usage?.output_tokens ?? 0;
 
       // Emit Created event once
       if (!state.hasEmittedCreated) {
@@ -171,7 +171,7 @@ function* processEvent(
         // Emit reasoning summary part added
         yield { type: "reasoning_summary_part_added" };
       } else if (completedBlock.type === "tool_use") {
-        // Emit tool call item
+        // Emit tool call item that matches function_call pipeline
         let toolInput = "{}";
         if (
           completedBlock.toolInputFragments &&
@@ -181,10 +181,10 @@ function* processEvent(
         }
 
         const item: ResponseItem = {
-          type: "custom_tool_call",
+          type: "function_call",
           call_id: completedBlock.toolUseId || "",
           name: completedBlock.toolName || "",
-          input: toolInput,
+          arguments: toolInput,
         };
         yield { type: "output_item_added", item };
       }

@@ -3,12 +3,12 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { webSearch } from "./search.js";
+import { perplexitySearch } from "./search.js";
 
 // Mock fetch globally
 global.fetch = vi.fn();
 
-describe("webSearch", () => {
+describe("perplexitySearch", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.PERPLEXITY_API_KEY = "test-key";
@@ -17,7 +17,7 @@ describe("webSearch", () => {
   it("should throw error if API key is missing", async () => {
     delete process.env.PERPLEXITY_API_KEY;
 
-    await expect(webSearch({ query: "test" })).rejects.toThrow(
+    await expect(perplexitySearch({ query: "test" })).rejects.toThrow(
       "PERPLEXITY_API_KEY environment variable not set",
     );
   });
@@ -33,7 +33,7 @@ describe("webSearch", () => {
       json: async () => mockResponse,
     });
 
-    const result = await webSearch({ query: "test query" });
+    const result = await perplexitySearch({ query: "test query" });
 
     expect(result.results).toBeDefined();
     expect(Array.isArray(result.results)).toBe(true);
@@ -46,7 +46,7 @@ describe("webSearch", () => {
       text: async () => "Internal Server Error",
     });
 
-    await expect(webSearch({ query: "test" })).rejects.toThrow(
+    await expect(perplexitySearch({ query: "test" })).rejects.toThrow(
       "Perplexity API error",
     );
   });
@@ -65,7 +65,7 @@ describe("webSearch", () => {
       json: async () => mockResponse,
     });
 
-    const result = await webSearch({ query: "test", maxResults: 5 });
+    const result = await perplexitySearch({ query: "test", maxResults: 5 });
 
     expect(result.results.length).toBeLessThanOrEqual(5);
   });

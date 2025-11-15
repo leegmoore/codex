@@ -5,7 +5,7 @@
  * Supports single or parallel queries with optional prefetch caching.
  */
 
-export interface WebSearchParams {
+export interface PerplexitySearchParams {
   query: string | string[];
   maxResults?: number; // Default 10
   prefetch?: number; // Default 3 (top N to cache)
@@ -18,7 +18,7 @@ export interface SearchResult {
   relevanceScore?: number;
 }
 
-export interface WebSearchResult {
+export interface PerplexitySearchResult {
   results: SearchResult[];
 }
 
@@ -33,9 +33,9 @@ type PerplexityResponse = {
 /**
  * Performs web search using Perplexity API
  */
-export async function webSearch(
-  params: WebSearchParams,
-): Promise<WebSearchResult> {
+export async function perplexitySearch(
+  params: PerplexitySearchParams,
+): Promise<PerplexitySearchResult> {
   const { query, maxResults = 10, prefetch = 3 } = params;
 
   // Get API key from environment
@@ -94,7 +94,7 @@ async function executePerplexitySearch(
       "Authorization": `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "llama-3.1-sonar-small-128k-online",
+      model: "sonar-reasoning-pro",
       messages: [
         {
           role: "system",

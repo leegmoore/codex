@@ -10,8 +10,10 @@ import type { EventMsg } from "../protocol/protocol.js";
 import { Codex, type CodexSpawnOk } from "./codex/codex.js";
 import { CodexConversation } from "./codex-conversation.js";
 import type { ModelClientFactory } from "./client/model-client-factory.js";
+import { createDefaultModelClientFactory } from "./client/default-model-client-factory.js";
 import { SessionSource } from "./rollout.js";
 import { Conversation } from "./conversation.js";
+import type { ToolApprovalCallback } from "../tools/types.js";
 
 // Extract SessionConfigured event type from EventMsg union
 type SessionConfiguredEvent = Extract<EventMsg, { type: "session_configured" }>;
@@ -34,15 +36,19 @@ export class ConversationManager {
   private readonly authManager: AuthManager;
   private readonly sessionSource: SessionSource | null;
   private readonly modelClientFactory: ModelClientFactory;
+  private readonly approvalCallback?: ToolApprovalCallback;
 
   constructor(
     authManager: AuthManager,
     sessionSource: SessionSource | null,
-    modelClientFactory: ModelClientFactory,
+    modelClientFactory?: ModelClientFactory,
+    options?: { approvalCallback?: ToolApprovalCallback },
   ) {
     this.authManager = authManager;
     this.sessionSource = sessionSource;
-    this.modelClientFactory = modelClientFactory;
+    this.modelClientFactory =
+      modelClientFactory ?? createDefaultModelClientFactory();
+    this.approvalCallback = options?.approvalCallback;
   }
 
   /**
@@ -65,6 +71,9 @@ export class ConversationManager {
       null, // InitialHistory::New (TODO: proper type)
       this.sessionSource,
       this.modelClientFactory,
+      {
+        approvalCallback: this.approvalCallback,
+      },
     );
 
     return this.finalizeSpawn(codex, conversationId, config);

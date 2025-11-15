@@ -13,10 +13,20 @@ import type { SessionConfiguration } from "./types.js";
 import { SUBMISSION_CHANNEL_CAPACITY } from "./types.js";
 import { Session } from "./session.js";
 import { submissionLoop } from "./submission-loop.js";
-import { WireApi } from "../client/model-provider-info.js";
+import {
+  WireApi,
+  builtInModelProviders,
+  type ModelProviderInfo,
+} from "../client/model-provider-info.js";
 import { Features } from "../features/index.js";
 import { SessionSource, SESSIONS_SUBDIR } from "../rollout.js";
 import type { ModelClientFactory } from "../client/model-client-factory.js";
+import type { ToolApprovalCallback } from "../../tools/types.js";
+import { ConfigurationError } from "../errors.js";
+
+export interface CodexSpawnOptions {
+  approvalCallback?: ToolApprovalCallback;
+}
 
 /**
  * Error thrown when the Codex agent dies unexpectedly.
@@ -138,6 +148,7 @@ export class Codex {
     _conversationHistory: unknown, // TODO: Port InitialHistory
     sessionSource: SessionSource | null, // TODO: Port SessionSource type
     modelClientFactory: ModelClientFactory,
+    options?: CodexSpawnOptions,
   ): Promise<CodexSpawnOk> {
     // Create communication channels
     const txSub = new EventEmitter();
@@ -148,13 +159,7 @@ export class Codex {
     // TODO: Get user instructions from config
     const userInstructions = null;
 
-    // TODO: Create proper ModelProviderInfo from config
-    // For now, create a minimal provider object with required fields
-    const provider = {
-      name: config.modelProviderId,
-      wireApi: WireApi.Responses, // TODO: Determine from config
-      requiresOpenaiAuth: false, // TODO: Determine from config
-    };
+    const provider = resolveSessionProvider(config);
 
     // Create Features instance with default settings
     const features = Features.withDefaults();
@@ -164,6 +169,7 @@ export class Codex {
       model: config.model,
       modelReasoningEffort: config.modelReasoningEffort ?? null,
       modelReasoningSummary: config.modelReasoningSummary,
+      modelTemperature: config.modelTemperature ?? null,
       developerInstructions: config.developerInstructions ?? null,
       userInstructions,
       baseInstructions: config.baseInstructions ?? null,
@@ -187,6 +193,7 @@ export class Codex {
       txEvent,
       sessionSource,
       modelClient,
+      options?.approvalCallback,
     );
 
     const conversationId = session.conversationId;
@@ -217,6 +224,57 @@ export class Codex {
       conversationId,
     };
   }
+}
+
+function resolveSessionProvider(config: Config): ModelProviderInfo {
+  const providers = builtInModelProviders();
+  const base = providers[config.modelProviderId];
+  if (!base) {
+    throw new ConfigurationError(
+      `Unknown provider "${config.modelProviderId}" configured for conversation.`,
+    );
+  }
+
+  const wireApi = resolveWireApiForConfig(
+    config.modelProviderId,
+    config.modelProviderApi,
+  );
+
+  return {
+    ...base,
+    wireApi,
+  };
+}
+
+function resolveWireApiForConfig(providerId: string, api: string): WireApi {
+  if (providerId === "openai") {
+    if (api === "chat") {
+      return WireApi.Chat;
+    }
+    return WireApi.Responses;
+  }
+
+  if (providerId === "anthropic") {
+    if (api !== "messages") {
+      throw new ConfigurationError(
+        `Provider "anthropic" does not support API "${api}". Use "messages".`,
+      );
+    }
+    return WireApi.Messages;
+  }
+
+  if (providerId === "openrouter") {
+    if (api !== "chat") {
+      throw new ConfigurationError(
+        `Provider "openrouter" only supports the "chat" API.`,
+      );
+    }
+    return WireApi.Chat;
+  }
+
+  throw new ConfigurationError(
+    `Unsupported provider "${providerId}" configured for conversation.`,
+  );
 }
 
 /**

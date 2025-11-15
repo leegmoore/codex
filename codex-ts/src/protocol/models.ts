@@ -250,6 +250,8 @@ export interface FunctionCallOutputPayload {
   content_items?: FunctionCallOutputContentItem[];
   /** Optional success flag */
   success?: boolean;
+  /** Custom JSON serializer to satisfy Responses API expectations */
+  toJSON?: () => string | FunctionCallOutputContentItem[];
 }
 
 // ============================================================================
@@ -274,7 +276,7 @@ export function responseInputItemToResponseItem(
       return {
         type: "function_call_output",
         call_id: item.call_id,
-        output: item.output,
+        output: attachFunctionCallOutputSerializer(item.output),
       };
     case "mcp_tool_call_output": {
       const output =
@@ -336,21 +338,21 @@ export function callToolResultToOutputPayload(
 
   // Handle structured_content if present
   if (result.structured_content != null) {
-    return {
+    return attachFunctionCallOutputSerializer({
       content: JSON.stringify(result.structured_content),
       success: isSuccess,
-    };
+    });
   }
 
   // Convert content blocks
   const contentItems = convertContentBlocksToItems(result.content);
   const serializedContent = JSON.stringify(result.content);
 
-  return {
+  return attachFunctionCallOutputSerializer({
     content: serializedContent,
     content_items: contentItems,
     success: isSuccess,
-  };
+  });
 }
 
 /**
@@ -406,18 +408,31 @@ export function deserializeFunctionCallOutputPayload(
   data: string | FunctionCallOutputContentItem[],
 ): FunctionCallOutputPayload {
   if (typeof data === "string") {
-    return {
+    return attachFunctionCallOutputSerializer({
       content: data,
       success: undefined,
-    };
+    });
   } else {
     // Array of items
-    return {
+    return attachFunctionCallOutputSerializer({
       content: JSON.stringify(data),
       content_items: data,
       success: undefined,
-    };
+    });
   }
+}
+
+export function attachFunctionCallOutputSerializer(
+  payload: FunctionCallOutputPayload,
+): FunctionCallOutputPayload {
+  if (typeof payload.toJSON !== "function") {
+    Object.defineProperty(payload, "toJSON", {
+      value: () => serializeFunctionCallOutputPayload(payload),
+      enumerable: false,
+      configurable: true,
+    });
+  }
+  return payload;
 }
 
 /**

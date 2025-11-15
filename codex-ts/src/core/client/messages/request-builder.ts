@@ -7,11 +7,16 @@
  */
 
 import type { Prompt } from "../client-common.js";
-import type { ResponseItem } from "../../../protocol/models.js";
+import type {
+  FunctionCallOutputPayload,
+  ResponseItem,
+} from "../../../protocol/models.js";
 import type {
   MessagesApiRequest,
   AnthropicMessage,
   AnthropicProviderConfig,
+  AnthropicToolChoice,
+  AnthropicContentBlock,
 } from "./types.js";
 import { ANTHROPIC_DEFAULTS } from "./types.js";
 import { createToolsJsonForMessagesApi } from "./tool-bridge.js";
@@ -31,7 +36,7 @@ export interface MessagesRequestOptions {
   /** Optional trace ID for debugging */
   traceId?: string;
   /** Optional tool choice override */
-  toolChoice?: "auto" | "any" | "none";
+  toolChoice?: "auto" | "any" | "none" | { type: "tool"; name: string };
 }
 
 /**
@@ -64,8 +69,7 @@ export function buildMessagesRequest(
     model,
     messages,
     stream: true,
-    max_output_tokens:
-      config.maxOutputTokens ?? ANTHROPIC_DEFAULTS.MAX_OUTPUT_TOKENS,
+    max_tokens: config.maxOutputTokens ?? ANTHROPIC_DEFAULTS.MAX_OUTPUT_TOKENS,
   };
 
   // Add system prompt if provided
@@ -79,13 +83,12 @@ export function buildMessagesRequest(
     request.tools = anthropicTools;
 
     // Set tool_choice: options override takes precedence, then parallelToolCalls
-    if (options?.toolChoice !== undefined) {
-      request.tool_choice = options.toolChoice;
-    } else {
-      // Set tool_choice based on parallelToolCalls
-      // Note: Anthropic currently serializes tool execution, but we set 'any'
-      // to enable the adapter to handle multiple tool_use blocks if they arrive
-      request.tool_choice = prompt.parallelToolCalls ? "any" : "auto";
+    const toolChoice = resolveToolChoice(
+      options?.toolChoice,
+      prompt.parallelToolCalls,
+    );
+    if (toolChoice) {
+      request.tool_choice = toolChoice;
     }
   }
 
@@ -140,30 +143,97 @@ function convertMessages(items: ResponseItem[]): AnthropicMessage[] {
   const messages: AnthropicMessage[] = [];
 
   for (const item of items) {
-    if (item.type === "message") {
-      // Convert content blocks
-      const textContent = item.content
-        .map((block: { type: string; text?: string }) => {
-          if (block.type === "input_text" || block.type === "output_text") {
-            return block.text || "";
-          }
-          // Skip images and other content types for now
-          // They will be handled in later stages
-          return "";
-        })
-        .filter((text: string) => text.length > 0)
-        .join("\n");
+    switch (item.type) {
+      case "message": {
+        const textContent = item.content
+          .map((block: { type: string; text?: string }) => {
+            if (block.type === "input_text" || block.type === "output_text") {
+              return block.text || "";
+            }
+            return "";
+          })
+          .filter((text: string) => text.length > 0)
+          .join("\n");
 
-      if (textContent) {
-        messages.push({
-          role: item.role as "user" | "assistant",
-          content: textContent,
-        });
+        if (textContent) {
+          messages.push({
+            role: item.role as "user" | "assistant",
+            content: textContent,
+          });
+        }
+        break;
       }
+
+      case "function_call": {
+        const toolInput = safeParseJson(item.arguments);
+        messages.push({
+          role: "assistant",
+          content: [
+            {
+              type: "tool_use",
+              id: item.call_id,
+              name: item.name,
+              input: toolInput,
+            },
+          ],
+        });
+        break;
+      }
+
+      case "function_call_output": {
+        messages.push({
+          role: "user",
+          content: [
+            buildToolResultBlock(item.call_id, item.output),
+          ],
+        });
+        break;
+      }
+
+      default:
+        // Ignore others for now
+        break;
     }
-    // Other item types (tool calls, reasoning, etc.) will be handled
-    // by the streaming adapter in later stages
   }
 
   return messages;
+}
+
+function safeParseJson(input: string | undefined): Record<string, unknown> {
+  if (!input) {
+    return {};
+  }
+  try {
+    const parsed = JSON.parse(input);
+    return typeof parsed === "object" && parsed !== null ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function buildToolResultBlock(
+  toolUseId: string,
+  payload: FunctionCallOutputPayload,
+): Extract<AnthropicContentBlock, { type: "tool_result" }> {
+  const isError = payload.success === false;
+  const content = payload.content ?? "";
+  return {
+    type: "tool_result",
+    tool_use_id: toolUseId,
+    content,
+    is_error: isError || undefined,
+  };
+}
+
+function resolveToolChoice(
+  toolChoice: MessagesRequestOptions["toolChoice"],
+  parallelToolCalls: boolean,
+): AnthropicToolChoice | undefined {
+  if (!toolChoice) {
+    return { type: parallelToolCalls ? "any" : "auto" };
+  }
+  if (typeof toolChoice === "string") {
+    return { type: toolChoice };
+  }
+  return toolChoice;
 }

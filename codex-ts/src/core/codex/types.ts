@@ -159,6 +159,9 @@ export interface SessionConfiguration {
   /** Reasoning summary configuration */
   modelReasoningSummary: ReasoningSummary;
 
+  /** Optional sampling temperature */
+  modelTemperature?: number | null;
+
   /** Developer instructions that supplement the base instructions */
   developerInstructions: string | null;
 
@@ -201,6 +204,7 @@ export interface SessionSettingsUpdate {
   model?: string;
   reasoningEffort?: ReasoningEffort | null;
   reasoningSummary?: ReasoningSummary;
+  modelTemperature?: number | null;
   finalOutputJsonSchema?: unknown | null;
 }
 

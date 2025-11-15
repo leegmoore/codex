@@ -357,7 +357,7 @@ describe("Integration - Stage 8", () => {
       global.fetch = vi.fn(async (url, init) => {
         const body = JSON.parse(init?.body as string);
         // Verify tool_choice is set correctly
-        expect(body.tool_choice).toBe("none");
+        expect(body.tool_choice).toEqual({ type: "none" });
 
         const stream = createSseStreamFromFixture(textOnlyFixture);
         return new Response(stream, {

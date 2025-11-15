@@ -7,6 +7,11 @@ import { realpathSync } from "node:fs";
 import { registerNewCommand } from "./commands/new.js";
 import { registerChatCommand } from "./commands/chat.js";
 import { registerReplCommand } from "./commands/repl.js";
+import {
+  registerListProvidersCommand,
+  registerSetApiCommand,
+  registerSetProviderCommand,
+} from "./commands/providers.js";
 import { createRuntime, type CliRuntime } from "./runtime.js";
 import {
   ConfigurationError,
@@ -19,7 +24,7 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const envPath = join(__dirname, "../..", ".env");
-loadEnv({ path: envPath, override: true });
+loadEnv({ path: envPath, override: true, quiet: true });
 
 export async function runCli(argv = process.argv): Promise<void> {
   const runtime = createRuntime();
@@ -35,11 +40,14 @@ export async function runCli(argv = process.argv): Promise<void> {
 
 function buildProgram(runtime: CliRuntime): Command {
   const program = new Command();
-  program.name("cody").description("Cody CLI");
+  program.name("cody").description("Cody CLI").helpCommand(false);
 
   registerNewCommand(program, runtime);
   registerChatCommand(program, runtime);
   registerReplCommand(program, runtime);
+  registerSetProviderCommand(program);
+  registerSetApiCommand(program);
+  registerListProvidersCommand(program);
 
   return program;
 }
@@ -55,7 +63,9 @@ function handleCliError(error: unknown): void {
     return;
   }
   if (error instanceof CommanderError) {
-    console.error(error.message);
+    if (error.code !== "commander.helpDisplayed") {
+      console.error(error.message);
+    }
     process.exitCode = error.exitCode;
     return;
   }

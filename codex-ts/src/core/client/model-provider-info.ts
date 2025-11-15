@@ -101,6 +101,9 @@ export interface ModelProviderInfo {
    * screen is skipped, and API key (if needed) comes from the "envKey" environment variable.
    */
   requiresOpenaiAuth: boolean;
+
+  /** Optional provider-specific metadata */
+  extensions?: Record<string, unknown>;
 }
 
 /** Default Ollama port */
@@ -150,6 +153,41 @@ export function builtInModelProviders(): Record<string, ModelProviderInfo> {
       streamMaxRetries: undefined,
       streamIdleTimeoutMs: undefined,
       requiresOpenaiAuth: true,
+    },
+    anthropic: {
+      name: "Anthropic",
+      baseUrl:
+        process.env.ANTHROPIC_BASE_URL?.trim() ??
+        "https://api.anthropic.com/v1",
+      envKey: "ANTHROPIC_API_KEY",
+      wireApi: WireApi.Messages,
+      httpHeaders: {
+        "anthropic-version":
+          process.env.ANTHROPIC_VERSION?.trim() ?? "2023-06-01",
+      },
+      requiresOpenaiAuth: false,
+      extensions: {
+        anthropicVersion: process.env.ANTHROPIC_VERSION?.trim() ?? "2023-06-01",
+      },
+    },
+    openrouter: {
+      name: "OpenRouter",
+      baseUrl:
+        process.env.OPENROUTER_BASE_URL?.trim() ??
+        "https://openrouter.ai/api/v1",
+      envKey: "OPENROUTER_API_KEY",
+      wireApi: WireApi.Chat,
+      httpHeaders: (() => {
+        const headers: Record<string, string> = {};
+        if (process.env.OPENROUTER_SITE?.trim()) {
+          headers["HTTP-Referer"] = process.env.OPENROUTER_SITE.trim();
+        }
+        if (process.env.OPENROUTER_TITLE?.trim()) {
+          headers["X-Title"] = process.env.OPENROUTER_TITLE.trim();
+        }
+        return Object.keys(headers).length > 0 ? headers : undefined;
+      })(),
+      requiresOpenaiAuth: false,
     },
     [BUILT_IN_OSS_MODEL_PROVIDER_ID]: createOssProvider(),
   };

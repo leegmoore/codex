@@ -1,87 +1,87 @@
 # Phase 2: Tool Integration - Task Checklist
 
 **Phase:** 2 - Tool Integration
-**Status:** Not Started
+**Status:** In Progress
 **Estimated Code:** ~300 lines (CLI ~200, tests ~100)
 
 ---
 
 ## Setup
 
-- [ ] Review Phase 1 code (understand existing CLI structure)
-- [ ] Read tool registry: codex-ts/src/tools/registry.ts
-- [ ] Read exec tool: codex-ts/src/core/exec/index.ts
-- [ ] Understand FunctionCall/FunctionCallOutput types
+- [x] Review Phase 1 code (understand existing CLI structure)
+- [x] Read tool registry: codex-ts/src/tools/registry.ts
+- [x] Read exec tool: codex-ts/src/core/exec/index.ts
+- [x] Understand FunctionCall/FunctionCallOutput types
 
 ---
 
 ## Approval Module
 
-- [ ] Create src/cli/approval.ts
-- [ ] Import readline/promises
-- [ ] Implement promptApproval(toolName, args) function
-  - [ ] Display tool name and arguments
-  - [ ] Prompt user for y/n
-  - [ ] Return boolean Promise
-- [ ] Handle edge cases (Ctrl+C, invalid input)
+- [x] Create src/cli/approval.ts
+- [x] Import readline/promises
+- [x] Implement promptApproval(toolName, args) function
+  - [x] Display tool name and arguments
+  - [x] Prompt user for y/n
+  - [x] Return boolean Promise
+- [x] Handle edge cases (Ctrl+C, invalid input)
 - [ ] Test manually: Can prompt and get response
 
 ---
 
 ## Display Enhancements
 
-- [ ] Open src/cli/display.ts (from Phase 1)
-- [ ] Add renderToolCall(call: FunctionCall)
-  - [ ] Display tool name
-  - [ ] Display arguments (formatted JSON)
-- [ ] Add renderToolResult(output: FunctionCallOutput)
-  - [ ] Parse output JSON
-  - [ ] Display result (stdout, content, or full object)
-- [ ] Test: Functions render nicely to console
+- [x] Open src/cli/display.ts (from Phase 1)
+- [x] Add renderToolCall(call: FunctionCall)
+  - [x] Display tool name
+  - [x] Display arguments (formatted JSON)
+- [x] Add renderToolResult(output: FunctionCallOutput)
+  - [x] Parse output JSON
+  - [x] Display result (stdout, content, or full object)
+- [x] Test: Functions render nicely to console
 
 ---
 
 ## Event Loop Enhancement
 
-- [ ] Open src/cli/commands/chat.ts (from Phase 1)
-- [ ] Modify to handle multiple events (not just single response)
-- [ ] Add event loop:
-  - [ ] While not complete, call nextEvent()
-  - [ ] Handle different event types
-  - [ ] Display appropriately
-- [ ] Handle tool_call events (display via renderToolCall)
-- [ ] Handle tool_result events (display via renderToolResult)
-- [ ] Handle final assistant message
-- [ ] Test: Event loop works for multi-event responses
+- [x] Open src/cli/commands/chat.ts (from Phase 1)
+- [x] Modify to handle multiple events (not just single response)
+- [x] Add event loop:
+  - [x] While not complete, call nextEvent()
+  - [x] Handle different event types
+  - [x] Display appropriately
+- [x] Handle tool_call events (display via renderToolCall)
+- [x] Handle tool_result events (display via renderToolResult)
+- [x] Handle final assistant message
+- [x] Test: Event loop works for multi-event responses
 
 ---
 
 ## Approval Callback Injection
 
-- [ ] Determine where to inject approval callback
-  - [ ] Check Codex.spawn() signature
-  - [ ] Or Session constructor
-  - [ ] Or ConversationManager
-- [ ] Modify CLI initialization (src/cli/index.ts)
-  - [ ] Import promptApproval
-  - [ ] Pass to Codex/Session/Manager during creation
-- [ ] Document injection point in DECISIONS.md
-- [ ] Test: Approval callback gets called
+- [x] Determine where to inject approval callback
+  - [x] Check Codex.spawn() signature
+  - [x] Or Session constructor
+  - [x] Or ConversationManager
+- [x] Modify CLI initialization (src/cli/index.ts)
+  - [x] Import promptApproval
+  - [x] Pass to Codex/Session/Manager during creation
+- [x] Document injection point in DECISIONS.md
+- [x] Test: Approval callback gets called
 
 ---
 
 ## Session Integration (if needed)
 
-- [ ] Check if Session already routes tools (likely yes from port)
-- [ ] If not: Add tool detection logic
-  - [ ] Scan ResponseItems for FunctionCall
-  - [ ] Look up in ToolRegistry
-  - [ ] Check requiresApproval
-  - [ ] Call approval callback if needed
-  - [ ] Execute tool
-  - [ ] Return FunctionCallOutput
-- [ ] If yes: Just wire approval callback, rest works
-- [ ] Document findings in DECISIONS.md
+- [x] Check if Session already routes tools (likely yes from port)
+- [x] If not: Add tool detection logic
+  - [x] Scan ResponseItems for FunctionCall
+  - [x] Look up in ToolRegistry
+  - [x] Check requiresApproval
+  - [x] Call approval callback if needed
+  - [x] Execute tool
+  - [x] Return FunctionCallOutput
+- [x] If yes: Just wire approval callback, rest works
+- [x] Document findings in DECISIONS.md
 
 ---
 
@@ -89,68 +89,68 @@
 
 ### Test Setup
 
-- [ ] Create tests/mocked-service/phase-2-tool-execution.test.ts
-- [ ] Create tests/mocks/tool-handlers.ts
-- [ ] Implement createMockToolHandler(result)
-  - [ ] Returns RegisteredTool with mocked execute
-  - [ ] Configurable result
-- [ ] Enhance tests/mocks/model-client.ts
-  - [ ] Add createMockClientWithToolCall(toolName, args)
-  - [ ] Returns ResponseItems including FunctionCall
+- [x] Create tests/mocked-service/phase-2-tool-execution.test.ts
+- [x] Create tests/mocks/tool-handlers.ts
+- [x] Implement createMockToolHandler(result)
+  - [x] Returns RegisteredTool with mocked execute
+  - [x] Configurable result
+- [x] Enhance tests/mocks/model-client.ts
+  - [x] Add createMockClientWithToolCall(toolName, args)
+  - [x] Returns ResponseItems including FunctionCall
 
 ### Test 1: Execute Approved Tool
 
-- [ ] Setup: Mock client with FunctionCall, mock tool handler, approval = true
-- [ ] Execute: Create conversation, send message
-- [ ] Verify: Tool handler execute() called
-- [ ] Verify: Response includes FunctionCallOutput
-- [ ] Test passes
+- [x] Setup: Mock client with FunctionCall, mock tool handler, approval = true
+- [x] Execute: Create conversation, send message
+- [x] Verify: Tool handler execute() called
+- [x] Verify: Response includes FunctionCallOutput
+- [x] Test passes
 
 ### Test 2: Block Denied Tool
 
-- [ ] Setup: Mock client with FunctionCall, approval = false
-- [ ] Execute: Send message
-- [ ] Verify: Tool handler execute() NOT called
-- [ ] Verify: FunctionCallOutput has denial error
-- [ ] Test passes
+- [x] Setup: Mock client with FunctionCall, approval = false
+- [x] Execute: Send message
+- [x] Verify: Tool handler execute() NOT called
+- [x] Verify: FunctionCallOutput has denial error
+- [x] Test passes
 
 ### Test 3: Multiple Tools Sequence
 
-- [ ] Setup: Mock client with two tool calls
-- [ ] Approval = true for both
-- [ ] Execute: Send message
-- [ ] Verify: Both tools executed
-- [ ] Verify: Both outputs returned
-- [ ] Test passes
+- [x] Setup: Mock client with two tool calls
+- [x] Approval = true for both
+- [x] Execute: Send message
+- [x] Verify: Both tools executed
+- [x] Verify: Both outputs returned
+- [x] Test passes
 
 ### Test 4: Tool Not Found
 
-- [ ] Setup: Mock client requests 'fake_tool'
-- [ ] Execute: Send message
-- [ ] Verify: Error output (tool not found)
-- [ ] Verify: No crash
-- [ ] Test passes
+- [x] Setup: Mock client requests 'fake_tool'
+- [x] Execute: Send message
+- [x] Verify: Error output (tool not found)
+- [x] Verify: No crash
+- [x] Test passes
 
 ### Test 5: Tool Execution Fails
 
-- [ ] Setup: Mock tool throws error
-- [ ] Execute: Send message (approve)
-- [ ] Verify: Error captured in output
-- [ ] Verify: Model receives error message
-- [ ] Test passes
+- [x] Setup: Mock tool throws error
+- [x] Execute: Send message (approve)
+- [x] Verify: Error captured in output
+- [x] Verify: Model receives error message
+- [x] Test passes
 
 ### Test 6: Display Functions
 
-- [ ] Spy on renderToolCall and renderToolResult
-- [ ] Execute tool flow
-- [ ] Verify: Display functions called
-- [ ] Test passes
+- [x] Spy on renderToolCall and renderToolResult
+- [x] Execute tool flow
+- [x] Verify: Display functions called
+- [x] Test passes
 
 ### All Tests
 
-- [ ] All 6 tests pass
-- [ ] Tests run fast (<2 seconds)
-- [ ] No real tool execution (all mocked)
+- [x] All 6 tests pass
+- [x] Tests run fast (<2 seconds)
+- [x] No real tool execution (all mocked)
 
 ---
 
@@ -166,25 +166,25 @@
 
 ## Quality Gates
 
-- [ ] Run: npm run format → no changes
-- [ ] Run: npm run lint → 0 errors
-- [ ] Run: npx tsc --noEmit → 0 errors
-- [ ] Run: npm test
-  - [ ] Phase 2 mocked-service tests: all passing
-  - [ ] Unit test baseline: 1,876+ maintained
-  - [ ] No skipped tests
-- [ ] Combined: npm run format && npm run lint && npx tsc --noEmit && npm test
-  - [ ] All pass in sequence
+- [x] Run: npm run format → no changes
+- [x] Run: npm run lint → 0 errors
+- [x] Run: npx tsc --noEmit → 0 errors
+- [x] Run: npm test
+  - [x] Phase 2 mocked-service tests: all passing
+  - [x] Unit test baseline: 1,876+ maintained
+  - [x] No skipped tests
+- [x] Combined: npm run format && npm run lint && npx tsc --noEmit && npm test
+  - [x] All pass in sequence
 
 ---
 
 ## Documentation
 
-- [ ] Update DECISIONS.md
-  - [ ] Approval callback injection point
-  - [ ] Event loop approach
-  - [ ] Tool display format choices
-  - [ ] Any other key decisions
+- [x] Update DECISIONS.md
+  - [x] Approval callback injection point
+  - [x] Event loop approach
+  - [x] Tool display format choices
+  - [x] Any other key decisions
 - [ ] Review: All tasks checked off above
 - [ ] Verify: Checklist complete
 

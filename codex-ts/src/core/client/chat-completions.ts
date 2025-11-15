@@ -71,6 +71,15 @@ export interface ChatMessage {
 /**
  * Chat Completions API request.
  */
+export interface ChatResponseFormat {
+  type: "text" | "json_schema";
+  json_schema?: {
+    name: string;
+    schema: unknown;
+    strict?: boolean;
+  };
+}
+
 export interface ChatCompletionRequest {
   /** Model to use */
   model: string;
@@ -80,6 +89,10 @@ export interface ChatCompletionRequest {
   stream: boolean;
   /** Available tools */
   tools?: unknown[];
+  /** Whether parallel tool calls are allowed */
+  parallel_tool_calls?: boolean;
+  /** Optional response format */
+  response_format?: ChatResponseFormat;
   /** Maximum tokens to generate */
   max_tokens?: number;
   /** Temperature for sampling */
@@ -323,10 +336,20 @@ export function createChatCompletionRequest(
 ): ChatCompletionRequest {
   const messages = buildChatMessages(prompt, systemInstructions);
 
-  return {
+  const request: ChatCompletionRequest = {
     model: modelSlug,
     messages,
-    stream: true,
-    tools,
+    stream: false,
+    parallel_tool_calls: prompt.parallelToolCalls,
   };
+
+  if (tools && tools.length > 0) {
+    request.tools = tools;
+  }
+
+  if (typeof prompt.temperature === "number") {
+    request.temperature = prompt.temperature;
+  }
+
+  return request;
 }

@@ -7,7 +7,10 @@
  * Ported from: codex-rs/core/src/client_common.rs
  */
 
-import type { ResponseItem } from "../../protocol/models.js";
+import type {
+  FunctionCallOutputContentItem,
+  ResponseItem,
+} from "../../protocol/models.js";
 import type { TokenUsage, RateLimitSnapshot } from "../../protocol/protocol.js";
 import type {
   ReasoningEffort,
@@ -96,6 +99,9 @@ export interface Prompt {
 
   /** Optional output schema for structured responses */
   outputSchema?: unknown;
+
+  /** Optional sampling temperature */
+  temperature?: number;
 }
 
 /**
@@ -163,13 +169,24 @@ export interface TextControls {
 /**
  * Request object for the Responses API.
  */
+type SerializedFunctionCallOutputItem = Omit<
+  Extract<ResponseItem, { type: "function_call_output" }>,
+  "output"
+> & {
+  output: string | FunctionCallOutputContentItem[];
+};
+
+export type SerializedResponseItem =
+  | SerializedFunctionCallOutputItem
+  | Exclude<ResponseItem, { type: "function_call_output" }>;
+
 export interface ResponsesApiRequest {
   /** Model identifier */
   model: string;
   /** System instructions */
   instructions: string;
   /** Input items */
-  input: ResponseItem[];
+  input: SerializedResponseItem[];
   /** Available tools */
   tools: unknown[];
   /** Tool choice mode */

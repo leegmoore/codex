@@ -160,7 +160,7 @@ describe("Messages API Types - Stage 1", () => {
             content: [{ type: "text", text: "Hi there!" }],
           },
         ],
-        max_output_tokens: 2048,
+        max_tokens: 2048,
         system: "You are a helpful assistant",
         metadata: {
           user_id: "user-123",
@@ -184,12 +184,12 @@ describe("Messages API Types - Stage 1", () => {
             },
           },
         ],
-        tool_choice: "auto",
+        tool_choice: { type: "auto" },
         thinking: {
           budget_tokens: 1000,
         },
       };
-      expect(request.max_output_tokens).toBe(2048);
+      expect(request.max_tokens).toBe(2048);
       expect(request.system).toBe("You are a helpful assistant");
       expect(request.metadata?.trace_id).toBe("trace-456");
       expect(request.temperature).toBe(0.7);
@@ -199,25 +199,18 @@ describe("Messages API Types - Stage 1", () => {
   });
 
   describe("AnthropicToolChoice", () => {
-    it("should accept string literal tool choice values", () => {
-      const autoChoice: AnthropicToolChoice = "auto";
-      const anyChoice: AnthropicToolChoice = "any";
-      const noneChoice: AnthropicToolChoice = "none";
-
-      expect(autoChoice).toBe("auto");
-      expect(anyChoice).toBe("any");
-      expect(noneChoice).toBe("none");
-    });
-
-    it("should accept specific tool choice object", () => {
+    it("should accept tool choice object values", () => {
+      const autoChoice: AnthropicToolChoice = { type: "auto" };
+      const anyChoice: AnthropicToolChoice = { type: "any" };
+      const noneChoice: AnthropicToolChoice = { type: "none" };
       const specificChoice: AnthropicToolChoice = {
         type: "tool",
         name: "get_weather",
       };
-      expect(specificChoice.type).toBe("tool");
-      if (typeof specificChoice !== "string") {
-        expect(specificChoice.name).toBe("get_weather");
-      }
+      expect(autoChoice.type).toBe("auto");
+      expect(anyChoice.type).toBe("any");
+      expect(noneChoice.type).toBe("none");
+      expect(specificChoice.name).toBe("get_weather");
     });
   });
 

@@ -19,15 +19,23 @@
  * TODO(Phase 4.5+): Add usage limit detection
  */
 
-import type { ModelProviderInfo, WireApi } from "./model-provider-info.js";
-import { WireApi as WireApiEnum } from "./model-provider-info.js";
+import {
+  getFullUrl,
+  type ModelProviderInfo,
+  WireApi as WireApiEnum,
+} from "./model-provider-info.js";
 import type { CodexAuth } from "../auth/stub-auth.js";
 import type { ReasoningEffort } from "../../protocol/config-types.js";
 import { ReasoningSummary } from "../../protocol/config-types.js";
 import type { Prompt, ResponseEvent } from "./client-common.js";
-import type { ResponseItem } from "../../protocol/models.js";
+import type { ContentItem, ResponseItem } from "../../protocol/models.js";
 import { streamMessages as streamAnthropicMessages } from "./messages/index.js";
-import { sendResponsesRequest } from "./responses/client.js";
+import {
+  sendResponsesRequest,
+  DEFAULT_RESPONSES_INSTRUCTIONS,
+} from "./responses/client.js";
+import { createChatCompletionRequest } from "./chat-completions.js";
+import { createToolsJsonForChatCompletionsApi } from "./tool-converters.js";
 
 /**
  * Response stream type - async generator of response events.
@@ -96,7 +104,7 @@ export class ModelClient {
   /**
    * Get the wire API type.
    */
-  getWireApi(): WireApi {
+  getWireApi(): WireApiEnum {
     return this.provider.wireApi;
   }
 
@@ -148,6 +156,10 @@ export class ModelClient {
     switch (this.provider.wireApi) {
       case WireApiEnum.Responses:
         return this.sendResponses(prompt);
+      case WireApiEnum.Chat:
+        return this.sendChat(prompt);
+      case WireApiEnum.Messages:
+        return this.sendMessagesApi(prompt);
       default:
         throw new Error(
           `sendMessage() not implemented for wire API ${this.provider.wireApi}`,
@@ -189,19 +201,14 @@ export class ModelClient {
    * @returns A stream of response events
    */
   private async streamMessages(prompt: Prompt): Promise<ResponseStream> {
-    // Get API key from auth or environment
-    const apiKey = this.getApiKeyForMessages();
-
-    // Build config
-    const providerExtras = this.provider as unknown as Record<string, unknown>;
+    const apiKey = await this.getApiKeyForMessages();
     const config = {
       apiKey,
-      baseUrl: this.provider.baseUrl,
-      anthropicVersion: providerExtras.anthropicVersion as string | undefined,
-      beta: providerExtras.beta as string[] | undefined,
+      baseUrl: this.getAnthropicBaseUrl(),
+      anthropicVersion: this.getAnthropicVersion(),
+      beta: this.getAnthropicBetaFlags(),
     };
 
-    // Build options from prompt metadata
     const promptExtras = prompt as unknown as Record<string, unknown>;
     const options = {
       temperature: promptExtras.temperature as number | undefined,
@@ -216,30 +223,7 @@ export class ModelClient {
         | undefined,
     };
 
-    // Return async generator as ResponseStream
     return streamAnthropicMessages(prompt, config, this.modelSlug, options);
-  }
-
-  /**
-   * Get API key for Messages API from auth or environment.
-   */
-  private getApiKeyForMessages(): string {
-    // Try experimental bearer token first (for testing)
-    if (this.provider.experimentalBearerToken) {
-      return this.provider.experimentalBearerToken;
-    }
-
-    // Try environment variable
-    const envKey = this.provider.envKey || "ANTHROPIC_API_KEY";
-    const apiKey = process.env[envKey];
-
-    if (!apiKey) {
-      throw new Error(
-        `Missing API key for Anthropic. Set ${envKey} environment variable or configure experimentalBearerToken.`,
-      );
-    }
-
-    return apiKey;
   }
 
   private async sendResponses(prompt: Prompt): Promise<ResponseItem[]> {
@@ -253,12 +237,77 @@ export class ModelClient {
     });
   }
 
+  private async sendChat(prompt: Prompt): Promise<ResponseItem[]> {
+    const apiKey = await this.getGenericApiKey(
+      this.provider.envKey ?? "OPENAI_API_KEY",
+    );
+    const endpoint = getFullUrl(this.provider, this.auth);
+    const headers = this.buildChatHeaders(apiKey);
+    const tools = createToolsJsonForChatCompletionsApi(prompt.tools);
+    const systemInstructions =
+      prompt.baseInstructionsOverride ?? DEFAULT_RESPONSES_INSTRUCTIONS;
+    const request = createChatCompletionRequest(
+      prompt,
+      this.modelSlug,
+      systemInstructions,
+      tools,
+    );
+
+    if (prompt.outputSchema) {
+      request.response_format = {
+        type: "json_schema",
+        json_schema: {
+          name: "codex_output_schema",
+          schema: prompt.outputSchema,
+          strict: true,
+        },
+      };
+    }
+
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(request),
+    });
+
+    const rawBody = await response.text();
+    if (!response.ok) {
+      throw new Error(
+        `Chat API request failed (${response.status}): ${rawBody}`,
+      );
+    }
+
+    let payload: ChatCompletionResponse;
+    try {
+      payload = JSON.parse(rawBody) as ChatCompletionResponse;
+    } catch (error) {
+      throw new Error(
+        `Failed to parse Chat API response: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+
+    return this.mapChatCompletionResponse(payload);
+  }
+
+  private async sendMessagesApi(prompt: Prompt): Promise<ResponseItem[]> {
+    const apiKey = await this.getApiKeyForMessages();
+    const stream = streamAnthropicMessages(
+      prompt,
+      {
+        apiKey,
+        baseUrl: this.getAnthropicBaseUrl(),
+        anthropicVersion: this.getAnthropicVersion(),
+        beta: this.getAnthropicBetaFlags(),
+      },
+      this.modelSlug,
+    );
+    return this.collectResponseItemsFromStream(stream);
+  }
+
   private async getOpenAiApiKey(): Promise<string> {
-    if (this.auth) {
-      const token = (await this.auth.getToken()).trim();
-      if (token) {
-        return token;
-      }
+    const token = await this.tryGetAuthToken();
+    if (token) {
+      return token;
     }
 
     const envKey = this.provider.envKey ?? "OPENAI_API_KEY";
@@ -271,4 +320,244 @@ export class ModelClient {
       `Missing API key for provider ${this.provider.name}. Set ${envKey} or configure Codex auth.`,
     );
   }
+
+  private async getGenericApiKey(envKey: string): Promise<string> {
+    const token = await this.tryGetAuthToken();
+    if (token) {
+      return token;
+    }
+
+    if (this.provider.experimentalBearerToken) {
+      return this.provider.experimentalBearerToken;
+    }
+
+    const apiKey = process.env[envKey]?.trim();
+    if (apiKey) {
+      return apiKey;
+    }
+
+    throw new Error(
+      `Missing API key for provider ${this.provider.name}. Set ${envKey} or configure Codex auth.`,
+    );
+  }
+
+  private async getApiKeyForMessages(): Promise<string> {
+    const token = await this.tryGetAuthToken();
+    if (token) {
+      return token;
+    }
+
+    if (this.provider.experimentalBearerToken) {
+      return this.provider.experimentalBearerToken;
+    }
+
+    const envKey = this.provider.envKey || "ANTHROPIC_API_KEY";
+    const apiKey = process.env[envKey]?.trim();
+    if (apiKey) {
+      return apiKey;
+    }
+
+    throw new Error(
+      `Missing API key for Anthropic. Set ${envKey} environment variable or configure Codex auth.`,
+    );
+  }
+
+  private async tryGetAuthToken(): Promise<string | undefined> {
+    if (!this.auth) {
+      return undefined;
+    }
+    const token = (await this.auth.getToken()).trim();
+    return token.length > 0 ? token : undefined;
+  }
+
+  private buildChatHeaders(apiKey: string): Record<string, string> {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": `Bearer ${apiKey}`,
+    };
+    this.applyProviderHeaders(headers);
+    return headers;
+  }
+
+  private applyProviderHeaders(headers: Record<string, string>): void {
+    if (this.provider.httpHeaders) {
+      for (const [key, value] of Object.entries(this.provider.httpHeaders)) {
+        headers[key] = value;
+      }
+    }
+
+    if (this.provider.envHttpHeaders) {
+      for (const [key, envVar] of Object.entries(
+        this.provider.envHttpHeaders,
+      )) {
+        const value = process.env[envVar];
+        if (value) {
+          headers[key] = value;
+        }
+      }
+    }
+  }
+
+  private getAnthropicBaseUrl(): string | undefined {
+    const baseUrl = this.provider.baseUrl;
+    if (!baseUrl) {
+      return undefined;
+    }
+    return baseUrl.replace(/\/v1\/?$/, "");
+  }
+
+  private getAnthropicVersion(): string | undefined {
+    const extensions = this.provider.extensions ?? {};
+    const version = extensions.anthropicVersion;
+    return typeof version === "string" ? version : undefined;
+  }
+
+  private getAnthropicBetaFlags(): string[] | undefined {
+    const extensions = this.provider.extensions ?? {};
+    const beta = extensions.beta;
+    if (!Array.isArray(beta)) {
+      return undefined;
+    }
+    return beta.map((value) => String(value));
+  }
+
+  private async collectResponseItemsFromStream(
+    stream: ResponseStream,
+  ): Promise<ResponseItem[]> {
+    const items: ResponseItem[] = [];
+    for await (const event of stream) {
+      if (
+        event.type === "output_item_added" ||
+        event.type === "output_item_done"
+      ) {
+        items.push(event.item);
+      }
+    }
+    return items;
+  }
+
+  private mapChatCompletionResponse(
+    payload: ChatCompletionResponse,
+  ): ResponseItem[] {
+    const items: ResponseItem[] = [];
+    for (const choice of payload.choices ?? []) {
+      const message = choice.message;
+      if (!message) {
+        continue;
+      }
+
+      const role = message.role || "assistant";
+      const contentItems = this.convertChatContentToContentItems(
+        message.content ?? null,
+      );
+      if (contentItems.length > 0) {
+        items.push({
+          type: "message",
+          role,
+          content: contentItems,
+        });
+      }
+
+      if (Array.isArray(message.tool_calls)) {
+        for (const call of message.tool_calls) {
+          const func = call.function;
+          if (!func?.name) {
+            continue;
+          }
+          const args =
+            typeof func.arguments === "string"
+              ? func.arguments
+              : JSON.stringify(func.arguments ?? {});
+          const callId = call.id || func.name;
+          items.push({
+            type: "function_call",
+            name: func.name,
+            call_id: callId,
+            arguments: args,
+          });
+        }
+      }
+    }
+    return items;
+  }
+
+  private convertChatContentToContentItems(
+    content: string | ChatCompletionContentPart[] | null,
+  ): ContentItem[] {
+    if (typeof content === "string") {
+      const trimmed = content.trim();
+      return trimmed
+        ? [
+            {
+              type: "output_text",
+              text: content,
+            },
+          ]
+        : [];
+    }
+
+    if (!Array.isArray(content)) {
+      return [];
+    }
+
+    const items: ContentItem[] = [];
+    for (const part of content) {
+      if (!part) {
+        continue;
+      }
+
+      if (typeof part === "string") {
+        if (part.trim()) {
+          items.push({ type: "output_text", text: part });
+        }
+        continue;
+      }
+
+      if (typeof part === "object") {
+        const textValue =
+          typeof (part as { text?: string }).text === "string"
+            ? (part as { text: string }).text
+            : undefined;
+        if (textValue && textValue.length > 0) {
+          items.push({ type: "output_text", text: textValue });
+        }
+      }
+    }
+
+    return items;
+  }
 }
+
+interface ChatCompletionResponse {
+  choices?: ChatCompletionChoiceResponse[];
+}
+
+interface ChatCompletionChoiceResponse {
+  index: number;
+  finish_reason: string | null;
+  message?: ChatCompletionMessage;
+}
+
+interface ChatCompletionMessage {
+  role?: string;
+  content?: string | ChatCompletionContentPart[] | null;
+  tool_calls?: ChatCompletionToolCall[];
+}
+
+interface ChatCompletionToolCall {
+  id?: string;
+  type?: string;
+  function?: {
+    name?: string;
+    arguments?: unknown;
+  };
+}
+
+type ChatCompletionContentPart =
+  | {
+      type?: string;
+      text?: string;
+      [key: string]: unknown;
+    }
+  | string;

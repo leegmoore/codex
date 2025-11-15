@@ -4,7 +4,7 @@
  * Rollouts are recorded as JSONL (JSON Lines) files that can be inspected with
  * tools like jq or any JSON viewer. Each line contains a timestamped entry.
  *
- * Directory structure: `~/.codex/sessions/YYYY/MM/DD/rollout-YYYY-MM-DDThh-mm-ss-<uuid>.jsonl`
+ * Directory structure: `~/.cody/sessions/YYYY/MM/DD/rollout-YYYY-MM-DDThh-mm-ss-<uuid>.jsonl`
  *
  * Ported from: codex-rs/core/src/rollout
  *
@@ -19,10 +19,10 @@ import * as path from "path";
 import type { Config } from "./config.js";
 import type { ConversationId } from "../protocol/conversation-id/index.js";
 
-/** Subdirectory under ~/.codex for active sessions */
+/** Subdirectory under ~/.cody for active sessions */
 export const SESSIONS_SUBDIR = "sessions";
 
-/** Subdirectory under ~/.codex for archived sessions */
+/** Subdirectory under ~/.cody for archived sessions */
 export const ARCHIVED_SESSIONS_SUBDIR = "archived_sessions";
 
 /**
@@ -118,7 +118,7 @@ export interface ConversationsPage {
  *
  * Rollouts are recorded as JSONL and can be inspected with tools such as:
  * ```bash
- * $ jq -C . ~/.codex/sessions/YYYY/MM/DD/rollout-2025-05-07T17-24-21-<uuid>.jsonl
+ * $ jq -C . ~/.cody/sessions/YYYY/MM/DD/rollout-2025-05-07T17-24-21-<uuid>.jsonl
  * ```
  *
  * NOTE: This is a simplified synchronous version for Phase 2.
@@ -246,7 +246,7 @@ export class RolloutRecorder {
   /**
    * List conversations under the provided Codex home directory.
    *
-   * @param codexHome - Path to ~/.codex
+   * @param codexHome - Path to ~/.cody
    * @param limit - Maximum number of conversations to return
    * @returns Page of conversations
    */
@@ -273,7 +273,7 @@ export class RolloutRecorder {
   /**
    * Find a conversation path by its ID string.
    *
-   * @param codexHome - Path to ~/.codex
+   * @param codexHome - Path to ~/.cody
    * @param idStr - Conversation ID as a string
    * @returns Path to the conversation file, or undefined if not found
    */
@@ -295,7 +295,7 @@ export class RolloutRecorder {
   /**
    * Archive a conversation (move to archived_sessions directory).
    *
-   * @param codexHome - Path to ~/.codex
+   * @param codexHome - Path to ~/.cody
    * @param conversationPath - Path to the conversation file
    * @returns Path to the archived file
    */
@@ -364,7 +364,7 @@ async function createLogFile(
 ): Promise<LogFileInfo> {
   const now = new Date();
 
-  // Create directory structure: ~/.codex/sessions/YYYY/MM/DD
+  // Create directory structure: ~/.cody/sessions/YYYY/MM/DD
   const year = now.getFullYear().toString();
   const month = (now.getMonth() + 1).toString().padStart(2, "0");
   const day = now.getDate().toString().padStart(2, "0");

@@ -6,6 +6,7 @@
 import { EventEmitter } from "events";
 import { ConversationId } from "../../protocol/conversation-id/index.js";
 import type {
+  AskForApproval,
   Event,
   EventMsg,
   ReviewDecision,
@@ -41,7 +42,7 @@ import type { ToolApprovalCallback } from "../../tools/types.js";
 import { toolRegistry } from "../../tools/registry.js";
 import { ToolRouter } from "../tools/tool-router.js";
 
-const MAX_TOOL_ITERATIONS = 6;
+const MAX_TOOL_ITERATIONS = 100;
 
 /**
  * Internal session state and orchestration.
@@ -56,6 +57,7 @@ export class Session {
   private readonly modelClient: ModelClient;
   private readonly toolRouter: ToolRouter;
   private _nextInternalSubId = 0;
+  private approvalPolicyOverride: AskForApproval | null = null;
 
   // Private state
   private _state: SessionState;
@@ -244,6 +246,7 @@ export class Session {
   }
 
   async processUserTurn(subId: string, items: UserInput[]): Promise<void> {
+    this.resetApprovalPolicyOverride();
     if (items.length === 0) {
       await this.sendEvent(subId, {
         type: "error",
@@ -267,12 +270,9 @@ export class Session {
     let responseItems: ResponseItem[] = [];
     try {
       responseItems = await this.modelClient.sendMessage(this.buildPrompt());
-      console.debug(`[DEBUG] Model returned ${responseItems.length} items`);
-      console.debug(`[DEBUG] Response items:`, JSON.stringify(responseItems, null, 2));
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Unknown model error";
-      console.error(`[DEBUG] Model error:`, error);
       await this.sendEvent(subId, { type: "error", message });
       await this.sendEvent(subId, { type: "task_complete" });
       return;
@@ -280,8 +280,6 @@ export class Session {
 
     if (responseItems.length > 0) {
       SessionStateHelpers.recordItems(this._state, responseItems);
-    } else {
-      console.warn(`[DEBUG] No response items returned from model`);
     }
 
     let lastAgentMessage = await this.emitResponseItems(
@@ -344,11 +342,16 @@ export class Session {
   }
 
   private buildPrompt(): Prompt {
-    return {
+    const prompt: Prompt = {
       input: this._state.history.getHistoryForPrompt(),
       tools: toolRegistry.getToolSpecs(),
       parallelToolCalls: false,
     };
+    const temperature = this._state.sessionConfiguration.modelTemperature;
+    if (temperature !== undefined && temperature !== null) {
+      prompt.temperature = temperature;
+    }
+    return prompt;
   }
 
   private hasFunctionCalls(items: ResponseItem[]): boolean {
@@ -360,11 +363,7 @@ export class Session {
     items: ResponseItem[],
     lastAgentMessage: string | undefined,
   ): Promise<string | undefined> {
-    console.debug(`[DEBUG] emitResponseItems: Processing ${items.length} items`);
-
     for (const item of items) {
-      console.debug(`[DEBUG] Processing item:`, JSON.stringify(item, null, 2));
-
       if (
         item.type === "function_call" ||
         item.type === "function_call_output"
@@ -374,15 +373,11 @@ export class Session {
 
       const turnItem = parseTurnItem(item);
       if (!turnItem) {
-        console.warn(`[DEBUG] parseTurnItem returned undefined for item:`, item);
         continue;
       }
 
-      console.debug(`[DEBUG] turnItem type:`, turnItem.type);
-
       if (turnItem.type === "agent_message") {
         const text = turnItem.item.content.map((c) => c.text).join("");
-        console.debug(`[DEBUG] Emitting agent_message with text length:`, text.length);
         lastAgentMessage = text;
         await this.sendEvent(subId, {
           type: "agent_message",
@@ -397,7 +392,52 @@ export class Session {
   private async executeFunctionCalls(
     responseItems: ResponseItem[],
   ): Promise<ResponseItem[]> {
-    return this.toolRouter.executeFunctionCalls(responseItems);
+    const functionCalls = responseItems.filter(
+      (item): item is Extract<ResponseItem, { type: "function_call" }> =>
+        item.type === "function_call",
+    );
+    if (functionCalls.length === 0) {
+      return [];
+    }
+
+    const policy = this.getEffectiveApprovalPolicy();
+
+    if (policy === "never") {
+      return this.toolRouter.executeFunctionCalls(functionCalls, {
+        skipApproval: true,
+      });
+    }
+
+    if (policy === "on-failure") {
+      const outputs = await this.toolRouter.executeFunctionCalls(
+        functionCalls,
+        { skipApproval: true },
+      );
+      if (this.containsFailedToolCall(outputs)) {
+        this.approvalPolicyOverride = "on-request";
+      }
+      return outputs;
+    }
+
+    return this.toolRouter.executeFunctionCalls(functionCalls);
+  }
+
+  private getEffectiveApprovalPolicy(): AskForApproval {
+    return (
+      this.approvalPolicyOverride ??
+      this._state.sessionConfiguration.approvalPolicy
+    );
+  }
+
+  private resetApprovalPolicyOverride(): void {
+    this.approvalPolicyOverride = null;
+  }
+
+  private containsFailedToolCall(items: ResponseItem[]): boolean {
+    return items.some(
+      (item) =>
+        item.type === "function_call_output" && item.output?.success === false,
+    );
   }
 
   /**

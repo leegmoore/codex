@@ -252,7 +252,7 @@ describe("Request Builder - Stage 3", () => {
         "claude-3-5-sonnet-20241022",
       );
 
-      expect(request.tool_choice).toBe("auto");
+      expect(request.tool_choice).toEqual({ type: "auto" });
     });
 
     // RF-08: Parallel tool calls enabled maps to 'any'
@@ -283,7 +283,7 @@ describe("Request Builder - Stage 3", () => {
         "claude-3-5-sonnet-20241022",
       );
 
-      expect(request.tool_choice).toBe("any");
+      expect(request.tool_choice).toEqual({ type: "any" });
     });
 
     // RF-14: Tool omission when none provided
@@ -366,7 +366,7 @@ describe("Request Builder - Stage 3", () => {
         "claude-3-5-sonnet-20241022",
       );
 
-      expect(request.max_output_tokens).toBe(2048);
+      expect(request.max_tokens).toBe(2048);
     });
 
     // RF-10: Max output tokens override respected
@@ -390,7 +390,7 @@ describe("Request Builder - Stage 3", () => {
       );
 
       // Should use default from ANTHROPIC_DEFAULTS (4096)
-      expect(request.max_output_tokens).toBe(4096);
+      expect(request.max_tokens).toBe(4096);
     });
 
     // RF-11: Temperature/top_p propagate

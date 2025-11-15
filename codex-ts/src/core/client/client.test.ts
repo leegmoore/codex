@@ -8,10 +8,22 @@
  * in Phase 4.5+ when HTTP infrastructure is ready.
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { ModelClient, type ResponsesApiOptions } from "./client.js";
 import { WireApi, type ModelProviderInfo } from "./model-provider-info.js";
 import { AuthMode, CodexAuth } from "../auth/stub-auth.js";
+import * as MessagesModule from "./messages/index.js";
+
+let originalFetch: typeof global.fetch;
+
+beforeEach(() => {
+  originalFetch = global.fetch;
+});
+
+afterEach(() => {
+  global.fetch = originalFetch;
+  vi.restoreAllMocks();
+});
 
 describe("client", () => {
   describe("ModelClient", () => {
@@ -161,6 +173,130 @@ describe("client", () => {
       expect(options.auth).toBeDefined();
       expect(options.reasoningEffort).toBe("medium");
       expect(options.reasoningSummary).toBe("concise");
+    });
+  });
+
+  describe("sendMessage behavior", () => {
+    it("sends chat completion request and maps response", async () => {
+      const provider: ModelProviderInfo = {
+        name: "OpenAI",
+        wireApi: WireApi.Chat,
+        requiresOpenaiAuth: true,
+        baseUrl: "https://api.openai.com/v1",
+      };
+
+      const client = new ModelClient({
+        provider,
+        modelSlug: "gpt-4o-mini",
+        auth: CodexAuth.fromApiKey("sk-test"),
+      });
+
+      const payload = {
+        choices: [
+          {
+            index: 0,
+            finish_reason: "stop",
+            message: {
+              role: "assistant",
+              content: "Hello world",
+              tool_calls: [
+                {
+                  id: "call_123",
+                  type: "function",
+                  function: {
+                    name: "do_something",
+                    arguments: '{"value":1}',
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      };
+
+      global.fetch = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify(payload), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ) as unknown as typeof fetch;
+
+      const prompt = {
+        input: [
+          {
+            type: "message",
+            role: "user",
+            content: [{ type: "input_text", text: "Say hello" }],
+          },
+        ],
+        tools: [],
+        parallelToolCalls: false,
+      };
+
+      const items = await client.sendMessage(prompt);
+      expect(items).toHaveLength(2);
+      expect(items[0]).toMatchObject({
+        type: "message",
+        content: [{ text: "Hello world" }],
+      });
+      expect(items[1]).toMatchObject({
+        type: "function_call",
+        name: "do_something",
+      });
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("collects response items from messages API stream", async () => {
+      const provider: ModelProviderInfo = {
+        name: "Anthropic",
+        wireApi: WireApi.Messages,
+        requiresOpenaiAuth: false,
+        baseUrl: "https://api.anthropic.com/v1",
+      };
+
+      const client = new ModelClient({
+        provider,
+        modelSlug: "claude-3-haiku",
+        auth: CodexAuth.fromApiKey("sk-ant"),
+      });
+
+      const streamMock = vi
+        .spyOn(MessagesModule, "streamMessages")
+        .mockImplementation(async function* () {
+          yield {
+            type: "output_item_added",
+            item: {
+              type: "message",
+              role: "assistant",
+              content: [{ type: "output_text", text: "Hi there" }],
+            },
+          };
+          yield {
+            type: "output_item_added",
+            item: {
+              type: "custom_tool_call",
+              call_id: "tool-123",
+              name: "lookup",
+              input: "{}",
+            },
+          };
+        });
+
+      const prompt = {
+        input: [
+          {
+            type: "message",
+            role: "user",
+            content: [{ type: "input_text", text: "Ping" }],
+          },
+        ],
+        tools: [],
+        parallelToolCalls: false,
+      };
+
+      const items = await client.sendMessage(prompt);
+      expect(items).toHaveLength(2);
+      expect(streamMock).toHaveBeenCalledTimes(1);
     });
   });
 });

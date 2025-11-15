@@ -3,9 +3,9 @@
  */
 
 export {
-  webSearch,
-  type WebSearchParams,
-  type WebSearchResult,
+  perplexitySearch,
+  type PerplexitySearchParams,
+  type PerplexitySearchResult,
   type SearchResult,
 } from "./search.js";
 export {
@@ -16,3 +16,8 @@ export {
   getCacheStats,
   clearCache,
 } from "./fetch.js";
+export {
+  webSearch,
+  type WebSearchParams,
+  type WebSearchResult,
+} from "./web-search.js";

@@ -127,6 +127,9 @@ export function applySessionSettings(
   if (updates.reasoningSummary !== undefined) {
     newConfig.modelReasoningSummary = updates.reasoningSummary;
   }
+  if (updates.modelTemperature !== undefined) {
+    newConfig.modelTemperature = updates.modelTemperature;
+  }
   if (updates.approvalPolicy !== undefined) {
     newConfig.approvalPolicy = updates.approvalPolicy;
   }

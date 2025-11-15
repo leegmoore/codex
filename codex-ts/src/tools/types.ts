@@ -12,3 +12,8 @@ export interface ToolResult {
 export interface ToolOptions {
   signal?: AbortSignal;
 }
+
+export type ToolApprovalCallback = (
+  toolName: string,
+  args: unknown,
+) => Promise<boolean>;

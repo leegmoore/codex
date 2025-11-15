@@ -805,7 +805,7 @@ Before considering this task complete, verify ALL of the following:
 
 ### Final Verification
 - [ ] Tested with gpt-5-codex (real API, reliable model)
-- [ ] Tool calls work end-to-end (approval ’ execution ’ result ’ model response)
+- [ ] Tool calls work end-to-end (approval ï¿½ execution ï¿½ result ï¿½ model response)
 - [ ] No silent failures or empty responses
 - [ ] Reasoning blocks display correctly
 - [ ] All three bugs fixed and verified
@@ -840,7 +840,7 @@ STANDARDS:
 
 **Testing:**
 - Mock at I/O boundary (HTTP/filesystem/process), not business logic
-- Test adapters thoroughly (API ’ internal types)
+- Test adapters thoroughly (API ï¿½ internal types)
 - Include edge cases (empty, malformed, errors)
 - Fast execution (<5 seconds for all tests)
 

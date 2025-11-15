@@ -38,3 +38,34 @@ export function createMockClient(responses: ResponseItem[][]): MockModelClient {
 
   return { client, sendMessage };
 }
+
+export interface ToolCallMockOptions {
+  callId?: string;
+  leadingItems?: ResponseItem[];
+  followUpResponses?: ResponseItem[][];
+}
+
+export function createMockClientWithToolCall(
+  toolName: string,
+  args: unknown,
+  options: ToolCallMockOptions = {},
+): MockModelClient {
+  const callId = options.callId ?? `call-${Math.random().toString(36).slice(2, 8)}`;
+  const toolCall: ResponseItem = {
+    type: "function_call",
+    id: callId,
+    call_id: callId,
+    name: toolName,
+    arguments: JSON.stringify(args),
+  };
+
+  const firstResponse: ResponseItem[] = [
+    ...(options.leadingItems ?? []),
+    toolCall,
+  ];
+
+  return createMockClient([
+    firstResponse,
+    ...((options.followUpResponses ?? []) as ResponseItem[][]),
+  ]);
+}

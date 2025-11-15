@@ -46,11 +46,8 @@ export const renderToolResult = (output: FunctionCallOutputItem): void => {
 };
 
 function handleEvent(msg: EventMsg): boolean {
-  console.debug(`[DEBUG] handleEvent received:`, msg.type);
-
   switch (msg.type) {
     case "raw_response_item":
-      console.debug(`[DEBUG] raw_response_item:`, msg.item.type);
       if (msg.item.type === "function_call") {
         toolRenderers.renderToolCall(msg.item);
       } else if (msg.item.type === "function_call_output") {
@@ -58,20 +55,17 @@ function handleEvent(msg: EventMsg): boolean {
       }
       return false;
     case "agent_message":
-      console.debug(`[DEBUG] agent_message length:`, msg.message.length);
       console.log(`Assistant: ${msg.message}`);
       return false;
     case "error":
       console.error(`Error: ${msg.message}`);
       return false;
     case "task_complete":
-      console.debug(`[DEBUG] task_complete received`);
       return true;
     case "turn_aborted":
-      console.debug(`[DEBUG] turn_aborted received`);
       return true;
     default:
-      console.warn(`[DEBUG] Unhandled event type:`, msg.type);
+      console.warn(`Unhandled event type:`, msg.type);
       return false;
   }
 }
